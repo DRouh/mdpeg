@@ -1,0 +1,10 @@
+name := "mdpeg"
+version := "1.0"
+
+scalaVersion := "2.12.1"
+
+libraryDependencies ++= Seq(
+  "org.parboiled" %% "parboiled" % "2.1.4",
+  "joda-time" % "joda-time" % "2.9.9",
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+)
