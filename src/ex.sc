@@ -1,15 +1,15 @@
 import org.parboiled2._
 
-sealed trait ListItemA
-case class OrderedListItem(inline: String) extends ListItemA
-case class UnorderedListItem(inline: String) extends ListItemA
+sealed trait ListItem
+case class OrderedListItem(inline: String) extends ListItem
+case class UnorderedListItem(inline: String) extends ListItem
 
 class SimpleListParser(val input: ParserInput) extends Parser {
   import CharPredicate._
 
-  def InputLine = rule(ListItem.+ ~ EOI)
+  def InputLine = rule(AnyListItem.+ ~ EOI)
 
-  def ListItem: Rule1[ListItemA] = rule {
+  def AnyListItem: Rule1[ListItem] = rule {
     Ordered ~ Inline ~ Newline ~> OrderedListItem |
     Ordered ~ Inline ~> OrderedListItem |
     Unordered ~ Inline ~ Newline ~> UnorderedListItem |
