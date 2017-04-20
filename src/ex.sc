@@ -38,7 +38,8 @@ class SimpleListParser(val input: ParserInput) extends Parser {
   def UnorderedChar = rule {"*" | "-" | "+"}
   def Inline: Rule1[String] = rule { capture((InlineChar.+ ~ WS.*).*) }
   def InlineChar = rule {AlphaNum | anyOf(":;,.?!_-'\"{}")}
-  def Newline = rule { "\r" ~ "\n" | "\n" }
+
+  def Newline = rule { "\r" ~ "\n" | "\r" | "\n" }
   def WS = rule { " " | "\t" }
 }
 
