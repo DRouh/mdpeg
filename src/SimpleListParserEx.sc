@@ -1,3 +1,4 @@
+import com.mdpeg.{ListItem, SimpleListParser}
 import org.parboiled2._
 
 import scala.collection.immutable
@@ -16,31 +17,6 @@ object PrettyPrint {
     }
 
   }
-}
-sealed trait ListItem
-case class OrderedListItem(inline: String) extends ListItem
-case class UnorderedListItem(inline: String) extends ListItem
-
-class SimpleListParser(val input: ParserInput) extends Parser {
-  import CharPredicate._
-
-  def InputLine = rule(AnyListItem.+ ~ EOI)
-
-  def AnyListItem: Rule1[ListItem] = rule {
-    Ordered ~ Inline ~ Newline ~> OrderedListItem |
-    Ordered ~ Inline ~> OrderedListItem |
-    Unordered ~ Inline ~ Newline ~> UnorderedListItem |
-    Unordered ~ Inline ~> UnorderedListItem
-  }
-
-  def Ordered = rule { Digit.+ ~ "." ~ WS.+ }
-  def Unordered = rule { UnorderedChar.+ ~ WS.+ }
-  def UnorderedChar = rule {"*" | "-" | "+"}
-  def Inline: Rule1[String] = rule { capture((InlineChar.+ ~ WS.*).*) }
-  def InlineChar = rule {AlphaNum | anyOf(":;,.?!_-'\"{}")}
-
-  def Newline = rule { "\r" ~ "\n" | "\r" | "\n" }
-  def WS = rule { " " | "\t" }
 }
 
 val input1 = """1. It is a long - established fact that a reader will be;"""
