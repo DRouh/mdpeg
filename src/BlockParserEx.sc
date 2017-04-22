@@ -1,4 +1,4 @@
-import com.mdpeg.{Block, BlockParser, Para, Paragraph}
+import com.mdpeg.{Block, BlockParser, Paragraph, Plain}
 import org.parboiled2.{ErrorFormatter, ParseError}
 
 import scala.util.{Failure, Success}
@@ -11,8 +11,8 @@ class BlockParser1(val input: ParserInput) extends Parser {
   def block : Rule1[Block] = rule { para | plain  }
 
   //block definitions
-  def para  : Rule1[Para]      = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Para }
-  def plain : Rule1[Paragraph] = rule { capture(inline.+) ~ blankLine.? ~> Paragraph }
+  def para  : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
+  def plain : Rule1[Plain]     = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 
   //aux functions
   //def inline          = rule { AlphaNum | sp | nl | punctuationChar | anyOf("_\"{}()") }
