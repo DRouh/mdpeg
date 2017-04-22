@@ -22,13 +22,15 @@ class BlockParser1(val input: ParserInput) extends Parser {
 
   //aux functions
   def nonIndentSpace: Rule1[String] = {
+    // only to facilitate type inference,
+    // i.e to support optional(A,B) where B returned when A is None
     def h(x: Any) = x match {
       case x: Option[String] => x.getOrElse("")
       case _ => ""
     }
 
     rule {
-      capture("   " | "  " | " ").? ~> (x => h(x))
+      capture("   " | "  " | " ").? ~> (h(_))
     }
   }
 
