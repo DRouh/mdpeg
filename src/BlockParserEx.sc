@@ -62,6 +62,6 @@ val input2 =
   "It is a long established fact that a reader will be distracted by the"
 
 //horizontal rule
-val input3 = "---\r\n"
+//captures horizontal rule preceded by a non indented space (that is, up to 3 spaces)
+val input3 = "   ---\r\n" // captures
 PrettyPrint1(new BlockParser1(input3))
-new BlockParser1("   \r\n").blankLine.run()
