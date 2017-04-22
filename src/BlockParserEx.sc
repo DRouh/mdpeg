@@ -23,13 +23,19 @@ class BlockParser1(val input: ParserInput) extends Parser {
   //aux rules
   private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
 
-  private def atxHeading: Rule1[HeadingBlock] = rule {
-    "#" ~ (!endLine ~ !"#" ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> ((z: String) => HeadingBlock(z))
+  private def atxHeadingWithLev = (lev: Int) => rule { lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> (HeadingBlock(lev, _))}
+
+  def atxHeading: Rule1[HeadingBlock] = rule {
+    atxHeadingWithLev(6) |
+    atxHeadingWithLev(5) |
+    atxHeadingWithLev(4) |
+    atxHeadingWithLev(3) |
+    atxHeadingWithLev(2) |
+    atxHeadingWithLev(1)
   }
 
-
   //primitives
-  def endLine = rule { sp.? ~ nl ~ capture(!(blankLine)) ~ capture(!(EOI)) }
+  def endLine = rule { sp.? ~ nl ~ capture(!blankLine) ~ capture(!EOI) }
 
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
@@ -66,6 +72,8 @@ object PrettyPrint1 {
     }
   }
 }
+
+
 val input1 =
   "It is a long established fact that a reader will be distracted by the\r\n \r\n"
 val input2 =
@@ -77,5 +85,7 @@ val input3 = "   ____\r\n" // captures
 PrettyPrint1(new BlockParser1(input3))
 
 //heading
-val input4 = "#Test your header\r\n" // captures
+
+val input4 = "### Test your header\r\n" // captures
+val r = new BlockParser1(input4).heading.run()
 PrettyPrint1(new BlockParser1(input4))

@@ -2,7 +2,7 @@ package com.mdpeg
 
 import org.parboiled2._
 
-class BlockParser1(val input: ParserInput) extends Parser {
+class BlockParser(val input: ParserInput) extends Parser {
   import CharPredicate._
   def InputLine = rule(block.+ ~ EOI)
 
@@ -21,13 +21,19 @@ class BlockParser1(val input: ParserInput) extends Parser {
   //aux rules
   private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
 
-  private def atxHeading: Rule1[HeadingBlock] = rule {
-    "#" ~ (!endLine ~ !"#" ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> ((z: String) => HeadingBlock(z))
+  private def atxHeadingWithLev = (lev: Int) => rule { lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> (HeadingBlock(lev, _))}
+
+  def atxHeading: Rule1[HeadingBlock] = rule {
+    atxHeadingWithLev(6) |
+    atxHeadingWithLev(5) |
+    atxHeadingWithLev(4) |
+    atxHeadingWithLev(3) |
+    atxHeadingWithLev(2) |
+    atxHeadingWithLev(1)
   }
 
-
   //primitives
-  def endLine = rule { sp.? ~ nl ~ capture(!(blankLine)) ~ capture(!(EOI)) }
+  def endLine = rule { sp.? ~ nl ~ capture(!blankLine) ~ capture(!EOI) }
 
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
