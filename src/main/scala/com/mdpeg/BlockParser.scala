@@ -2,24 +2,26 @@ package com.mdpeg
 
 import org.parboiled2._
 
-class BlockParser(val input: ParserInput) extends Parser {
-
+class BlockParser1(val input: ParserInput) extends Parser {
   import CharPredicate._
-
   def InputLine = rule(block.+ ~ EOI)
 
-  def block: Rule1[Block] = rule { horizontalRule | paragraph | plain }
+  def block : Rule1[Block] = rule { horizontalRule | paragraph | plain  }
 
-  //block definitions
-  def horizontalRule: Rule1[HorizontalRuleBlock] = rule {
-    nonIndentSpace ~ capture("-" ~ spOs ~ "-" ~ spOs ~ "-" ~ (spOs ~ "-").* ~ spOs ~ nl ~ blankLine.*) ~>
-      ((x: String, y: String) => HorizontalRuleBlock(x + y))
+  // block definitions
+  def horizontalRule : Rule1[HorizontalRuleBlock] = rule {
+    nonIndentSpace ~ capture(horizontalRuleWithCh("-") | horizontalRuleWithCh("*") | horizontalRuleWithCh("_")) ~>
+      ((x:String, y:String) => HorizontalRuleBlock(x+y))
   }
 
-  def paragraph: Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
-  def plain: Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
+  def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
+  def plain : Rule1[Plain]         = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 
-  //aux functions
+  // aux rules
+  //private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.+} // ToDo should blankLine be mandatory?
+  private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
+
+  // primitives
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
     // i.e to support optional(A,B) where B returned when A is None

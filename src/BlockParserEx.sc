@@ -3,7 +3,6 @@ import org.parboiled2.{ErrorFormatter, ParseError}
 
 import scala.util.{Failure, Success}
 import org.parboiled2._
-import shapeless.HNil
 
 class BlockParser1(val input: ParserInput) extends Parser {
   import CharPredicate._
@@ -13,14 +12,17 @@ class BlockParser1(val input: ParserInput) extends Parser {
 
   //block definitions
   def horizontalRule : Rule1[HorizontalRuleBlock] = rule {
-    //capture(nonIndentSpace ~ "-" ~ sp ~ "-" ~ sp ~ "-" ~ (sp ~ "-").* ~ sp ~ nl ~ blankLine.+) ~> HorizontalRuleBlock
-    nonIndentSpace ~ capture("-" ~ spOs ~ "-" ~ spOs ~ "-" ~ (spOs ~ "-").* ~ spOs ~ nl ~ blankLine.*) ~> ((x:String, y:String) => HorizontalRuleBlock(x+y))
+    nonIndentSpace ~ capture(horizontalRuleWithCh("-") | horizontalRuleWithCh("*") | horizontalRuleWithCh("_")) ~>
+      ((x:String, y:String) => HorizontalRuleBlock(x+y))
   }
 
-  def paragraph  : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
-  def plain : Rule1[Plain]     = rule { capture(inline.+) ~ blankLine.? ~> Plain }
+  def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
+  def plain : Rule1[Plain]         = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 
-  //aux functions
+  //aux rules
+  private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
+
+  //primitives
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
     // i.e to support optional(A,B) where B returned when A is None
@@ -63,5 +65,5 @@ val input2 =
 
 //horizontal rule
 //captures horizontal rule preceded by a non indented space (that is, up to 3 spaces)
-val input3 = "   ---\r\n" // captures
+val input3 = "   ____\r\n" // captures
 PrettyPrint1(new BlockParser1(input3))
