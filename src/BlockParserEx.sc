@@ -8,9 +8,10 @@ class BlockParser1(val input: ParserInput) extends Parser {
   import CharPredicate._
   def InputLine = rule(block.+ ~ EOI)
 
-  def block : Rule1[Block] = rule { horizontalRule | paragraph | plain  }
+  def block : Rule1[Block] = rule { heading | horizontalRule | paragraph | plain  }
 
   //block definitions
+  def heading = rule { atxHeading }
   def horizontalRule : Rule1[HorizontalRuleBlock] = rule {
     nonIndentSpace ~ capture(horizontalRuleWithCh("-") | horizontalRuleWithCh("*") | horizontalRuleWithCh("_")) ~>
       ((x:String, y:String) => HorizontalRuleBlock(x+y))
@@ -22,7 +23,14 @@ class BlockParser1(val input: ParserInput) extends Parser {
   //aux rules
   private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
 
+  private def atxHeading: Rule1[HeadingBlock] = rule {
+    "#" ~ (!endLine ~ !"#" ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> ((z: String) => HeadingBlock(z))
+  }
+
+
   //primitives
+  def endLine = rule { sp.? ~ nl ~ capture(!(blankLine)) ~ capture(!(EOI)) }
+
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
     // i.e to support optional(A,B) where B returned when A is None
@@ -67,3 +75,7 @@ val input2 =
 //captures horizontal rule preceded by a non indented space (that is, up to 3 spaces)
 val input3 = "   ____\r\n" // captures
 PrettyPrint1(new BlockParser1(input3))
+
+//heading
+val input4 = "#Test your header\r\n" // captures
+PrettyPrint1(new BlockParser1(input4))

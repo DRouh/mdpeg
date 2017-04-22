@@ -6,9 +6,10 @@ class BlockParser1(val input: ParserInput) extends Parser {
   import CharPredicate._
   def InputLine = rule(block.+ ~ EOI)
 
-  def block : Rule1[Block] = rule { horizontalRule | paragraph | plain  }
+  def block : Rule1[Block] = rule { heading | horizontalRule | paragraph | plain  }
 
-  // block definitions
+  //block definitions
+  def heading = rule { atxHeading }
   def horizontalRule : Rule1[HorizontalRuleBlock] = rule {
     nonIndentSpace ~ capture(horizontalRuleWithCh("-") | horizontalRuleWithCh("*") | horizontalRuleWithCh("_")) ~>
       ((x:String, y:String) => HorizontalRuleBlock(x+y))
@@ -17,11 +18,17 @@ class BlockParser1(val input: ParserInput) extends Parser {
   def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
   def plain : Rule1[Plain]         = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 
-  // aux rules
-  //private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.+} // ToDo should blankLine be mandatory?
+  //aux rules
   private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
 
-  // primitives
+  private def atxHeading: Rule1[HeadingBlock] = rule {
+    "#" ~ (!endLine ~ !"#" ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> ((z: String) => HeadingBlock(z))
+  }
+
+
+  //primitives
+  def endLine = rule { sp.? ~ nl ~ capture(!(blankLine)) ~ capture(!(EOI)) }
+
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
     // i.e to support optional(A,B) where B returned when A is None
