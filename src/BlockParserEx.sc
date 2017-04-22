@@ -1,9 +1,31 @@
-import com.mdpeg.BlockParser
+import com.mdpeg.{Block, BlockParser, Para, Paragraph}
 import org.parboiled2.{ErrorFormatter, ParseError}
 
 import scala.util.{Failure, Success}
+import org.parboiled2._
+
+class BlockParser1(val input: ParserInput) extends Parser {
+  import CharPredicate._
+  def InputLine = rule(block.+ ~ EOI)
+
+  def block : Rule1[Block] = rule { para | plain  }
+
+  //block definitions
+  def para  : Rule1[Para]      = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Para }
+  def plain : Rule1[Paragraph] = rule { capture(inline.+) ~ blankLine.? ~> Paragraph }
+
+  //aux functions
+  //def inline          = rule { AlphaNum | sp | nl | punctuationChar | anyOf("_\"{}()") }
+  def inline          = rule { AlphaNum | sp | punctuationChar | anyOf("_\"{}()") }
+  def blankLine       = rule { sp.* ~ nl }
+  def punctuationChar = rule { anyOf(":;,.?!-") }
+  def nl              = rule { "\r\n" | "\r" | "\n" }
+  def sp              = rule { " " | "\t" }
+}
+
+
 object PrettyPrint1 {
-  def apply(parser : BlockParser) : Unit= {
+  def apply(parser : BlockParser1) : Unit= {
     val result= parser.InputLine.run()
     result match {
       case Failure(error) =>
@@ -15,16 +37,8 @@ object PrettyPrint1 {
     }
   }
 }
-val input1 ="""It is a long established fact that a reader will be distracted by the
-              |readable content of a page when looking at its layout. The point of
-              |using Lorem Ipsum is that it has a more-or-less normal distribution of
-              |letters, as opposed to using 'Content here, content here', making it look
-              |like readable English.
-              |
-              |Many desktop publishing packages and web page editors now use Lorem Ipsum as
-              |their default model text, and a search for 'lorem ipsum' will uncover many web
-              |sites still in their infancy. Various versions have evolved over the years,
-              |sometimes by accident, sometimes on purpose (injected humour and the like).
-              |The following system is designed for Berg Analytics analysts.""".stripMargin
-
-PrettyPrint1(new BlockParser(input1))
+val input1 =
+  "It is a long established fact that a reader will be distracted by the\r\n \r\n"
+val input2 =
+  "It is a long established fact that a reader will be distracted by the"
+PrettyPrint1(new BlockParser1(input2))
