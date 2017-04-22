@@ -14,7 +14,7 @@ class BlockParser1(val input: ParserInput) extends Parser {
   //block definitions
   def horizontalRule : Rule1[HorizontalRuleBlock] = rule {
     //capture(nonIndentSpace ~ "-" ~ sp ~ "-" ~ sp ~ "-" ~ (sp ~ "-").* ~ sp ~ nl ~ blankLine.+) ~> HorizontalRuleBlock
-    capture("-" ~ spOs ~ "-" ~ spOs ~ "-" ~ (spOs ~ "-").* ~ spOs ~ nl ~ blankLine.*) ~> HorizontalRuleBlock
+    nonIndentSpace ~ capture("-" ~ spOs ~ "-" ~ spOs ~ "-" ~ (spOs ~ "-").* ~ spOs ~ nl ~ blankLine.*) ~> ((x:String, y:String) => HorizontalRuleBlock(x+y))
   }
 
   def paragraph  : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
