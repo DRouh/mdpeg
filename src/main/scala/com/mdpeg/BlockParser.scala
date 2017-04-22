@@ -6,11 +6,11 @@ class BlockParser(val input: ParserInput) extends Parser {
   import CharPredicate._
   def InputLine = rule(block.+ ~ EOI)
 
-  def block = rule { plain }
+  def block : Rule1[Block] = rule { para | plain }
 
   //block definitions
-  //def para  = rule { inline.+ ~ nl ~ blankLine.+ }
-  def plain = rule { capture(inline.+) ~ blankLine.? ~> Paragraph}
+  def para  : Rule1[Para]      = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Para }
+  def plain : Rule1[Paragraph] = rule { capture(inline.+) ~ blankLine.? ~> Paragraph }
 
   //aux functions
   //def inline          = rule { AlphaNum | sp | nl | punctuationChar | anyOf("_\"{}()") }
