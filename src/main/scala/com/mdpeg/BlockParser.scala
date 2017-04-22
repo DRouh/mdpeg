@@ -6,10 +6,10 @@ class BlockParser(val input: ParserInput) extends Parser {
   import CharPredicate._
   def InputLine = rule(block.+ ~ EOI)
 
-  def block : Rule1[Block] = rule { para | plain  }
+  def block : Rule1[Block] = rule { paragraph | plain  }
 
   //block definitions
-  def para  : Rule1[Paragraph]      = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
+  def paragraph  : Rule1[Paragraph]      = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 
   //aux functions
