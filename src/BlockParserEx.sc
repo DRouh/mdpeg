@@ -59,8 +59,3 @@ class BlockParser1(val input: ParserInput) extends PrimitiveRules {
   def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 }
-
-//tests
-//atx heading
-val input4 = "### Test your header\r\n" // captures
-PrettyPrint1(new BlockParser1(input4))
