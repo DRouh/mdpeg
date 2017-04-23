@@ -50,10 +50,10 @@ class BlockParser1(val input: ParserInput) extends Parser {
     rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
   }
 
-  def horizontalRule: Rule1[HorizontalRuleBlock] = {
+  def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
     @inline
     def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.+ }
-    def toHr = (x: String, y: String) => HorizontalRuleBlock(x + y)
+    def toHr = (x: String, y: String) => HorizontalRuleBlock
     rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
