@@ -4,6 +4,20 @@ import org.parboiled2.{ErrorFormatter, ParseError}
 import scala.util.{Failure, Success}
 import org.parboiled2._
 
+object PrettyPrint1 {
+  def apply(parser : BlockParser1) : Unit= {
+    val result= parser.InputLine.run()
+    result match {
+      case Failure(error) =>
+        error match {
+          case e : ParseError => println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
+          case _ => println(error)
+        }
+      case Success(value) => println(value)
+    }
+  }
+}
+
 class BlockParser1(val input: ParserInput) extends Parser {
   import CharPredicate._
   def InputLine = rule(block.+ ~ EOI)
@@ -12,27 +26,25 @@ class BlockParser1(val input: ParserInput) extends Parser {
 
   //block definitions
   def heading = rule { atxHeading }
-  def horizontalRule : Rule1[HorizontalRuleBlock] = rule {
-    nonIndentSpace ~ capture(horizontalRuleWithCh("-") | horizontalRuleWithCh("*") | horizontalRuleWithCh("_")) ~>
-      ((x:String, y:String) => HorizontalRuleBlock(x+y))
+
+  def atxHeading: Rule1[HeadingBlock] = {
+    @inline
+    def h = (lev: Int) => rule {
+      lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> (HeadingBlock(lev, _))
+    }
+    rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
+  }
+
+  def horizontalRule: Rule1[HorizontalRuleBlock] = {
+    @inline
+    def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.* }
+    rule {
+      nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> ((x: String, y: String) => HorizontalRuleBlock(x + y))
+    }
   }
 
   def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
   def plain : Rule1[Plain]         = rule { capture(inline.+) ~ blankLine.? ~> Plain }
-
-  //aux rules
-  private def horizontalRuleWithCh = (sep: String) => rule { sep ~ spOs ~ sep ~ spOs ~ sep ~ (spOs ~ sep).* ~ spOs ~ nl ~ blankLine.*}
-
-  private def atxHeadingWithLev = (lev: Int) => rule { lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> (HeadingBlock(lev, _))}
-
-  def atxHeading: Rule1[HeadingBlock] = rule {
-    atxHeadingWithLev(6) |
-    atxHeadingWithLev(5) |
-    atxHeadingWithLev(4) |
-    atxHeadingWithLev(3) |
-    atxHeadingWithLev(2) |
-    atxHeadingWithLev(1)
-  }
 
   //primitives
   def endLine = rule { sp.? ~ nl ~ capture(!blankLine) ~ capture(!EOI) }
@@ -40,8 +52,9 @@ class BlockParser1(val input: ParserInput) extends Parser {
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
     // i.e to support optional(A,B) where B returned when A is None
-    def h(x: Any) = x match {
-      case x: Option[String] => x.getOrElse("")
+    @inline
+    def h(x: AnyRef): String = x match {
+      case x: Option[String @unchecked] => x.getOrElse("")
       case _ => ""
     }
 
@@ -58,22 +71,7 @@ class BlockParser1(val input: ParserInput) extends Parser {
   def sp              = rule { " " | "\t" }
 }
 
-
-object PrettyPrint1 {
-  def apply(parser : BlockParser1) : Unit= {
-    val result= parser.InputLine.run()
-    result match {
-      case Failure(error) =>
-        error match {
-          case e : ParseError => println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
-          case _ => println(error)
-        }
-      case Success(value) => println(value)
-    }
-  }
-}
-
-
+//tests
 val input1 =
   "It is a long established fact that a reader will be distracted by the\r\n \r\n"
 val input2 =
@@ -84,8 +82,6 @@ val input2 =
 val input3 = "   ____\r\n" // captures
 PrettyPrint1(new BlockParser1(input3))
 
-//heading
-
+//atx heading
 val input4 = "### Test your header\r\n" // captures
-val r = new BlockParser1(input4).heading.run()
 PrettyPrint1(new BlockParser1(input4))
