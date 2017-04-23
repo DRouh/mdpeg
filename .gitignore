@@ -1,7 +1,5 @@
 *~
-*.class
 *.log
-*.cache
 *.classpath
 *.project
 *.settings
@@ -9,7 +7,6 @@
 
 # sbt specific
 .cache
-.history
 .lib/
 dist/*
 target/
@@ -24,5 +21,3 @@ project/plugins/project/
 .worksheet
 *.ipr
 *.iws
-
-out

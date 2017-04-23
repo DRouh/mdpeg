@@ -52,7 +52,7 @@ class BlockParser1(val input: ParserInput) extends PrimitiveRules {
   def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
     @inline
     def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.+ }
-    def toHr = (x: String, y: String) => HorizontalRuleBlock
+    def toHr = (_: String, _: String) => HorizontalRuleBlock
     rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
@@ -61,23 +61,6 @@ class BlockParser1(val input: ParserInput) extends PrimitiveRules {
 }
 
 //tests
-val input1 =
-  """It is a long established fact that a reader will be distracted by the
-    |
-    |
-  """.stripMargin
-PrettyPrint1(new BlockParser1(input1)) //paragraph
-
-val input2 = "It is a long established fact that a reader will be distracted by the"
-PrettyPrint1(new BlockParser1(input2)) // plain
-
 //atx heading
 val input4 = "### Test your header\r\n" // captures
 PrettyPrint1(new BlockParser1(input4))
-
-//block quote
-val input5 = """> Hello this is block quote
-               |> this is continuation of a block quote
-               |
-               |this is a plaint text""".stripMargin
-PrettyPrint1(new BlockParser1(input5))

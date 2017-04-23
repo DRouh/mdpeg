@@ -1,5 +1,3 @@
-package com.mdpeg
-
 import org.scalatest.{FlatSpec, Matchers}
 
 class BlockParserSpec extends FlatSpec with Matchers {

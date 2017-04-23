@@ -36,7 +36,7 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
   def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
     @inline
     def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.+ }
-    def toHr: (String, String) => HorizontalRuleBlock.type = (x: String, y: String) => HorizontalRuleBlock
+    def toHr: (String, String) => HorizontalRuleBlock.type = (_: String, _: String) => HorizontalRuleBlock
     rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
