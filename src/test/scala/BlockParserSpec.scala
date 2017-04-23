@@ -61,7 +61,13 @@ class BlockParserSpec extends FlatSpec with Matchers {
     parsed shouldEqual Plain(expected)
   }
 
-  it should "parse ATX heading" in {
-
+  it should "parse ATX Heading" in {
+    val term =
+      """### Test your header
+        |
+      """.stripMargin
+    val expected = "Test your header"
+    val parsed = new BlockParser(term).heading.run().get
+    parsed shouldEqual HeadingBlock(3, expected)
   }
 }
