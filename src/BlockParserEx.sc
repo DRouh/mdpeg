@@ -26,15 +26,13 @@ class BlockParser1(val input: ParserInput) extends Parser {
 
   //block definitions
   def blockQuote : Rule1[BlockQuote] = {
-    def blockQuoteLine: Rule1[String] = rule {
-      nonIndentSpace ~ ">" ~ sp.* ~ anyLine ~> ((x:String,y:String) => x + y)
+    def blockQuoteLine :Rule1[String]= rule {
+      nonIndentSpace ~ ">" ~ sp.* ~ capture(anyLine) ~> ((_:Any, z:String) => z)
     }
 
-    def toBQ = (x: Any, y: Any) => {
+    def toBQ = (x: Any) => {
       val xs = x.asInstanceOf[Vector[String]]
-      val ys = y.asInstanceOf[Vector[String]]
-      val cc = xs.reduce(_+_) + ys.reduce(_+_)
-      BlockQuote(cc)
+      BlockQuote(xs.reduce(_+_) )
     }
 
     rule {
@@ -63,7 +61,7 @@ class BlockParser1(val input: ParserInput) extends Parser {
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 
   //primitives
-  def anyLine : Rule1[String] = rule { capture(!nl ~ !EOI ~ ANY ~ (nl | "")) }
+  def anyLine = rule { !nl ~ !EOI ~ inline.+ ~ (nl | "") }
   def endLine = rule { sp.? ~ nl ~ capture(!blankLine) ~ capture(!EOI) }
 
   def nonIndentSpace: Rule1[String] = {
@@ -104,5 +102,5 @@ val input4 = "### Test your header\r\n" // captures
 PrettyPrint1(new BlockParser1(input4))
 
 //block quote
-val input5 = "> Hello this is block quote\r\n>this is continuation of a block quote"
+val input5 = "> Hello this is block quote\r\n> this is continuation of a block quote\r\n\r\nthis is a plaint text"
 PrettyPrint1(new BlockParser1(input5))
