@@ -1,3 +1,4 @@
+import com.mdpeg._
 import org.scalatest.{FlatSpec, Matchers}
 
 class BlockParserSpec extends FlatSpec with Matchers {
@@ -58,5 +59,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val expected = "It is a long established fact that a reader will be distracted by the"
     val parsed = new BlockParser(term).plain.run().get
     parsed shouldEqual Plain(expected)
+  }
+
+  it should "parse ATX heading" in {
+
   }
 }
