@@ -40,6 +40,6 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
     rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
-  def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
+  def paragraph : Rule1[Paragraph] = rule { capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph }
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 }
