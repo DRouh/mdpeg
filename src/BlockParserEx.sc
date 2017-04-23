@@ -18,8 +18,7 @@ object PrettyPrint1 {
   }
 }
 
-class BlockParser1(val input: ParserInput) extends Parser {
-  import CharPredicate._
+class BlockParser1(val input: ParserInput) extends PrimitiveRules {
   def InputLine = rule(block.+ ~ EOI)
 
   def block : Rule1[Block] = rule { blockQuote | heading | horizontalRule | paragraph | plain  }
@@ -59,31 +58,6 @@ class BlockParser1(val input: ParserInput) extends Parser {
 
   def paragraph : Rule1[Paragraph] = rule { capture(inline.+) ~ nl ~ blankLine.+ ~> Paragraph }
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
-
-  //primitives
-  def anyLine = rule { !nl ~ !EOI ~ inline.+ ~ (nl | "") }
-  def endLine = rule { sp.? ~ nl ~ capture(!blankLine) ~ capture(!EOI) }
-
-  def nonIndentSpace: Rule1[String] = {
-    // only to facilitate type inference,
-    // i.e to support optional(A,B) where B returned when A is None
-    @inline
-    def h(x: AnyRef): String = x match {
-      case x: Option[String @unchecked] => x.getOrElse("")
-      case _ => ""
-    }
-
-    rule {
-      capture("   " | "  " | " ").? ~> (h(_))
-    }
-  }
-
-  def inline          = rule { AlphaNum | sp | punctuationChar | anyOf("_\"{}()") }
-  def blankLine       = rule { sp.* ~ nl }
-  def punctuationChar = rule { anyOf(":;,.?!-") }
-  def nl              = rule { "\r\n" | "\r" | "\n" }
-  def spOs            = rule { sp.* }
-  def sp              = rule { " " | "\t" }
 }
 
 //tests
@@ -96,14 +70,6 @@ PrettyPrint1(new BlockParser1(input1)) //paragraph
 
 val input2 = "It is a long established fact that a reader will be distracted by the"
 PrettyPrint1(new BlockParser1(input2)) // plain
-
-//horizontal rule
-//captures horizontal rule preceded by a non indented space (that is, up to 3 spaces)
-val input3 =
-  """   ____
-    |
-    |""".stripMargin // captures
-PrettyPrint1(new BlockParser1(input3))
 
 //atx heading
 val input4 = "### Test your header\r\n" // captures
