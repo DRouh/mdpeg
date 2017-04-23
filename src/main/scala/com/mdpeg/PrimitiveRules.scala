@@ -5,7 +5,7 @@ import org.parboiled2._
 trait PrimitiveRules extends Parser {
   import CharPredicate._
   def anyLine = rule { !nl ~ !EOI ~ inline.+ ~ (nl | "") }
-  def endLine = rule { sp.? ~ nl ~ capture(!blankLine) ~ capture(!EOI) }
+  def endLine = rule { sp.? ~ nl ~ !blankLine ~ !EOI }
 
   def nonIndentSpace: Rule1[String] = {
     // only to facilitate type inference,
@@ -21,7 +21,7 @@ trait PrimitiveRules extends Parser {
     }
   }
 
-  def inline          = rule { AlphaNum | sp | punctuationChar | anyOf("_\"{}()") }
+  def inline          = rule { AlphaNum | sp | punctuationChar | anyOf("_\"{}()'") }
   def blankLine       = rule { sp.* ~ nl }
   def punctuationChar = rule { anyOf(":;,.?!-") }
   def nl              = rule { "\r\n" | "\r" | "\n" }

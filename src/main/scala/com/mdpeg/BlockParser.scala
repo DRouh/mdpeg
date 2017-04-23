@@ -28,7 +28,7 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
   def atxHeading: Rule1[HeadingBlock] = {
     @inline
     def h = (lev: Int) => rule {
-      lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl ~> (HeadingBlock(lev, _))
+      lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl.* ~> (HeadingBlock(lev, _))
     }
     rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
   }
@@ -40,6 +40,6 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
     rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
-  def paragraph : Rule1[Paragraph] = rule { capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph }
+  def paragraph : Rule1[Paragraph] = rule { capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph } // ToDo think if inline rule should include endLine as an ordered choice
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
 }
