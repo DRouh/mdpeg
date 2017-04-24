@@ -13,12 +13,7 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
       nonIndentSpace ~ ">" ~ sp.* ~ capture(anyLine) ~> ((_:Any, z:String) => z)
     }
 
-    def toBQ = (x: Any) => {
-      val xs = x.asInstanceOf[Vector[String]]
-      // concat multiple string lines into one
-      val str = xs.mkString(" ").replace("\r\n","").replace("\r", "").replace("\n", "")
-      BlockQuote(str)
-    }
+    def toBQ = (x: Any) => BlockQuote(flattenString(x.asInstanceOf[Vector[String]]))
 
     rule {
       blockQuoteLine.+ ~ (!blankLine ~ anyLine).* ~ blankLine.* ~> toBQ
@@ -44,4 +39,12 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
 
   def paragraph : Rule1[Paragraph] = rule { capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph } // ToDo think if inline rule should include endLine as an ordered choice
   def plain : Rule1[Plain] = rule { capture(inline.+) ~ blankLine.? ~> Plain }
+
+  //utility methods
+  /**
+    * Flattens a vector of strings into one string, replaces all cr/crlf with spaces
+    * @param xs a vector of strings
+    * @return a flat string composed of original list
+    * */
+  private def flattenString(xs:Vector[String]) = xs.mkString(" ").replace("\r\n","").replace("\r", "").replace("\n", "")
 }
