@@ -15,7 +15,9 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
 
     def toBQ = (x: Any) => {
       val xs = x.asInstanceOf[Vector[String]]
-      BlockQuote(xs.reduce(_+_) )
+      // concat multiple string lines into one
+      val str = xs.mkString(" ").replace("\r\n","").replace("\r", "").replace("\n", "")
+      BlockQuote(str)
     }
 
     rule {

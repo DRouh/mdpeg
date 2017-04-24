@@ -23,11 +23,7 @@ object TestData {
   val blockQuoteLineOne = "This is quote"
   val blockQuoteLineTwo = "and should span several"
   val blockQuoteLineThree = "yet another line for the block"
-  val blockQuote =
-    s"""${blockQuoteLineOne}
-    |${blockQuoteLineTwo}
-    |${blockQuoteLineThree}
-    |""".stripMargin
+  val blockQuote = s"""${blockQuoteLineOne} ${blockQuoteLineTwo} ${blockQuoteLineThree}""".stripMargin
   val plainText = "This is a plaint string in the end."
   val compoundMD =
     s"""# ${headingOne}
