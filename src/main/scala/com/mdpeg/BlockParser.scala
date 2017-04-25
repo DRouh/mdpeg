@@ -3,11 +3,23 @@ package com.mdpeg
 import org.parboiled2._
 
 class BlockParser(val input: ParserInput) extends PrimitiveRules {
+
   def InputLine = rule(block.+ ~ EOI)
 
-  def block : Rule1[Block] = rule { blockQuote | heading | horizontalRule | paragraph | plain  }
+  def block : Rule1[Block] = rule { blockQuote | verbatim | heading | horizontalRule | paragraph | plain  }
 
   //block definitions
+  def verbatim : Rule1[Verbatim] = {
+    def math = rule { anyOf("=/\\*-+^%!<>[]{}") }
+    def other = rule {anyOf("@#$")}
+    def special1 = rule { math | other }
+    def inlineCodeChar = rule( inline | special1 ) // ToDo add blank line?
+
+    rule {
+      3.times("`") ~ capture((nl | inlineCodeChar.+ ~ nl).+) ~3.times("`") ~ blankLine.* ~> Verbatim
+    }
+  }
+
   def blockQuote : Rule1[BlockQuote] = {
     def blockQuoteLine :Rule1[String]= rule {
       nonIndentSpace ~ ">" ~ sp.* ~ capture(anyLine) ~> ((_:Any, z:String) => z)

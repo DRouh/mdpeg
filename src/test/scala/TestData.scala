@@ -1,5 +1,4 @@
 object TestData {
-
   val headingOne = "Heading One"
   val headingTwo = "Heading Two"
   val paragraphOne =
@@ -23,27 +22,32 @@ object TestData {
   val blockQuoteLineOne = "This is quote"
   val blockQuoteLineTwo = "and should span several"
   val blockQuoteLineThree = "yet another line for the block"
-  val blockQuote = s"""${blockQuoteLineOne} ${blockQuoteLineTwo} ${blockQuoteLineThree}""".stripMargin
+  val blockQuote = s"""$blockQuoteLineOne $blockQuoteLineTwo $blockQuoteLineThree""".stripMargin
   val plainText = "This is a plaint string in the end."
+  val codeBlock =
+    """javascript
+      |var s = "JavaScript syntax highlighting";
+      |alert(s);
+      |""".stripMargin
   val compoundMD =
-    s"""# ${headingOne}
+    s"""# $headingOne
        |
-       |## ${headingTwo}
+       |## $headingTwo
        |
-       |${paragraphOne}
+       |$paragraphOne
        |
-       |${paragraphTwo}
+       |$paragraphTwo
        |
        |****
        |
        |-----
        |
-       |> ${blockQuoteLineOne}
-       |> ${blockQuoteLineTwo}
-       |> ${blockQuoteLineThree}
+       |> $blockQuoteLineOne
+       |> $blockQuoteLineTwo
+       |> $blockQuoteLineThree
        |
        |_ _ _ _
        |
-       |${plainText}"""
+       |$plainText"""
       .stripMargin
 }
