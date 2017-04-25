@@ -88,6 +88,8 @@ class BlockParserSpec extends FlatSpec with Matchers {
       HorizontalRuleBlock,
       BlockQuote(TestData.blockQuote),
       HorizontalRuleBlock,
-      Plain(TestData.plainText))
+      Verbatim(TestData.codeBlock),
+      Plain(TestData.plainText)
+    )
   }
 }

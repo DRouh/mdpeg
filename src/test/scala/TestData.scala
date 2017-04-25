@@ -48,6 +48,7 @@ object TestData {
        |
        |_ _ _ _
        |
+       |```$codeBlock```
        |$plainText"""
       .stripMargin
 }
