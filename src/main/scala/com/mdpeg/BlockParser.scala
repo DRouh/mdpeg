@@ -22,7 +22,7 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
 
   def blockQuote : Rule1[BlockQuote] = {
     def blockQuoteLine :Rule1[String]= rule {
-      nonIndentSpace ~ ">" ~ sp.* ~ capture(anyLine) ~> ((_:Any, z:String) => z)
+      nonIndentSpace ~ ">" ~ sp.+ ~ capture(anyLine)
     }
 
     def toBQ = (x: Any) => BlockQuote(flattenString(x.asInstanceOf[Vector[String]]))
@@ -45,7 +45,7 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
   def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
     @inline
     def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.+ }
-    def toHr: (String, String) => HorizontalRuleBlock.type = (_: String, _: String) => HorizontalRuleBlock
+    def toHr = (_: String) => HorizontalRuleBlock
     rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
