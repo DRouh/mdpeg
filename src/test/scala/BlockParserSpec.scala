@@ -93,8 +93,6 @@ class BlockParserSpec extends FlatSpec with Matchers {
     parsed shouldEqual Verbatim(TestData.codeBlock4)
   }
 
-  // ToDo add test for blank lines in a Verbatim block
-  // ToDo update compound test upon Verbatim rule parser completion
   it should "parse a compound document" in {
     val term = TestData.compoundMD
     val parsed = new BlockParser(term).InputLine.run().get
