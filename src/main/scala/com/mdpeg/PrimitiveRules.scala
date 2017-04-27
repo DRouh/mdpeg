@@ -4,8 +4,11 @@ import org.parboiled2._
 
 trait PrimitiveRules extends Parser {
   import CharPredicate._
+  def indentedLine : Rule0 = rule { indent ~ anyLine }
   def anyLine : Rule0 = rule { !nl ~ !EOI ~ inline.+ ~ (nl | "") }
   def endLine : Rule0 = rule { sp.? ~ nl ~ !blankLine ~ !EOI }
+
+  def indent : Rule0 = rule { "\t" | "    " }
 
   def nonIndentSpace: Rule0 = {
     // only to facilitate type inference,
