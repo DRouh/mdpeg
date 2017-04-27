@@ -24,7 +24,7 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
     def blockQuoteLine :Rule1[String]= rule {
       nonIndentSpace ~ ">" ~ sp.+ ~ capture(anyLine)
     }
-
+    // ToDo think if keep line breaks or keep as it is (i.e. replaced with spaces)
     def toBQ = (x: Any) => BlockQuote(flattenString(x.asInstanceOf[Vector[String]]))
 
     rule {
@@ -40,13 +40,6 @@ class BlockParser(val input: ParserInput) extends PrimitiveRules {
       lev.times("#") ~ (!endLine ~ !"#" ~ sp ~ capture(inline.+)) ~ anyOf("# \t").* ~ nl.* ~> (HeadingBlock(lev, _))
     }
     rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
-  }
-
-  def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
-    @inline
-    def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.+ }
-    def toHr = (_: String) => HorizontalRuleBlock
-    rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
   }
 
   def paragraph : Rule1[Paragraph] = rule { capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph } // ToDo think if inline rule should include endLine as an ordered choice

@@ -4,6 +4,14 @@ import org.parboiled2._
 
 trait PrimitiveRules extends Parser {
   import CharPredicate._
+
+  def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
+    @inline
+    def h = (ch: String) => rule { ch ~ spOs ~ ch ~ spOs ~ ch ~ (spOs ~ ch).* ~ spOs ~ nl ~ blankLine.+ }
+    def toHr = (_: String) => HorizontalRuleBlock
+    rule { nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr }
+  }
+
   def indentedLine : Rule0 = rule { indent ~ anyLine }
   def anyLine : Rule0 = rule { !nl ~ !EOI ~ inline.+ ~ (nl | "") }
   def endLine : Rule0 = rule { sp.? ~ nl ~ !blankLine ~ !EOI }
