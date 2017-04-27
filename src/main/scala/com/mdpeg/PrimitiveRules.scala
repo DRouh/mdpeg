@@ -16,10 +16,7 @@ trait PrimitiveRules extends Parser {
       case _ => ""
     }
 
-    rule {
-      "   " | "  " | " " | ""
-      //capture("   " | "  " | " ").? ~> (h(_))
-    }
+    rule { "   " | "  " | " " | ""  }
   }
 
   def inline          : Rule0 = rule { AlphaNum | sp | punctuationChar | anyOf("_\"{}()'") }
