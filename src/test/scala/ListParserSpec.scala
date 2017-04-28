@@ -1,8 +1,8 @@
-import com.mdpeg.ListBlockParser
+import com.mdpeg.{ListBlockParser, Markdown}
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class ListParserSpec extends FlatSpec with Matchers {
   class ListParserTestSpec(val input: ParserInput) extends Parser with ListBlockParser {}
@@ -19,6 +19,13 @@ class ListParserSpec extends FlatSpec with Matchers {
       }
     }
   }
+
+  def hasSucceeded (parserResult: Try[Vector[Markdown]]): Boolean  = !hasFailed(parserResult)
+  def hasFailed (parserResult: Try[Vector[Markdown]]): Boolean =
+    parserResult match {
+      case Failure(error) => true
+      case Success(value) => false
+    }
 
   it should "parse unordered list's bullets '-*+'" in {
     for (ch <- Vector("-","*","+")) {
@@ -40,7 +47,17 @@ class ListParserSpec extends FlatSpec with Matchers {
          |- Second item
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListTight.run()
-    println(parsed)
+    hasSucceeded(parsed) shouldEqual true
+  }
+
+  it should "should fail on sparse bullet list while parsing it as tight" in {
+    val term =
+      s"""- First item
+         |
+         |- Second item
+       """.stripMargin
+    val parsed = new ListParserTestSpec(term).bulletListTight.run()
+    hasFailed(parsed) shouldEqual true
   }
 
   it should "parse sparse bullet list" in {
@@ -51,6 +68,6 @@ class ListParserSpec extends FlatSpec with Matchers {
          |
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListSparse.run()
-    println(parsed)
+    hasSucceeded(parsed) shouldEqual true
   }
 }
