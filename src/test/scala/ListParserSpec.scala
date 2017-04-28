@@ -42,4 +42,15 @@ class ListParserSpec extends FlatSpec with Matchers {
     val parsed = new ListParserTestSpec(term).bulletListTight.run()
     println(parsed)
   }
+
+  it should "parse sparse bullet list" in {
+    val term =
+      s"""- First item
+         |
+         |- Second item
+         |
+       """.stripMargin
+    val parsed = new ListParserTestSpec(term).bulletListSparse.run()
+    println(parsed)
+  }
 }
