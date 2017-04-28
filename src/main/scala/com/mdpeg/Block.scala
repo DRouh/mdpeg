@@ -18,4 +18,4 @@ final case class UnorderedList(inline: Vector[Block]) extends Block
   * Raw markdown that is yet to be processed into blocks
   * @param inline - raw string
   */
-final case class Markdown(inline: String) extends Block
+final case class Markdown(inline: Any) extends Block

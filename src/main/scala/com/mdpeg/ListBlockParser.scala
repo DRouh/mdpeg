@@ -14,29 +14,22 @@ trait ListBlockParser extends PrimitiveRules {
   def bullet : Rule0 = rule { nonIndentSpace ~ anyOf("+-*") ~ sp.+ }
   def enumerator : Rule0 = rule { nonIndentSpace ~ Digit.+ ~ "." ~ sp.+}
 
-  //def bulletList = rule { bulletListTight }//| bulletListSparse }
-
-  def h (s: Any) = {
-    println(s.getClass.getSimpleName)
-    val ss= s.asInstanceOf[Vector[Block]]
-    UnorderedList(ss)
-  }
-  def bulletListTight = rule { (capture(bulletListItem) ~> ((x:Any,y:Any) => toRawMd(x, y))) ~ blankLine.* }
+  def bulletListTight = rule { (capture(bulletListItem.+) ~> ((x:Any,y:Any) => toRawMd(x, y))) ~ blankLine.* }
   //def bulletListSparse = rule { ??? }
-  def bulletListItem = rule { !horizontalRule ~ bullet ~ listBlock ~ listContinuationBlock }
+  //def bulletListItem = rule { !horizontalRule ~ bullet ~ listBlock ~ listContinuationBlock.* }
+  def bulletListItem = rule { capture(!horizontalRule ~ bullet ~ listBlock ~ listContinuationBlock.*) ~> ((x:Any) => x) }
 
-  // ToDo revisit when ordered list implemented
-  //def listBlock = rule { anyLine ~ zeroOrMore(!(indent.? ~ (bulletListItem | orderedListItem))) ~ !blankLine ~ !(indent ~ (bullet | enumerator)) ~ indentedLine }
-  def listBlock : Rule1[String] = rule { capture(anyLine) ~ zeroOrMore(!(indent.? ~ bulletListItem)) ~ !blankLine ~ !(indent ~ bullet) ~ indentedLine.? } // ToDo should the last indentedLine be indentedLine.?
-
-  // push \0 need to handle raw markdown and split it into 2 chunks
-  def listContinuationBlock : Rule1[Vector[String]]  = rule { (blankLine.+ ~ (indent ~ listBlock).+) ~> ((x:Any) => x.asInstanceOf[Vector[String]]) }// todo capture whole match? ; maybe use capture instead of push
-
-//  def orderedListItem = rule { ??? }
+//  def listBlock : Rule1[(String, String)] = rule {
+//    capture(anyLine) ~ capture(zeroOrMore(!(indent.? ~ bulletListItem) ~ !blankLine ~ !(indent ~ bullet) ~ indentedLine.?)) ~> ((x:String, y: String) => g(x, y))
+//  }
+  def listBlock :Rule0 = rule { anyLine ~ zeroOrMore( !indent.? ~ !bulletListItem ~ !blankLine ~ !indent ~ !bullet ~ indentedLine.?) }
+  //def listContinuationBlock : Rule1[Vector[String]]  = rule { ( capture(blankLine.+) ~ capture((indent ~ listBlock).+)) ~> ((x:Any, y:Any, z:Any) => f(x)) }
+  def listContinuationBlock = rule { blankLine.+ ~ (indent ~ listBlock).+ }
 
   //aux func
   def toRawMd (x: Any, y:Any) = {
-    println(x.getClass.getSimpleName)
-    println(y.getClass.getSimpleName)
-    Vector(Markdown(x.asInstanceOf[String]))}
+    println("x:" + x)
+    println("y:" + y)
+    Vector(Markdown(x.asInstanceOf[Vector[String]]))
+  }
 }
