@@ -15,14 +15,24 @@ trait ListBlockParser extends PrimitiveRules {
 
   def bulletListTight       = rule { (capture(bulletListItem.+) ~> ((x: Any, y: Any) => toRawMd(x, y))) ~ blankLine.* ~ !bulletListSparse}
   def bulletListSparse      = rule { capture((bulletListItem ~ blankLine.*).+) ~> ((x: Any, y: Any) => toRawMd(x, y)) }
-  def bulletListItem        = rule { capture(!horizontalRule ~ bullet ~ listBlock ~ listContinuationBlock.*) ~> ((x: Any) => x) }
-  def listBlock: Rule0      = rule { anyLine ~ zeroOrMore(!indent.? ~ !bulletListItem ~ !blankLine ~ !indent ~ !bullet ~ indentedLine.?) }
-  def listContinuationBlock = rule { blankLine.+ ~ (indent ~ listBlock).+ }
+  def bulletListItem = {
+    def listStart = rule(!horizontalRule ~ bullet)
+    def item      = rule(capture(listBlock) ~> ((_: String) => _))
+    def listRest  = rule(listContinuationBlock.*)
+
+    def f(x:String) = {
+      println(s"f(x):x${x.getClass.getSimpleName}=$x")
+      x
+    }
+    rule(listStart ~ capture(listBlock) ~ listRest ~> (f(_)))
+  }
+  def listBlock: Rule0 = rule(anyLine ~ zeroOrMore(!indent.? ~ !bulletListItem ~ !blankLine ~ !indent ~ !bullet ~ indentedLine.?))
+  def listContinuationBlock: Rule0 = rule(blankLine.+ ~ (indent ~ listBlock).+)
 
   //aux func
   def toRawMd(x: Any, y: Any) = {
-    println("x:" + x)
-    println("y:" + y)
+    println(s"x:${x.getClass.getSimpleName} = $x")
+    println(s"y:${y.getClass.getSimpleName} = $y:")
     Vector(Markdown(x.asInstanceOf[Vector[String]]))
   }
 }

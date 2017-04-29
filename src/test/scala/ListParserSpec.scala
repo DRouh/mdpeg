@@ -48,6 +48,7 @@ class ListParserSpec extends FlatSpec with Matchers {
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListTight.run()
     hasSucceeded(parsed) shouldEqual true
+    parsed.get shouldEqual Vector(Markdown(Vector("First item\r\n", "Second item\r\n")))
   }
 
   it should "should fail on sparse bullet list while parsing it as tight" in {
@@ -69,5 +70,6 @@ class ListParserSpec extends FlatSpec with Matchers {
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListSparse.run()
     hasSucceeded(parsed) shouldEqual true
+    parsed.get shouldEqual Vector(Markdown(Vector("First item\r\n", "Second item\r\n")))
   }
 }
