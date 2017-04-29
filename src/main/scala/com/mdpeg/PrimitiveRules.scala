@@ -12,9 +12,9 @@ trait PrimitiveRules extends Parser {
     rule(nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr)
   }
 
-  def indentedLine    : Rule0 = rule (indent ~ anyLine)
-  def anyLine         : Rule0 = rule (!nl ~ !EOI ~ inline.+ ~ (nl | ""))
-  def endLine         : Rule0 = rule (sp.? ~ nl ~ !blankLine ~ !EOI)
+  def indentedLine    : Rule0 = rule(indent ~ anyLine)
+  def anyLine         : Rule0 = rule(!nl ~ !EOI ~ inline.+ ~ (nl | ""))
+  def endLine         : Rule0 = rule(sp.? ~ nl ~ !blankLine ~ !EOI)
   def indent          : Rule0 = rule("\t" | "    ")
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
   def inline          : Rule0 = rule(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'"))
