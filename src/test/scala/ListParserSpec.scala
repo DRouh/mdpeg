@@ -42,12 +42,20 @@ class ListParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse tight bullet list" in {
+    val firstItem = "First item"
+    val secondItem = "First item"
     val term =
-      s"""- First item
-         |- Second item
+      s"""- $firstItem
+         |- $secondItem
        """.stripMargin
+    val expectdFirst =
+      s"""$firstItem
+         |""".stripMargin
+    val expectdSecond =
+      s"""$secondItem
+         |""".stripMargin
     val parsed = new ListParserTestSpec(term).bulletListTight.run()
-    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown("First item\r\n"), Markdown("Second item\r\n"))))
+    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectdFirst), Markdown(expectdSecond))))
   }
 
   it should "should fail on sparse bullet list while parsing it as tight" in {
@@ -61,13 +69,22 @@ class ListParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse sparse bullet list" in {
+    val firstItem = "First item"
+    val secondItem = "First item"
     val term =
-      s"""- First item
+      s"""- $firstItem
          |
-         |- Second item
+         |- $secondItem
          |
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListSparse.run()
-    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown("First item\r\n"), Markdown("Second item\r\n"))))
+
+    val expectdFirst =
+      s"""$firstItem
+         |""".stripMargin
+    val expectdSecond =
+      s"""$secondItem
+         |""".stripMargin
+    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectdFirst), Markdown(expectdSecond))))
   }
 }
