@@ -1,4 +1,4 @@
-import com.mdpeg.{ListBlockParser, Markdown, UnorderedList}
+import com.mdpeg.{ListBlockParser, Markdown, OrderedList, UnorderedList}
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -48,14 +48,14 @@ class ListParserSpec extends FlatSpec with Matchers {
       s"""- $firstItem
          |- $secondItem
        """.stripMargin
-    val expectdFirst =
+    val expectedFirst =
       s"""$firstItem
          |""".stripMargin
-    val expectdSecond =
+    val expectedSecond =
       s"""$secondItem
          |""".stripMargin
     val parsed = new ListParserTestSpec(term).bulletListTight.run()
-    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectdFirst), Markdown(expectdSecond))))
+    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
   }
 
   it should "fail on sparse bullet list while parsing it as tight" in {
@@ -79,21 +79,49 @@ class ListParserSpec extends FlatSpec with Matchers {
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListSparse.run()
 
-    val expectdFirst =
+    val expectedFirst =
+      s"""$firstItem
+         |""".stripMargin
+    val expectedSecond =
+      s"""$secondItem
+         |""".stripMargin
+    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+  }
+
+  it should "parse tight ordered list" in {
+    val firstItem = "First item"
+    val secondItem = "First item"
+    val term =
+      s"""1. $firstItem
+         |2. $secondItem
+       """.stripMargin
+    val expectedFirst =
+      s"""$firstItem
+         |""".stripMargin
+    val expectedSecond =
+      s"""$secondItem
+         |""".stripMargin
+    val parsed = new ListParserTestSpec(term).orderedListTight.run()
+    parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+  }
+
+  it should "parse sparse ordered list" in {
+    val firstItem = "First item"
+    val secondItem = "First item"
+    val term =
+      s"""1. $firstItem
+         |
+         |2. $secondItem
+         |
+       """.stripMargin
+    val parsed = new ListParserTestSpec(term).orderedListSparse.run()
+    val expectedFirst =
       s"""$firstItem
          |""".stripMargin
     val expectdSecond =
       s"""$secondItem
          |""".stripMargin
-    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectdFirst), Markdown(expectdSecond))))
-  }
-
-  it should "parse tight ordered list" in {
-
-  }
-
-  it should "parse sparse ordered list" in {
-
+    parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectdSecond))))
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
