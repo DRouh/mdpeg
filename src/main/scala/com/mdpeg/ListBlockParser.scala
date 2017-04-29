@@ -10,11 +10,11 @@ trait ListBlockParser extends PrimitiveRules {
   def orderedList: Rule1[OrderedList]     = rule { orderedListTight | orderedListSparse }
 
   // aux rules
-  def bullet: Rule0     = rule { nonIndentSpace ~ anyOf("+-*") ~ sp.+ }
+  def bullet: Rule0 = rule { nonIndentSpace ~ anyOf("+-*") ~ sp.+ }
   def enumerator: Rule0 = rule { nonIndentSpace ~ Digit.+ ~ "." ~ sp.+ }
 
   // unordered list
-  def bulletListTight: Rule1[UnorderedList]  = rule((bulletListItem.+ ~> (toUnorderedList(_))) ~ blankLine.* ~ !bulletListSparse)
+  def bulletListTight: Rule1[UnorderedList] = rule((bulletListItem.+ ~> (toUnorderedList(_))) ~ blankLine.* ~ !bulletListSparse)
   def bulletListSparse: Rule1[UnorderedList] = rule((bulletListItem ~ blankLine.*).+ ~> (toUnorderedList(_)))
   def bulletListItem: Rule1[String] = {
     def listStart = rule(!horizontalRule ~ bullet)
@@ -23,8 +23,8 @@ trait ListBlockParser extends PrimitiveRules {
   }
 
   // ordered list
-  def orderedListTight: Rule1[OrderedList]  = rule((orderedListItem.+ ~> (toOrderedList(_))) ~ blankLine.* ~ !orderedListSparse)
-  def orderedListSparse: Rule1[OrderedList]  = rule((orderedListItem ~ blankLine.*).+ ~> (toOrderedList(_)))
+  def orderedListTight: Rule1[OrderedList] = rule((orderedListItem.+ ~> (toOrderedList(_))) ~ blankLine.* ~ !orderedListSparse)
+  def orderedListSparse: Rule1[OrderedList] = rule((orderedListItem ~ blankLine.*).+ ~> (toOrderedList(_)))
   def orderedListItem: Rule1[String] = {
     def listStart = rule(enumerator)
     def listRest  = rule(listContinuationBlock.*)
@@ -32,11 +32,16 @@ trait ListBlockParser extends PrimitiveRules {
   }
 
   // aux list rules
-  // ToDo extend with additional rules regarding ordered list
-  def listBlock: Rule0 = rule(anyLine ~ zeroOrMore(!indent.? ~ !bulletListItem ~ !blankLine ~ !indent ~ !bullet ~ indentedLine.?))
+  def listBlock: Rule0 = {
+    def blockContents = rule(anyLine)
+    def notOptionallyIndentedAnyListItem = rule(!indent.? ~ (!bulletListItem | !orderedListItem))
+    def notPossibleStartOfAnyList = rule(!indent ~ (!bullet | !enumerator))
+    def blockRest = rule((notOptionallyIndentedAnyListItem ~ !blankLine ~ notPossibleStartOfAnyList ~ indentedLine.?).*)
+    rule(blockContents ~ blockRest)
+  }
+  // ToDo improve continuation to handle inner lists
   def listContinuationBlock: Rule0 = rule(blankLine.+ ~ (indent ~ listBlock).+)
 
-  // aux func
-  def toUnorderedList(x: Seq[String]) = UnorderedList(Vector(x.map(Markdown).toVector))
-  def toOrderedList(x: Seq[String]) = OrderedList(Vector(x.map(Markdown).toVector))
+  private def toUnorderedList(x: Seq[String]) = UnorderedList(Vector(x.map(Markdown).toVector))
+  private def toOrderedList(x: Seq[String]) = OrderedList(Vector(x.map(Markdown).toVector))
 }
