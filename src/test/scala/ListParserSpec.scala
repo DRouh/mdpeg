@@ -20,12 +20,15 @@ class ListParserSpec extends FlatSpec with Matchers {
     }
   }
 
-  def hasSucceeded (parserResult: Try[UnorderedList] ): Boolean  = !hasFailed(parserResult)
-  def hasFailed (parserResult: Try[UnorderedList] ): Boolean =
-    parserResult match {
-      case Failure(_) => true
-      case Success(_) => false
-    }
+  def hasSucceededUnordered(parserResult: Try[UnorderedList]): Boolean = !hasFailedUnordered(parserResult)
+  def hasFailedUnordered(parserResult: Try[UnorderedList]): Boolean = parserResult match {
+    case Failure(_) => true
+    case Success(_) => false
+  }
+  def hasFailedOrdered(parsed: Try[OrderedList]) = parsed match {
+    case Failure(_) => true
+    case Success(_) => false
+  }
 
   it should "parse unordered list's bullets '-*+'" in {
     for (ch <- Vector("-","*","+")) {
@@ -65,7 +68,7 @@ class ListParserSpec extends FlatSpec with Matchers {
          |- Second item
        """.stripMargin
     val parsed: Try[UnorderedList] = new ListParserTestSpec(term).bulletListTight.run()
-    hasFailed(parsed) shouldEqual true
+    hasFailedUnordered(parsed) shouldEqual true
   }
 
   it should "parse sparse bullet list" in {
@@ -125,6 +128,12 @@ class ListParserSpec extends FlatSpec with Matchers {
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
-
+    val term =
+      s"""1. First item
+         |
+         |2. Second item
+       """.stripMargin
+    val parsed: Try[OrderedList] = new ListParserTestSpec(term).orderedListTight.run()
+    hasFailedOrdered(parsed) shouldEqual true
   }
 }
