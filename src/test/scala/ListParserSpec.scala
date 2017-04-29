@@ -1,4 +1,4 @@
-import com.mdpeg.{ListBlockParser, Markdown}
+import com.mdpeg.{ListBlockParser, Markdown, UnorderedList}
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -20,11 +20,11 @@ class ListParserSpec extends FlatSpec with Matchers {
     }
   }
 
-  def hasSucceeded (parserResult: Try[Vector[Markdown]]): Boolean  = !hasFailed(parserResult)
-  def hasFailed (parserResult: Try[Vector[Markdown]]): Boolean =
+  def hasSucceeded (parserResult: Try[UnorderedList] ): Boolean  = !hasFailed(parserResult)
+  def hasFailed (parserResult: Try[UnorderedList] ): Boolean =
     parserResult match {
-      case Failure(error) => true
-      case Success(value) => false
+      case Failure(_) => true
+      case Success(_) => false
     }
 
   it should "parse unordered list's bullets '-*+'" in {
@@ -47,8 +47,7 @@ class ListParserSpec extends FlatSpec with Matchers {
          |- Second item
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListTight.run()
-    hasSucceeded(parsed) shouldEqual true
-    parsed.get shouldEqual Vector(Markdown(Vector("First item\r\n", "Second item\r\n")))
+    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown("First item\r\n"), Markdown("Second item\r\n"))))
   }
 
   it should "should fail on sparse bullet list while parsing it as tight" in {
@@ -57,7 +56,7 @@ class ListParserSpec extends FlatSpec with Matchers {
          |
          |- Second item
        """.stripMargin
-    val parsed = new ListParserTestSpec(term).bulletListTight.run()
+    val parsed: Try[UnorderedList] = new ListParserTestSpec(term).bulletListTight.run()
     hasFailed(parsed) shouldEqual true
   }
 
@@ -69,7 +68,6 @@ class ListParserSpec extends FlatSpec with Matchers {
          |
        """.stripMargin
     val parsed = new ListParserTestSpec(term).bulletListSparse.run()
-    hasSucceeded(parsed) shouldEqual true
-    parsed.get shouldEqual Vector(Markdown(Vector("First item\r\n", "Second item\r\n")))
+    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown("First item\r\n"), Markdown("Second item\r\n"))))
   }
 }
