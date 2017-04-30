@@ -1,6 +1,7 @@
 package com.mdpeg
 
 import org.parboiled2._
+import shapeless.HNil
 
 trait ListBlockParser extends PrimitiveRules {
   this: Parser =>
@@ -29,7 +30,7 @@ trait ListBlockParser extends PrimitiveRules {
   def orderedListSparse: Rule1[OrderedList] = rule((orderedListItem ~ blankLine.*).+ ~> (toOrderedList(_)))
   def orderedListItem: Rule1[Vector[String]] = {
     def listStart = rule(enumerator)
-    def listRest = rule(listContinuationBlock.* ~> ((x:Any)=> x.asInstanceOf[Vector[String]]))
+    def listRest  = rule(listContinuationBlock.* ~> ((x:Any)=> x.asInstanceOf[Vector[String]]))
     def ff(x:String, y: Vector[String]): Vector[String] = Vector(x) ++ y
     rule(listStart ~ capture(listBlock) ~ listRest ~> ((x:String, y: Vector[String]) => ff(x,y)))
   }
@@ -42,11 +43,16 @@ trait ListBlockParser extends PrimitiveRules {
     def blockRest = rule((notOptionallyIndentedAnyListItem ~ !blankLine ~ notPossibleStartOfAnyList ~ indentedLine.?).*)
     rule(blockContents ~ blockRest)
   }
+
   // ToDo improve continuation to handle inner lists
   def listContinuationBlock:Rule1[String] = {
-    def blankLines:Rule1[String] = rule(capture(blankLine.+) ~> ((x:String) => identity(x)))
-    def markdownSeparator:Rule1[String] = rule{MATCH ~ push("{{md-break}}") ~> ((x:String) => identity(x))}
-    rule { (blankLines | markdownSeparator) ~ (indent ~ listBlock).+ }
+    def addendum:Rule0 = rule((indent ~ listBlock).+)
+    def blankLines:Rule1[String] = rule{
+      capture(blankLine.+) ~ capture(addendum) ~> ((x:String, y:String) => identity(x+" !ADDENDUM!: "+ y))
+    }
+
+    def markdownSeparator:Rule1[String] = rule{MATCH ~ push("{{md-break}}") ~ capture (addendum) ~> ((x:String, y:String) => identity(x+" !ADDENDUM from push!: "+y))}
+    rule { (blankLines | markdownSeparator) ~ addendum }
   }
 
   private def toUnorderedList(x: Seq[Vector[String]]) = UnorderedList(x.map(_.map(Markdown)).toVector)

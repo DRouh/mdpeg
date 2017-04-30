@@ -30,55 +30,80 @@ class ListParserSpec extends FlatSpec with Matchers {
     case Success(_) => false
   }
 
-  val expectedFirst =
-    s"""${TestData.firstItemInList}
-       |""".stripMargin
-  val expectedSecond =
-    s"""${TestData.secondItemInList}""".stripMargin
+//  val expectedFirst =
+//    s"""${TestData.firstItemInList}
+//       |""".stripMargin
+//  val expectedSecond =
+//    s"""${TestData.secondItemInList}""".stripMargin
+//
+//  it should "parse unordered list's bullets '-*+'" in {
+//    for (ch <- Vector("-","*","+")) {
+//      val term = s"""$ch """.stripMargin
+//      new ListParserTestSpec(term).bullet.run().get
+//    }
+//  }
+//
+//  it should "parse ordered list's enumerator 1..999" in {
+//    for (d <- 1 to 999) {
+//      val term = s"""$d. """.stripMargin
+//      new ListParserTestSpec(term).enumerator.run().get
+//    }
+//  }
+//
+//  it should "parse tight bullet list" in {
+//    val parsed = new ListParserTestSpec(TestData.tightUnorderedList).list.run()
+//    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+//    println(parsed)
+//  }
+//
+//  it should "fail on sparse bullet list while parsing it as tight" in {
+//    val parsed: Try[UnorderedList] = new ListParserTestSpec(TestData.sparseUnorderedList).bulletListTight.run()
+//    hasFailedUnordered(parsed) shouldEqual true
+//  }
+//
+//  it should "parse sparse bullet list" in {
+//    val parsed = new ListParserTestSpec(TestData.sparseUnorderedList).list.run()
+//    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+//  }
+//
+//  it should "parse tight ordered list" in {
+//    val parsed = new ListParserTestSpec(TestData.tightOrderedList).list.run()
+//    parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+//    println(parsed.get)
+//  }
+//
+//  it should "parse sparse ordered list" in {
+//    val parsed = new ListParserTestSpec(TestData.sparseOrderedList).list.run()
+//    parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+//  }
+//
+//  it should "fail sparse ordered list while parsing it as list" in {
+//    val parsed = new ListParserTestSpec(TestData.sparseOrderedList).orderedListTight.run()
+//    hasFailedOrdered(parsed) shouldEqual true
+//  }
+  it should "parse nested bullet list" in {
+    val term =
+      """- item
+        |   - sub
+        |   - sub78(^%^%$#@#
+        |
+        |- 2nd item
+        |
+        |""".stripMargin
+    val parser =  new ListParserTestSpec(term)
 
-  it should "parse unordered list's bullets '-*+'" in {
-    for (ch <- Vector("-","*","+")) {
-      val term = s"""$ch """.stripMargin
-      new ListParserTestSpec(term).bullet.run().get
-    }
+    println(parser.list.run().get)
+//    parser.unorderedList.run() match {
+//      case Success(node) => println(node)
+//      case Failure(e: ParseError) =>
+//        println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
+//    }
   }
 
-  it should "parse ordered list's enumerator 1..999" in {
-    for (d <- 1 to 999) {
-      val term = s"""$d. """.stripMargin
-      new ListParserTestSpec(term).enumerator.run().get
-    }
-  }
-
-  it should "parse tight bullet list" in {
-    val parsed = new ListParserTestSpec(TestData.tightUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
-    println(parsed)
-  }
-
-  it should "fail on sparse bullet list while parsing it as tight" in {
-    val parsed: Try[UnorderedList] = new ListParserTestSpec(TestData.sparseUnorderedList).bulletListTight.run()
-    hasFailedUnordered(parsed) shouldEqual true
-  }
-
-  it should "parse sparse bullet list" in {
-    val parsed = new ListParserTestSpec(TestData.sparseUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
-  }
-
-  it should "parse tight ordered list" in {
-    val parsed = new ListParserTestSpec(TestData.tightOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
-    println(parsed.get)
-  }
-
-  it should "parse sparse ordered list" in {
-    val parsed = new ListParserTestSpec(TestData.sparseOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
-  }
-
-  it should "fail sparse ordered list while parsing it as list" in {
-    val parsed = new ListParserTestSpec(TestData.sparseOrderedList).orderedListTight.run()
-    hasFailedOrdered(parsed) shouldEqual true
-  }
+  UnorderedList(
+    Vector(
+      Vector(Markdown("first outer")),
+      Vector(Markdown("first nested")),
+      Vector(Markdown("second nested")),
+      Vector(Markdown("second outer"),Markdown("{{md-break}}"))))
 }
