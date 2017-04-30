@@ -34,8 +34,7 @@ class ListParserSpec extends FlatSpec with Matchers {
     s"""${TestData.firstItemInList}
        |""".stripMargin
   val expectedSecond =
-    s"""${TestData.secondItemInList}
-       |""".stripMargin
+    s"""${TestData.secondItemInList}""".stripMargin
 
   it should "parse unordered list's bullets '-*+'" in {
     for (ch <- Vector("-","*","+")) {
@@ -54,6 +53,7 @@ class ListParserSpec extends FlatSpec with Matchers {
   it should "parse tight bullet list" in {
     val parsed = new ListParserTestSpec(TestData.tightUnorderedList).list.run()
     parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+    println(parsed)
   }
 
   it should "fail on sparse bullet list while parsing it as tight" in {
@@ -69,6 +69,7 @@ class ListParserSpec extends FlatSpec with Matchers {
   it should "parse tight ordered list" in {
     val parsed = new ListParserTestSpec(TestData.tightOrderedList).list.run()
     parsed.get shouldEqual OrderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
+    println(parsed.get)
   }
 
   it should "parse sparse ordered list" in {
