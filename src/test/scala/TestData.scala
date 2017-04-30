@@ -114,6 +114,30 @@ object TestData {
        |DJI_EWEQ="-Qdxv3eqewq32 -rfre43rt:+terwfq43E#"
        |""".stripMargin
 
+  val firstItemInList = "First item"
+  val secondItemInList = "Second item"
+  val sparseOrderedList =
+    s"""1. $firstItemInList
+       |
+       |2. $secondItemInList
+       |
+       """.stripMargin
+  val tightOrderedList =
+    s"""1. $firstItemInList
+       |2. $secondItemInList
+       """.stripMargin
+  val sparseUnorderedList =
+    s"""- $firstItemInList
+       |
+       |- $secondItemInList
+       |
+       """.stripMargin
+  val tightUnorderedList =
+    s"""- $firstItemInList
+       |
+       |- $secondItemInList
+       |
+       """.stripMargin
   val compoundMD =
     s"""# $headingOne
        |
