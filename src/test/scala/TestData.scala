@@ -1,7 +1,7 @@
 object TestData {
-  val headingOne = "Heading One"
-  val headingTwo = "Heading Two"
-  val paragraphOne =
+  val headingOne: String = "Heading One"
+  val headingTwo: String = "Heading Two"
+  val paragraphOne: String =
     """It is a long established fact that a reader will be distracted by the readable content
     |of a page when looking at its layout. The point of using Lorem Ipsum is that it has a
     |more-or-less normal distribution of letters, as opposed to using, 'Content content'
@@ -9,7 +9,7 @@ object TestData {
     |now use Lorem Ipsum as their default model text, and a search for will uncover
     |many web sites still in their infancy. Various versions have evolved over the years,
     |sometimes by accident, sometimes on purpose (injected humour and the like).""".stripMargin
-  val paragraphTwo =
+  val paragraphTwo: String =
     """But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born
     |and I will give you a complete account of the system, and expound the actual teachings of the great
     |explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids
@@ -19,21 +19,21 @@ object TestData {
     |circumstances occur in which toil and pain can procure him some great pleasure.
     |To take a trivial example, which of""".stripMargin
 
-  val blockQuoteLineOne = "This is quote"
-  val blockQuoteLineTwo = "and should span several"
-  val blockQuoteLineThree = "yet another line for the block"
-  val blockQuote = s"""$blockQuoteLineOne $blockQuoteLineTwo $blockQuoteLineThree""".stripMargin
-  val plainText = "This is a plaint string in the end."
-  val codeBlock =
+  val blockQuoteLineOne: String = "This is quote"
+  val blockQuoteLineTwo: String = "and should span several"
+  val blockQuoteLineThree: String = "yet another line for the block"
+  val blockQuote: String = s"""$blockQuoteLineOne $blockQuoteLineTwo $blockQuoteLineThree""".stripMargin
+  val plainText: String = "This is a plaint string in the end."
+  val codeBlock: String =
     """javascript
       |var s = "JavaScript syntax highlighting";
       |alert(s);
       |""".stripMargin
-  val codeBlock2 =
+  val codeBlock2: String =
     """$#@#%$# DJI therefore frequently
       |DJI_EWEQ="-Qdxv3eqewq32 -rfre43rt:+terwfq43E#"
       |""".stripMargin
-  val codeBlock3 =
+  val codeBlock3: String =
     """lorem.lobster {
       |  doloremque = "47.8"
       |  nostrum = "l2norm"
@@ -44,7 +44,7 @@ object TestData {
       |  }
       |}
       |""".stripMargin
-  val codeBlock4 =
+  val codeBlock4: String =
     s"""lorem.lobster {
        |
        |  JIOJ-url = "lala://localhost:7891/lamda"
@@ -114,31 +114,29 @@ object TestData {
        |DJI_EWEQ="-Qdxv3eqewq32 -rfre43rt:+terwfq43E#"
        |""".stripMargin
 
-  val firstItemInList = "First item"
-  val secondItemInList = "Second item"
-  val sparseOrderedList =
+  val firstItemInList: String = "First item"
+  val secondItemInList: String = "Second item"
+  val sparseOrderedList: String =
     s"""1. $firstItemInList
        |
        |2. $secondItemInList
        |
        """.stripMargin
-  val tightOrderedList =
+  val tightOrderedList: String =
     s"""1. $firstItemInList
        |2. $secondItemInList
        """.stripMargin
-  val sparseUnorderedList =
+  val sparseUnorderedList: String =
     s"""- $firstItemInList
        |
        |- $secondItemInList
        |
        """.stripMargin
-  val tightUnorderedList =
+  val tightUnorderedList: String =
     s"""- $firstItemInList
-       |
        |- $secondItemInList
-       |
        """.stripMargin
-  val compoundMD =
+  val compoundMD: String =
     s"""# $headingOne
        |
        |## $headingTwo
