@@ -62,7 +62,7 @@ class ListParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse sparse bullet list" in {
-    val parsed = new ListParserTestSpec(TestData.tightUnorderedList).list.run()
+    val parsed = new ListParserTestSpec(TestData.sparseUnorderedList).list.run()
     parsed.get shouldEqual UnorderedList(Vector(Vector(Markdown(expectedFirst), Markdown(expectedSecond))))
   }
 
