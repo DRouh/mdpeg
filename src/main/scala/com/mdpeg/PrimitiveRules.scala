@@ -2,7 +2,8 @@ package com.mdpeg
 
 import org.parboiled2._
 
-trait PrimitiveRules extends Parser {
+trait PrimitiveRules {
+  this: Parser =>
   import CharPredicate._
 
   def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
@@ -20,7 +21,7 @@ trait PrimitiveRules extends Parser {
   def inline          : Rule0 = rule(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'"))
   def blankLine       : Rule0 = rule(sp.* ~ nl)
   def punctuationChar : Rule0 = rule(anyOf(":;,.?!-’“”—")) // ToDo think how to handle backtick '`' so that it is not confused with verbatim block
-  def nl              : Rule0 = rule("\r\n" | "\r" | "\n")
+  def nl              : Rule0 = rule('\r'.? ~ '\n')
   def spaces          : Rule0 = rule(sp.*)
-  def sp              : Rule0 = rule(" " | "\t")
+  def sp              : Rule0 = rule(anyOf(" \t"))
 }

@@ -2,11 +2,11 @@ package com.mdpeg
 
 import org.parboiled2._
 
-class BlockParser(val input: ParserInput) extends PrimitiveRules {
+class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules {
 
-  def InputLine = rule(block.+ ~ EOI)
+  def InputLine: Rule1[Seq[Block]] = rule(block.+ ~ EOI)
 
-  def block : Rule1[Block] = rule { blockQuote | verbatim | heading | horizontalRule | paragraph | plain  }
+  def block: Rule1[Block] = rule { blockQuote | verbatim | heading | horizontalRule | paragraph | plain  }
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {

@@ -1,8 +1,9 @@
 package com.mdpeg
 
-import org.parboiled2.{CharPredicate, Rule0, Rule1}
+import org.parboiled2._
 
 trait ListBlockParser extends PrimitiveRules {
+  this: Parser =>
   import CharPredicate._
 
   def list: Rule1[Block]                  = rule { unorderedList | orderedList }
