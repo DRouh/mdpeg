@@ -19,12 +19,16 @@ trait ListBlockParser extends PrimitiveRules {
   def bulletListSparse: Rule1[UnorderedList] = rule((bulletListItem ~ blankLine.*).+ ~> (toUnorderedList(_)))
   def bulletListItem: Rule1[Vector[String]] = {
     def listStart = rule(!horizontalRule ~ bullet)
-    def listRest  = rule(listContinuationBlock.* ~> ((x:Any)=> x.asInstanceOf[Vector[String]]))
-    def ff(x:String, y: Vector[String]): Vector[String] = {
-      println(s"Vector($x) ++ $y")
-      Vector(x) ++ y
+    def gg(x:Any) = {
+      println(s"listRest:{$x}")
+      x.asInstanceOf[String]
     }
-    rule(listStart ~ capture(listBlock) ~ listRest ~> ((x:String, y: Vector[String]) => ff(x,y)))
+    def listRest  = rule(listContinuationBlock ~> ((x:Any)=> gg(x)))
+    def ff(x:String, y: String): Vector[String] = {
+      println(s"Vector($x) ++ $y")
+      Vector(x) ++ Vector(y)
+    }
+    rule(listStart ~ capture(listBlock) ~ listRest ~> ((x:String, y: String) => ff(x,y)))
   }
 
   // ordered list
@@ -32,7 +36,12 @@ trait ListBlockParser extends PrimitiveRules {
   def orderedListSparse: Rule1[OrderedList] = rule((orderedListItem ~ blankLine.*).+ ~> (toOrderedList(_)))
   def orderedListItem: Rule1[Vector[String]] = {
     def listStart = rule(enumerator)
-    def listRest = rule(listContinuationBlock.* ~> ((x:Any)=> x.asInstanceOf[Vector[String]]))
+    def gg(x:Any) = {
+      println(s"listRest:{$x}")
+      x.asInstanceOf[Vector[String]]
+    }
+
+    def listRest = rule(listContinuationBlock.* ~> ((x:Any) => gg(x)))
     def ff(x:String, y: Vector[String]): Vector[String] = Vector(x) ++ y
     rule(listStart ~ capture(listBlock) ~ listRest ~> ((x:String, y: Vector[String]) => ff(x,y)))
   }
@@ -40,19 +49,12 @@ trait ListBlockParser extends PrimitiveRules {
   // aux list rules
   def listBlock: Rule0 = {
     def blockContents = rule(anyLine)
-    def notOptionallyIndentedAnyListItem = rule(!indent.? ~ (!bulletListItem | !orderedListItem))
+    def notOptionallyIndentedAnyListItem = rule(!(indent.? ~ (!bulletListItem | !orderedListItem)))
     def notPossibleStartOfAnyList        = rule(!indent ~ (!bullet | !enumerator))
     def blockRest = rule((notOptionallyIndentedAnyListItem ~ !blankLine ~ notPossibleStartOfAnyList ~ !indentedLine.?).*)
     rule(blockContents ~ blockRest)
   }
 
-//  def listBlock: Rule0 = {
-//    def blockContents = rule(anyLine.+) // ToDo this anyLine.+ handles some of the cases
-//    def notOptionallyIndentedAnyListItem = rule(!indent.? ~ (!bulletListItem | !orderedListItem))
-//    def notPossibleStartOfAnyList        = rule(!indent ~ (!bullet | !enumerator))
-//    def blockRest = rule((notOptionallyIndentedAnyListItem ~ !blankLine ~ notPossibleStartOfAnyList ~ !indentedLine.?).*)
-//    rule(blockContents ~ blockRest)
-//  }
   // ToDo improve continuation to handle inner lists
   def listContinuationBlock: Rule1[String] = {
     def blankLines: Rule1[String] = rule(capture(blankLine.+) ~> ((x: String) => identity(x)))
@@ -61,12 +63,14 @@ trait ListBlockParser extends PrimitiveRules {
       MATCH ~ push("{{md-break}}") ~> ((x: String) => identity(x))
     }
     def continuation: Rule0= rule((indent ~ listBlock).+)
+
     def ff(x: String, y:Any) ={
       println(s"y:${y}")
       x
     }
+
     rule {
-      (capture(blankLine.+) | MATCH ~ push("{{md-break}}")) ~ capture(continuation) ~> ((x: String, y:Any) => identity(x))
+      (capture(blankLine.+) | MATCH ~ push("{{md-break}}")) ~ capture(continuation) ~> ((x: String, y:Any) => ff(x,y))
     }
   }
 
