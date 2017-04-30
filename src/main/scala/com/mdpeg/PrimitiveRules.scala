@@ -19,7 +19,7 @@ trait PrimitiveRules extends Parser {
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
   def inline          : Rule0 = rule(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'"))
   def blankLine       : Rule0 = rule(sp.* ~ nl)
-  def punctuationChar : Rule0 = rule(anyOf(":;,.?!-"))
+  def punctuationChar : Rule0 = rule(anyOf(":;,.?!-’“”—")) // ToDo think how to handle backtick '`' so that it is not confused with verbatim block
   def nl              : Rule0 = rule("\r\n" | "\r" | "\n")
   def spaces          : Rule0 = rule(sp.*)
   def sp              : Rule0 = rule(" " | "\t")
