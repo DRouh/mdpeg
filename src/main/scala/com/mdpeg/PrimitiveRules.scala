@@ -14,7 +14,10 @@ trait PrimitiveRules {
   }
 
   def indentedLine    : Rule0 = rule(indent ~ anyLine)
-  def anyLine         : Rule0 = rule(!nl ~ !EOI ~ inline.+ ~ (nl | ""))
+  def anyLine         : Rule0 = rule(!nl ~ !EOI ~ anyChar.* ~ (nl | ""))
+  def anyChar         : Rule0 = rule(inline | mathChar | specialChar)
+  def mathChar        : Rule0 = rule { anyOf("=/\\*-+^%!<>[]{}") }
+  def specialChar     : Rule0 = rule {anyOf("@#$\"“")}
   def endLine         : Rule0 = rule(sp.? ~ nl ~ !blankLine ~ !EOI)
   def indent          : Rule0 = rule("\t" | "    ")
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
