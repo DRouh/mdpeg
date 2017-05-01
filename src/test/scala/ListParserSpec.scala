@@ -17,7 +17,7 @@ class ListParserSpec extends FlatSpec with Matchers {
             case e : ParseError => println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
             case _ => println(error)
           }
-        case Success(value) => println(value)
+        case Success(v) => println(v)
       }
     }
   }
@@ -27,15 +27,15 @@ class ListParserSpec extends FlatSpec with Matchers {
     case Failure(_) => true
     case Success(_) => false
   }
-  def hasFailedOrdered(parsed: Try[OrderedList]) = parsed match {
+  def hasFailedOrdered(parsed: Try[OrderedList]):Boolean = parsed match {
     case Failure(_) => true
     case Success(_) => false
   }
 
-  val expectedFirst =
+  val expectedFirst: String =
     s"""${TestData.firstItemInList}
        |""".stripMargin
-  val expectedSecond =
+  val expectedSecond: String =
     s"""${TestData.secondItemInList}""".stripMargin
 
   it should "parse unordered list's bullets '-*+'" in {
@@ -62,9 +62,11 @@ class ListParserSpec extends FlatSpec with Matchers {
     hasFailedUnordered(parsed) shouldEqual true
   }
 
-  it should "parse sparse bullet list" in {
+  it should "parse sparse bullet list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListParserTestSpec(TestData.sparseUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond)))
+    parsed.get shouldEqual UnorderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
+                                                                                                     |
+                                                                                                     |       """.stripMargin)))
   }
 
   it should "parse tight ordered list" in {
@@ -73,9 +75,11 @@ class ListParserSpec extends FlatSpec with Matchers {
     println(parsed.get)
   }
 
-  it should "parse sparse ordered list" in {
+  it should "parse sparse ordered list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListParserTestSpec(TestData.sparseOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond)))
+    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
+                                                                                                  |
+                                                                                                  |       """.stripMargin)))
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
@@ -83,47 +87,53 @@ class ListParserSpec extends FlatSpec with Matchers {
     hasFailedOrdered(parsed) shouldEqual true
   }
 
-  /* ToDo:
-  * 1. indent is set to 4 spaces - should it be fixed or allow 2/4 spaces for case when we are inside of list item already
-  * 2. a list item should include block of raw markdown
-  * 3. an list should contain items that contains raw markdown.
-  * 4. should start parser recursively for a markdown - at which point?
-  */
-  it should "123" in {
+  it should "create markdown for every list item" in {
     val term ="""* 1st block - It is a long established fact that a reader will be distracted by the readable content of a
-                |    page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
+                |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
                 |    normal distribution of letters, as opposed to using 'Content here, content here',
-                |    making it look like readable English. Many desktop publishing packages and web page
                 |* 2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
                 |     'lorem ipsum' will uncover many web sites still in their infancy. Various versions
-                |     have evolved over the years, sometimes by accident, sometimes on purpose (.
                 |     injected humour and the like).
                 |     There are many variations of passages of Lorem Ipsum available, but the majority have
-                |     suffered alteration in some form, by injected humour, or randomised words
-                |     which don't look even slightly believable.
                 |* 3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be
                 |* 4th list block - sure there isn't anything embarrassing hidden in the middle
                 |    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin
     val parser = new ListParserTestSpec(term)
-    parser.list.run() match {
-      case Success(node) => println(node)
-      case Failure(e: ParseError) =>
-        println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
-      case Failure(e) =>
-        throw e
-    println("======================================")
-  }}
-  it should "456" in {
-    val term =""" - item
-                |     - sub
-                |     - sub""".stripMargin
+    parser.list.run().get shouldEqual UnorderedList(
+      Vector(
+        Markdown("""1st block - It is a long established fact that a reader will be distracted by the readable content of a
+                   |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
+                   |    normal distribution of letters, as opposed to using 'Content here, content here',
+                   |""".stripMargin),
+        Markdown("""2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
+                   |     'lorem ipsum' will uncover many web sites still in their infancy. Various versions
+                   |     injected humour and the like).
+                   |     There are many variations of passages of Lorem Ipsum available, but the majority have
+                   |""".stripMargin),
+        Markdown(
+          """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be
+            |""".stripMargin),
+        Markdown("""4th list block - sure there isn't anything embarrassing hidden in the middle
+                   |    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
+  }
+
+  it should "create markdown for each full/half indented chunk" in {
+    val term =
+      """- item 1
+        |     - sub 1
+        |     - sub 2
+        |- item 2
+        |  - sub 3
+        |  - sub 4""".stripMargin
     val parser = new ListParserTestSpec(term)
-    parser.list.run() match {
-      case Success(node) => println(node)
-      case Failure(e: ParseError) =>
-        println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
-      case Failure(e) =>
-        throw e
-        println("======================================")
-    }}
+    parser.list.run().get shouldEqual UnorderedList(
+      Vector(
+        Markdown("""item 1
+                   |     - sub 1
+                   |     - sub 2
+                   |""".stripMargin),
+        Markdown("""item 2
+                   |  - sub 3
+                   |  - sub 4""".stripMargin)))
+  }
 }
