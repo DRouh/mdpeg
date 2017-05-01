@@ -21,7 +21,7 @@ trait ListBlockParser extends PrimitiveRules {
     def listStart = rule(!horizontalRule ~ bullet)
     def listRest  = rule(listContinuationBlock.*)
     def ff(x:String, y: String): Vector[String] = {
-      println(s"bulletListItem:Vector($x) ++ ($y)")
+      //println(s"bulletListItem:Vector($x) ++ ($y)")
       Vector(x+y)
     }
     rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> ((x:String, y: String) => ff(x,y)))
@@ -34,7 +34,7 @@ trait ListBlockParser extends PrimitiveRules {
     def listStart = rule(enumerator)
     def listRest  = rule(listContinuationBlock.*)
     def ff(x:String, y: String): Vector[String] = {
-      println(s"bulletListItem:Vector($x) ++ ($y)")
+      //println(s"bulletListItem:Vector($x) ++ ($y)")
       Vector(x+y)
     }
     rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> ((x:String, y: String) => ff(x,y)))

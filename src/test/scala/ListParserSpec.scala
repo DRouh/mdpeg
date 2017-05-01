@@ -72,7 +72,6 @@ class ListParserSpec extends FlatSpec with Matchers {
   it should "parse tight ordered list" in {
     val parsed = new ListParserTestSpec(TestData.tightOrderedList).list.run()
     parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond)))
-    println(parsed.get)
   }
 
   it should "parse sparse ordered list" in { // ToDo fix rules to get rid of these trailing blank lines
@@ -87,7 +86,7 @@ class ListParserSpec extends FlatSpec with Matchers {
     hasFailedOrdered(parsed) shouldEqual true
   }
 
-  it should "create markdown for every list item" in {
+  it should "create markdown for every list item in unordered list" in {
     val term ="""* 1st block - It is a long established fact that a reader will be distracted by the readable content of a
                 |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
                 |    normal distribution of letters, as opposed to using 'Content here, content here',
@@ -117,7 +116,7 @@ class ListParserSpec extends FlatSpec with Matchers {
                    |    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
   }
 
-  it should "create markdown for each full/half indented chunk" in {
+  it should "create markdown for each full/half indented chunk in unordered list" in {
     val term =
       """- item 1
         |     - sub 1
@@ -135,5 +134,25 @@ class ListParserSpec extends FlatSpec with Matchers {
         Markdown("""item 2
                    |  - sub 3
                    |  - sub 4""".stripMargin)))
+  }
+
+    it should "create markdown for each full/half indented chunk in ordered list" in {
+      val term =
+        """1. item 1
+          |     1. sub 1
+          |     2. sub 2
+          |2. item 2
+          |  1. sub 3
+          |  2. sub 4""".stripMargin
+      val parser = new ListParserTestSpec(term)
+      parser.list.run().get shouldEqual OrderedList(
+        Vector(
+          Markdown("""item 1
+                     |     1. sub 1
+                     |     2. sub 2
+                     |""".stripMargin),
+          Markdown("""item 2
+                     |  1. sub 3
+                     |  2. sub 4""".stripMargin)))
   }
 }
