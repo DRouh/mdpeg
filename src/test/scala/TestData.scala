@@ -124,8 +124,7 @@ object TestData {
        """.stripMargin
   val tightOrderedList: String =
     s"""1. $firstItemInList
-       |2. $secondItemInList
-       """.stripMargin
+       |2. $secondItemInList""".stripMargin
   val sparseUnorderedList: String =
     s"""- $firstItemInList
        |
@@ -134,8 +133,7 @@ object TestData {
        """.stripMargin
   val tightUnorderedList: String =
     s"""- $firstItemInList
-       |- $secondItemInList
-       """.stripMargin
+       |- $secondItemInList""".stripMargin
   val compoundMD: String =
     s"""# $headingOne
        |

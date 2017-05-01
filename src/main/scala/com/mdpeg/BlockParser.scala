@@ -10,9 +10,7 @@ class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules {
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
-    def math = rule { anyOf("=/\\*-+^%!<>[]{}") }
-    def other = rule {anyOf("@#$\"“")}
-    def inlineCodeChar = rule( inline | math | other ) // ToDo add blank line?
+    def inlineCodeChar = rule( inline | mathChar | specialChar ) // ToDo add blank line?
     def verbatimBlockBound = rule(3.times("`"))
     def verbatimBlockContents = rule((nl | inlineCodeChar.+ ~ nl).+)
     rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)

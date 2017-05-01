@@ -11,8 +11,8 @@ final case class BlockQuote(inline: String) extends Block
 final case class TableBlock(inline: String) extends Block
 
 // list cases
-final case class OrderedList(inline: Vector[Vector[Block]]) extends Block
-final case class UnorderedList(inline: Vector[Vector[Block]]) extends Block
+final case class OrderedList(inline: Vector[Block]) extends Block
+final case class UnorderedList(inline: Vector[Block]) extends Block
 
 /**
   * Raw markdown that is yet to be processed into blocks
