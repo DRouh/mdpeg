@@ -23,12 +23,12 @@ trait ListBlockParser extends PrimitiveRules {
       println(s"listRest:{$x}")
       x.asInstanceOf[String]
     }
-    def listRest  = rule(listContinuationBlock ~> ((x:Any)=> gg(x)))
+    def listRest  = rule(listContinuationBlock.* ~> ((x:Any)=> gg(x)))
     def ff(x:String, y: String): Vector[String] = {
-      println(s"Vector($x) ++ $y")
-      Vector(x) ++ Vector(y)
+      println(s"bulletListItem:Vector($x) ++ ($y)")
+      Vector(x+y)
     }
-    rule(listStart ~ capture(listBlock) ~ listRest ~> ((x:String, y: String) => ff(x,y)))
+    rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> ((x:String, y: String) => ff(x,y)))
   }
 
   // ordered list
@@ -38,12 +38,15 @@ trait ListBlockParser extends PrimitiveRules {
     def listStart = rule(enumerator)
     def gg(x:Any) = {
       println(s"listRest:{$x}")
-      x.asInstanceOf[Vector[String]]
+      x.asInstanceOf[String]
     }
 
-    def listRest = rule(listContinuationBlock.* ~> ((x:Any) => gg(x)))
-    def ff(x:String, y: Vector[String]): Vector[String] = Vector(x) ++ y
-    rule(listStart ~ capture(listBlock) ~ listRest ~> ((x:String, y: Vector[String]) => ff(x,y)))
+    def listRest  = rule(listContinuationBlock.* ~> ((x:Any)=> gg(x)))
+    def ff(x:String, y: Any): Vector[String] = {
+      println(s"bulletListItem:Vector($x) ++ ($y)")
+      Vector(x+y)
+    }
+    rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> ((x:String, y: Any) => ff(x,y)))
   }
 
   // aux list rules
@@ -56,24 +59,11 @@ trait ListBlockParser extends PrimitiveRules {
   }
 
   // ToDo improve continuation to handle inner lists
-  def listContinuationBlock: Rule1[String] = {
-    def blankLines: Rule1[String] = rule(capture(blankLine.+) ~> ((x: String) => identity(x)))
-
-    def markdownSeparator: Rule1[String] = rule {
-      MATCH ~ push("{{md-break}}") ~> ((x: String) => identity(x))
-    }
-    def continuation: Rule0= rule((indent ~ listBlock).+)
-
-    def ff(x: String, y:Any) ={
-      println(s"y:${y}")
-      x
-    }
-
-    rule {
-      (capture(blankLine.+) | MATCH ~ push("{{md-break}}")) ~ capture(continuation) ~> ((x: String, y:Any) => ff(x,y))
-    }
+  def listContinuationBlock: Rule0 = {
+    def continuation: Rule0 = rule((indent ~ listBlock).+)
+    rule((blankLine.+ | MATCH) ~ continuation)
   }
 
-  private def toUnorderedList(x: Seq[Vector[String]]) = UnorderedList(x.map(_.map(Markdown)).toVector)
-  private def toOrderedList(x: Seq[Vector[String]]) = OrderedList(x.map(_.map(Markdown)).toVector)
+  private def toUnorderedList(x: Seq[Vector[String]]) = UnorderedList(x.flatten.map(Markdown).toVector)
+  private def toOrderedList(x: Seq[Vector[String]]) = OrderedList(x.flatten.map(Markdown).toVector)
 }
