@@ -2,11 +2,10 @@ package com.mdpeg
 
 import org.parboiled2._
 
-class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules {
-
+class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockParser {
   def InputLine: Rule1[Seq[Block]] = rule(block.+ ~ EOI)
 
-  def block: Rule1[Block] = rule { blockQuote | verbatim | heading | horizontalRule | paragraph | plain  }
+  def block: Rule1[Block] = rule { blockQuote | verbatim | heading | list | horizontalRule | paragraph | plain  }
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
@@ -16,7 +15,7 @@ class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules {
     rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)
   }
 
-  def blockQuote : Rule1[BlockQuote] = {
+  def blockQuote : Rule1[BlockQuote] = { // ToDo think if should store a Markdown instead of concatenated strings
     def blockQuoteLine: Rule1[String] = rule(nonIndentSpace ~ ">" ~ sp.+ ~ capture(anyLine))
     // ToDo think if keep line breaks or keep as it is (i.e. replaced with spaces)
     def toBQ = (x: Seq[String]) => BlockQuote(flattenString(x.toVector))
