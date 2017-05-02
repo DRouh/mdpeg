@@ -1,5 +1,3 @@
-
-import com.mdpeg.Parser.parser
 import com.mdpeg.{ListBlockParser, Markdown, OrderedList, UnorderedList}
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}

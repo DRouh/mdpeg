@@ -134,6 +134,21 @@ object TestData {
   val tightUnorderedList: String =
     s"""- $firstItemInList
        |- $secondItemInList""".stripMargin
+  val twoDifferentLists: String = """* 1st block - It is a long established fact that a reader will be distracted by the readable content of a
+                            |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
+                            |  normal distribution of letters, as opposed to using 'Content here, content here',
+                            |* 2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
+                            |  'lorem ipsum' will uncover many web sites still in their infancy. Various versions
+                            |  injected humour and the like).
+                            |  There are many variations of passages of Lorem Ipsum available, but the majority have
+                            |* 3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be
+                            |* 4th list block - sure there isn't anything embarrassing hidden in the middle
+                            |  of text. All the Lorem Ipsum generators on the Internet tend to r
+                            |
+                            |1. This is a first item of an ordered list
+                            |    1. and this is a first sub item of a first item of an ordered list
+                            |    2. and this is a second sub item of a first item of an ordered list
+                            |2. And, finally, this is a second item of an ordered list""".stripMargin
   val compoundMD: String =
     s"""# $headingOne
        |
@@ -154,6 +169,7 @@ object TestData {
        |_ _ _ _
        |
        |```$codeBlock4```
-       |$plainText"""
+       |$plainText
+       |$twoDifferentLists"""
       .stripMargin
 }
