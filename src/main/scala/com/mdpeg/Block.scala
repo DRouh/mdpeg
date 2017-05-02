@@ -21,6 +21,10 @@ sealed trait MultilineTableElement
 final case class MultilineTableTitle(inline: Markdown) extends MultilineTableElement
 final case class MultilineTableColumnHeader(inline: Markdown) extends MultilineTableElement
 final case class MultilineTableCell(inline: Markdown) extends MultilineTableElement
+// ToDo may header not present?
+// ToDo case class for row?
+// ToDo capture alignment
+// ToDo capture relative width of a column
 
 /**
   * Raw markdown that is yet to be processed into blocks
