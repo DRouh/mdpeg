@@ -44,7 +44,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
   it should "parse table a one-line tall heading" in {
     val term =
       """--------------------------------------------------------------------------------
-        |Term                  Description
+        |Term 1                Description line 1
         |----------------      ------------------------------------------------
         |""".stripMargin
     //     val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
