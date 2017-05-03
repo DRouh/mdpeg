@@ -7,7 +7,8 @@ trait MultilineTablesParser extends PrimitiveRules {
 
   def multiTable = ???
   def tableBorder: Rule0 = rule(!horizontalRule ~ (3 to 150).times("-") ~ nl)
-
+  def tableCaption: Rule0 = rule("Table: " ~ anyChar.+ ~ nl.?)
+  //ToDo def heading content?
 /* ToDo think about
 * 1. capturing relative width of columns
 * 2. capturing table caption
