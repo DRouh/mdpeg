@@ -5,6 +5,9 @@ trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
   import CharPredicate._
 
+  def multiTable = ???
+  def tableBorder: Rule0 = rule(!horizontalRule ~ (3 to 150).times("-") ~ nl)
+
 /* ToDo think about
 * 1. capturing relative width of columns
 * 2. capturing table caption
