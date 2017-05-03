@@ -6,6 +6,10 @@ trait MultilineTablesParser extends PrimitiveRules {
   import CharPredicate._
 
   def multiTable = ???
+
+  def tableHead: Rule1[String] = rule(tableBorder ~ capture(anyChar.+) ~ nl ~ tableHeadWidthSeparator)
+  // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
+  def tableHeadWidthSeparator:Rule0 = rule(!horizontalRule ~ ((3 to 150).times("-") ~ sp.*).+ ~ nl.?)
   def tableBorder: Rule0 = rule(!horizontalRule ~ (3 to 150).times("-") ~ nl)
   def tableCaption: Rule0 = rule("Table: " ~ anyChar.+ ~ nl.?)
   //ToDo def heading content?
