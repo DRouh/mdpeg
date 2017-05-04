@@ -6,16 +6,23 @@ trait MultilineTablesParser extends PrimitiveRules {
 
   def multiTable = ???
 
-  def tableHead: Rule1[String] = {
-    def headContentLine = rule(!tableHeadWidthSeparator ~ anyLine | blankLine)
-    rule(tableBorder ~ capture(headContentLine.+) ~ tableHeadWidthSeparator)
+  def tableHeadRaw: Rule0 = {
+    def headContentLine = rule(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine))
+    rule(tableBorder ~ headContentLine.+ ~ tableHeadWidthSeparator)
+  }
+
+  def tableBodyRaw: Rule0 = {
+    def bodyContentLine = rule(atomic(!tableBorder ~ anyLine | blankLine))
+    rule(tableHeadWidthSeparator ~ bodyContentLine.+ ~ tableBorder)
   }
 
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
-  def tableHeadWidthSeparator:Rule0 = rule(!horizontalRule ~ ((3 to 150).times("-") ~ sp.*).+ ~ nl.?)
-  def tableBorder: Rule0 = rule(!horizontalRule ~ (3 to 150).times("-") ~ nl)
-  def tableCaption: Rule0 = rule("Table: " ~ anyChar.+ ~ nl.?)
-  //ToDo def heading content?
+  def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
+  def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
+  def tableCaption: Rule0 = rule(atomic("Table: " ~ anyChar.+ ~ nl.?))
+
+  //aux rules
+  private def dashes: Rule0 = rule((3 to 150).times("-"))
 /* ToDo think about
 * 1. capturing relative width of columns
 * 2. capturing table caption

@@ -47,7 +47,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Term 1                Description line 1
         |----------------      ------------------------------------------------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
+    val parsed = new MultilineTablesParserTestSpec(term).tableHeadRaw.run()
     noException should be thrownBy { parsed.get }
   }
 
@@ -62,7 +62,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Term 4                Description line 4
         |----------------      ------------------------------------------------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
+    val parsed = new MultilineTablesParserTestSpec(term).tableHeadRaw.run()
     noException should be thrownBy { parsed.get }
   }
 
@@ -71,7 +71,24 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       """--------------------------------------------------------------------------------
         |----------------      ------------------------------------------------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
+    val parsed = new MultilineTablesParserTestSpec(term).tableHeadRaw.run()
     a [ParseError] should be thrownBy { parsed.get }
+  }
+
+  it should "parse table content for table without head" in {
+    val term =
+      """-----------           --------------------
+        |.It 1                 is a long established fact that 1
+        |.It 2                 is a long established fact that 2
+        |.It 3                 is a long established fact that 3
+        |
+        |CAPSED WORD 1         The point of using Lorem Ipsum is 1
+        |CAPSED WORD 2         The point of using Lorem Ipsum is 2
+        |
+        |Many                  desktop publishing packages and
+        |--------------------------------------------------------
+        |""".stripMargin
+    val parsed = new MultilineTablesParserTestSpec(term).tableBodyRaw.run()
+    noException should be thrownBy { parsed.get }
   }
 }
