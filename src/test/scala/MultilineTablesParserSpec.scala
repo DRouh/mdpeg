@@ -91,4 +91,26 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
     val parsed = new MultilineTablesParserTestSpec(term).tableBodyRaw.run()
     noException should be thrownBy { parsed.get }
   }
+
+  it should "parser table with header and caption" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |Term                  Description
+        |----------------      ------------------------------------------------
+        |.It                   is a long established fact that
+        |
+        |CAPSED WORD           The point of using Lorem Ipsum is
+        |
+        |Many                  desktop publishing packages and
+        |--------------------------------------------------------------------------------
+        |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run() match {
+      case Success(node) => println(node)
+      case Failure(e: ParseError) =>
+        println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
+      case Failure(e) =>
+        throw e
+    }
+  }
 }

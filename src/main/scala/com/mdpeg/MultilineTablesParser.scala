@@ -4,16 +4,18 @@ import org.parboiled2._
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
 
-  def multiTable = ???
+  def multiTable = rule {  tableHeadRaw.? ~ tableBodyRaw ~ tableCaption.? }
 
-  def tableHeadRaw: Rule0 = {
-    def headContentLine = rule(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine))
-    rule(tableBorder ~ headContentLine.+ ~ tableHeadWidthSeparator)
+  def tableHeadRaw: Rule1[Vector[String]] = {
+    def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine)))
+    def contents :Rule1[Seq[String]] = rule(headContentLine.+)
+    rule(tableBorder ~ capture(contents) ~ tableHeadWidthSeparator ~> ((y:Seq[String],_:Any) => y.toVector))
   }
 
-  def tableBodyRaw: Rule0 = {
-    def bodyContentLine = rule(atomic(!tableBorder ~ anyLine | blankLine))
-    rule(tableHeadWidthSeparator ~ bodyContentLine.+ ~ tableBorder)
+  def tableBodyRaw: Rule1[Vector[String]] = {
+    def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLine | blankLine)))
+    def contents = rule(bodyContentLine.+)
+    rule(capture(contents) ~ tableBorder ~> ((contents: Seq[String], _: Any) => contents.toVector))
   }
 
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
@@ -23,10 +25,9 @@ trait MultilineTablesParser extends PrimitiveRules {
 
   //aux rules
   private def dashes: Rule0 = rule((3 to 150).times("-"))
-/* ToDo think about
+
+  /* ToDo think about
 * 1. capturing relative width of columns
-* 2. capturing table caption
-* 3. would it be easier to process row by row instead of immediately trying to split everything into cells?
-* 4. rows are separated by blank lines
+* 2. rows are separated by blank lines
 */
 }
