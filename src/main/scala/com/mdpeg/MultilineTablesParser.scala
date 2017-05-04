@@ -3,11 +3,14 @@ package com.mdpeg
 import org.parboiled2._
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
-  import CharPredicate._
 
   def multiTable = ???
 
-  def tableHead: Rule1[String] = rule(tableBorder ~ capture((blankLine | anyLine)) ~ tableHeadWidthSeparator)
+  def tableHead: Rule1[String] = {
+    def headContentLine = rule(!tableHeadWidthSeparator ~ anyLine | blankLine)
+    rule(tableBorder ~ capture(headContentLine.+) ~ tableHeadWidthSeparator)
+  }
+
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
   def tableHeadWidthSeparator:Rule0 = rule(!horizontalRule ~ ((3 to 150).times("-") ~ sp.*).+ ~ nl.?)
   def tableBorder: Rule0 = rule(!horizontalRule ~ (3 to 150).times("-") ~ nl)

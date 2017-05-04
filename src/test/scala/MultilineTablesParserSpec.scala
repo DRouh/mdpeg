@@ -47,12 +47,31 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Term 1                Description line 1
         |----------------      ------------------------------------------------
         |""".stripMargin
-    //     val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
-    //     noException should be thrownBy { parsed.get }
-    new MultilineTablesParserTestSpec(term).tableHead.run() match {
-      case Success(node) => println(node)
-      case Failure(e: ParseError) => println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
-      case Failure(e) => throw e
-    }
+    val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
+    noException should be thrownBy { parsed.get }
+  }
+
+  it should "parse table a multi-line tall heading with blank lines" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |Term 1                Description line 1
+        |Term 2                Description line 2
+        |
+        |Term 3                Description line 3
+        |
+        |Term 4                Description line 4
+        |----------------      ------------------------------------------------
+        |""".stripMargin
+    val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
+    noException should be thrownBy { parsed.get }
+  }
+
+  it should "fail parsing table with no content lines" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |----------------      ------------------------------------------------
+        |""".stripMargin
+    val parsed = new MultilineTablesParserTestSpec(term).tableHead.run()
+    a [ParseError] should be thrownBy { parsed.get }
   }
 }
