@@ -2,6 +2,8 @@ package com.mdpeg
 
 import org.parboiled2._
 
+import scala.collection.immutable
+import scala.collection.immutable.::
 import scala.util.Success
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
@@ -20,14 +22,13 @@ trait MultilineTablesParser extends PrimitiveRules {
     def parseBodyContent(sep:String, contents: Seq[String]) = {
       def isEmptyString(input:String) = {
         new PrimitvePaserHelper(input).blankLine.run() match {
-          case Success(node) => true
+          case Success(_) => true
           case _ => false
         }
       }
 
       // ToDo scan through to determine positions of every width separator
-      val widths = sep.split(' ').filter(_ != "").map(_.replaceAll("\r","").replace("\n","")).toVector
-
+      val widths = sep.replaceAll("\r","").replace("\n","")
       val rows = contents.foldLeft(List.empty[List[String]]) {
         case (acc, currentLine) =>
           val isEmptyLine = isEmptyString(currentLine)
@@ -38,7 +39,20 @@ trait MultilineTablesParser extends PrimitiveRules {
             case Nil => List(currentLine) :: Nil
           }
       }.reverse
-
+      val cols = rows
+        .map(_.map(_.zip(widths).toList))
+        .map(_.foldLeft(List.empty[List[String]]) {
+          case (acc, currentLine) =>
+            currentLine.foldLeft(List.empty[String]) {
+              case (acc1: List[String], cl: (Char, Char)) =>
+                (acc1,cl) match {
+                case (x::xs, (c, '-')) => (x + c.toString) :: xs
+                case (xs, (_, ' ')) => "" :: xs
+                case (Nil, (c, '-')) => c.toString :: Nil
+                case (Nil, (_, ' ')) => Nil
+            }
+          }.filter(_!="").reverse :: acc
+        })
       contents.toVector
     }
 
