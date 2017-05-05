@@ -4,18 +4,24 @@ import org.parboiled2._
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
 
-  def multiTable = rule {  tableHeadRaw.? ~ tableBodyRaw ~ tableCaption.? }
+  def multiTable = rule { tableHeadRaw ~ tableBodyRaw ~ tableBorder ~ tableCaption.? }
 
   def tableHeadRaw: Rule1[Vector[String]] = {
     def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine)))
     def contents :Rule1[Seq[String]] = rule(headContentLine.+)
-    rule(tableBorder ~ capture(contents) ~ tableHeadWidthSeparator ~> ((y:Seq[String],_:Any) => y.toVector))
+    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((y:Seq[String],_:Any) => y.toVector))
   }
 
   def tableBodyRaw: Rule1[Vector[String]] = {
     def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLine | blankLine)))
     def contents = rule(bodyContentLine.+)
-    rule(capture(contents) ~ tableBorder ~> ((contents: Seq[String], _: Any) => contents.toVector))
+    def parseBodyContent(x: Vector[String]) = {
+      println("parseBodyContent-------")
+      println(s"x:${x}")
+      x
+    }
+
+    rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~> ((sep:String, contents: Seq[String], _: Any) => parseBodyContent(contents.toVector)))
   }
 
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet

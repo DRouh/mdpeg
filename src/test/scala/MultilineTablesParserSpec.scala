@@ -77,7 +77,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
 
   it should "parse table content for table without head" in {
     val term =
-      """-----------           --------------------
+      """----------------      ------------------------------------------------
         |.It 1                 is a long established fact that 1
         |.It 2                 is a long established fact that 2
         |.It 3                 is a long established fact that 3
@@ -86,8 +86,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |CAPSED WORD 2         The point of using Lorem Ipsum is 2
         |
         |Many                  desktop publishing packages and
-        |--------------------------------------------------------
-        |""".stripMargin
+        """.stripMargin
     val parsed = new MultilineTablesParserTestSpec(term).tableBodyRaw.run()
     noException should be thrownBy { parsed.get }
   }
