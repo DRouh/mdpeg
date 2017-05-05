@@ -82,6 +82,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |.It 2                 is a long established fact that 2
         |.It 3                 is a long established fact that 3
         |
+        |
         |CAPSED WORD 1         The point of using Lorem Ipsum is 1
         |CAPSED WORD 2         The point of using Lorem Ipsum is 2
         |

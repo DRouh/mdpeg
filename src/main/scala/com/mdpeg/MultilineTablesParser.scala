@@ -28,17 +28,17 @@ trait MultilineTablesParser extends PrimitiveRules {
       // ToDo scan through to determine positions of every width separator
       val widths = sep.split(' ').filter(_ != "").map(_.replaceAll("\r","").replace("\n","")).toVector
 
-      //ToDo filter out empty entries that might occur in case there're more than 2 empty lines in a row
       val rows = contents.foldLeft(List.empty[List[String]]) {
         case (acc, currentLine) =>
-          if(isEmptyString(currentLine))
-            List.empty[String] :: acc
-          else
-            acc match {
-              case x::xs => (x :+ currentLine) :: xs
-              case Nil => List(currentLine) :: Nil
-            }
-      }
+          val isEmptyLine = isEmptyString(currentLine)
+          acc match {
+            case x :: _ if isEmptyLine && x.isEmpty => acc
+            case _ :: _ if isEmptyLine => List.empty[String] :: acc
+            case x :: xs => (x :+ currentLine) :: xs
+            case Nil => List(currentLine) :: Nil
+          }
+      }.reverse
+
       contents.toVector
     }
 
