@@ -39,20 +39,24 @@ trait MultilineTablesParser extends PrimitiveRules {
             case Nil => List(currentLine) :: Nil
           }
       }.reverse
-      val cols = rows
+
+      val cells = rows
         .map(_.map(_.zip(widths).toList))
         .map(_.foldLeft(List.empty[List[String]]) {
           case (acc, currentLine) =>
             currentLine.foldLeft(List.empty[String]) {
-              case (acc1: List[String], cl: (Char, Char)) =>
+              case (acc1, cl) =>
                 (acc1,cl) match {
                 case (x::xs, (c, '-')) => (x + c.toString) :: xs
                 case (xs, (_, ' ')) => "" :: xs
                 case (Nil, (c, '-')) => c.toString :: Nil
-                case (Nil, (_, ' ')) => Nil
+                case _ => Nil
             }
           }.filter(_!="").reverse :: acc
         })
+        .transpose(_.transpose.map(_.reverse.reduce(_.trim+"\r\n"+_.trim)))
+      //todo use smtng else instead of \r\n?
+
       contents.toVector
     }
 
