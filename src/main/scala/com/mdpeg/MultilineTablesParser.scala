@@ -97,21 +97,25 @@ trait MultilineTablesParser extends PrimitiveRules {
         case _ => false
       }
     }
+
     //'width separator', that is '---- -- --' string
     val widths = sep.replaceAll("\r", "").replace("\n", "")
 
     //split into rows by blank lines
-    val rows = contents.foldLeft(List.empty[List[String]]) {
-      case (acc, currentLine) =>
-        val isEmptyLine = isEmptyString(currentLine)
-        val cl = currentLine.replaceAll("\r", "").replace("\n", "")
-        acc match {
-          case x :: _ if isEmptyLine && x.isEmpty => acc
-          case _ :: _ if isEmptyLine => List.empty[String] :: acc
-          case x :: xs => (x :+ cl) :: xs
-          case Nil => List(cl) :: Nil
-        }
-    }.reverse
+    val rows = contents.
+      foldLeft(List.empty[List[String]]) {
+        case (acc, currentLine) =>
+          val isEmptyLine = isEmptyString(currentLine)
+          val cl = currentLine.replaceAll("\r", "").replace("\n", "")
+          acc match {
+            case x :: _ if isEmptyLine && x.isEmpty => acc
+            case _ :: _ if isEmptyLine => List.empty[String] :: acc
+            case x :: xs => (x :+ cl) :: xs
+            case Nil => List(cl) :: Nil
+          }
+      }.
+      reverse.
+      filter(_.nonEmpty)
 
     //split rows into cells by zipping every row with a 'width separator' and split upon every space it thereof
     val cells: Vector[List[String]] = rows.

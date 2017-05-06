@@ -10,6 +10,19 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
   class MultilineTablesParserTestSpec(val input: ParserInput) extends Parser with MultilineTablesParser {
   }
 
+  def tableMock(bodyColumns: Vector[MultilineTableColumn]) = MultilineTableBlock(
+    Vector(25.0f, 75.0f),
+    Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
+    Some(Vector(
+      MultilineTableCell(Markdown(
+        """Term  1
+          |Term  cont""".stripMargin)),
+      MultilineTableCell(Markdown(
+        """Description 1
+          |Description cont""".stripMargin)))),
+    bodyColumns
+  )
+
   it should "parse table border" in {
     val parsed = new MultilineTablesParserTestSpec("-------------------------------------------------------------------------------\r\n").tableBorder.run()
     noException should be thrownBy {
@@ -106,21 +119,60 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
     val parser = new MultilineTablesParserTestSpec(term)
-    parser.multiTable.run().get shouldEqual MultilineTableBlock(
-      Vector(25.0f, 75.0f),
-      Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
-      Some(Vector(
-        MultilineTableCell(Markdown("""Term  1
-                                      |Term  cont""".stripMargin)),
-        MultilineTableCell(Markdown("""Description 1
-                                      |Description cont""".stripMargin)))),
-      Vector(Vector(
+    parser.multiTable.run().get shouldEqual tableMock(Vector(
+      Vector(
         MultilineTableCell(Markdown(".It")),
         MultilineTableCell(Markdown("CAPSED WORD")),
         MultilineTableCell(Markdown("Many"))),
       Vector(
         MultilineTableCell(Markdown("is a long established fact that")),
         MultilineTableCell(Markdown("The point of using Lorem Ipsum is")),
-        MultilineTableCell(Markdown("desktop publishing packages and")))))
+        MultilineTableCell(Markdown("desktop publishing packages and"))))
+      )
+  }
+
+  it should "separate table rows by blank line" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |Term  1               Description 1
+        |
+        |Term  cont            Description cont
+        |----------------      ------------------------------------------------
+        |.It                   is a long established fact that
+        |
+        |CAPSED WORD           The point of using Lorem Ipsum is
+        |Many                  desktop publishing packages and
+        |--------------------------------------------------------------------------------
+        |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run().get shouldEqual tableMock(Vector(
+      Vector(
+        MultilineTableCell(Markdown(".It")),
+        MultilineTableCell(Markdown("CAPSED WORD\r\nMany"))),
+      Vector(
+        MultilineTableCell(Markdown("is a long established fact that")),
+        MultilineTableCell(Markdown("The point of using Lorem Ipsum is\r\ndesktop publishing packages and")))))
+  }
+
+  it should "eleminate trailing empty line in body row" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |Term  1               Description 1
+        |
+        |Term  cont            Description cont
+        |----------------      ------------------------------------------------
+        |.It                   is a long established fact that
+        |
+        |
+        |
+        |--------------------------------------------------------------------------------
+        |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run().get shouldEqual tableMock(Vector(
+      Vector(
+        MultilineTableCell(Markdown(".It"))),
+      Vector(
+        MultilineTableCell(Markdown("is a long established fact that"))
+    )))
   }
 }
