@@ -24,7 +24,9 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
   )
 
   it should "parse table border" in {
-    val parsed = new MultilineTablesParserTestSpec("-------------------------------------------------------------------------------\r\n").tableBorder.run()
+    val term ="""-------------------------------------------------------------------------------
+      |""".stripMargin
+    val parsed = new MultilineTablesParserTestSpec(term).tableBorder.run()
     noException should be thrownBy {
       parsed.get
     }
@@ -148,10 +150,14 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(
         MultilineTableCell(Markdown(".It")),
-        MultilineTableCell(Markdown("CAPSED WORD\r\nMany"))),
+        MultilineTableCell(Markdown(
+          """CAPSED WORD
+            |Many""".stripMargin))),
       Vector(
         MultilineTableCell(Markdown("is a long established fact that")),
-        MultilineTableCell(Markdown("The point of using Lorem Ipsum is\r\ndesktop publishing packages and")))))
+        MultilineTableCell(Markdown(
+          """The point of using Lorem Ipsum is
+            |desktop publishing packages and""".stripMargin)))))
   }
 
   it should "eleminate trailing empty line in body row" in {
