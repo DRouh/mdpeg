@@ -7,12 +7,28 @@ import scala.collection.immutable.::
 import scala.util.Success
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
-
-  def multiTable = rule(tableHeadRaw.? ~ tableBodyRaw ~ tableBorder ~ tableCaption.? ~> ((head: Option[Vector[String]], body:(Vector[List[String]], String), caption:Option[String]) => constructTable(head, body, caption)))
+  /*_*/
+  def multiTable = rule(
+    tableHeadRaw.? ~ tableBodyRaw ~ tableBorder ~ tableCaption.? ~>
+      ((head: Option[Vector[String]], body:(Vector[List[String]], String), caption:Option[String]) => constructTable(head, body, caption))
+  )
+  /*_*/
 
   def constructTable(head: Option[Vector[String]], bodyWithWidth:(Vector[List[String]], String), caption:Option[String]) = {
-    val (body, width) = bodyWithWidth
-    body
+    def calculateRelativeWidths(width: String) : Vector[Float] = {
+      // todo improve calculation precision, use Largest Remainder Method and imrove upon relative error
+      val columnWidths = width.split(' ').filter(_!="").map(_.length)
+      val sum = columnWidths.sum.toFloat
+      columnWidths.map(100*_.toFloat/sum).toVector
+    }
+    val (body, width: String) = bodyWithWidth
+    val parsedHead = head.map(parseHeadContent(width, _))
+    
+    val relativeWidths = calculateRelativeWidths(width)
+    val tableCaption = caption.map(y => MultilineTableCaption(Markdown(y)))
+    val headRow: Option[MultilineTableRow] = parsedHead.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
+    val bodyColumns: Vector[MultilineTableColumn] = body.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
+    MultilineTableBlock(relativeWidths, tableCaption, headRow, bodyColumns)
   }
 
   def tableHeadRaw: Rule1[Vector[String]] = {
@@ -31,12 +47,42 @@ trait MultilineTablesParser extends PrimitiveRules {
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
   def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
   def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
-  def tableCaption: Rule1[String] = rule(capture(atomic("Table: " ~ anyChar.+ ~ nl.?)))
+  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyChar.+ ~ nl.?)))
 
   //aux rules
   private def dashes: Rule0 = rule((3 to 150).times("-"))
 
   //aux functions
+  private def parseHeadContent(sep: String, contents: Seq[String]) = {
+    def isEmptyString(input: String) = {
+      new PrimitvePaserHelper(input).blankLine.run() match {
+        case Success(_) => true
+        case _ => false
+      }
+    }
+
+    val widths = sep.replaceAll("\r", "").replace("\n", "")
+    val rows = contents.filter(!isEmptyString(_))
+    val cells = rows.
+      map(_.zip(widths).toList).
+      map(_.
+        foldLeft(List.empty[List[String]]) {
+          case (acc, currentLine) =>
+            (acc, currentLine) match {
+              case (x :: xs, (c, '-')) => List(x.mkString + c.toString) :: xs
+              case (xs, (_, ' ')) => List.empty[String] :: xs
+              case (Nil, (c, '-')) => List(c.toString) :: Nil
+              case _ => Nil
+            }
+        }.
+        filter(_.nonEmpty).
+        map(_.map(_.trim))).
+    transpose(_.flatten).
+    reverse.
+    map(_.reduce(_+"\r\n"+_))
+
+    cells
+  }
 
   /**
     * Splits body content into cells using 'width separator'
@@ -68,9 +114,9 @@ trait MultilineTablesParser extends PrimitiveRules {
     }.reverse
 
     //split rows into cells by zipping every row with a 'width separator' and split upon every space it thereof
-    val cells: Vector[List[String]] = rows
-      .map(_.map(_.zip(widths).toList))
-      .map(_.foldLeft(List.empty[List[String]]) {
+    val cells: Vector[List[String]] = rows.
+      map(_.map(_.zip(widths).toList)).
+      map(_.foldLeft(List.empty[List[String]]) {
         case (acc, currentLine) =>
           currentLine.foldLeft(List.empty[String]) {
             case (acc1, cl) =>
@@ -81,9 +127,9 @@ trait MultilineTablesParser extends PrimitiveRules {
                 case _ => Nil
               }
           }.filter(_ != "").reverse :: acc
-      })
-      .transpose(_.transpose.map(_.reverse.reduce(_ + "\r\n" + _)).toVector)
-      .toVector
+      }).
+      transpose(_.transpose.map(_.reverse.reduce(_ + "\r\n" + _)).toVector).
+      toVector
     (cells, widths)
   }
 

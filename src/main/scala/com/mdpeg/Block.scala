@@ -14,20 +14,19 @@ final case class BlockQuote(inline: String) extends Block
 final case class OrderedList(inline: Vector[Block]) extends Block
 final case class UnorderedList(inline: Vector[Block]) extends Block
 
-//
-final case class MultilineTableBlock(inline: String) extends Block
-
+// multiline table
+final case class MultilineTableBlock(relativeWidth: Vector[Float],
+                                     caption: Option[MultilineTableCaption],
+                                     head: Option[MultilineTableRow],
+                                     body: Vector[MultilineTableColumn]) extends Block
 sealed trait MultilineTableElement
-final case class MultilineTableTitle(inline: Markdown) extends MultilineTableElement
-final case class MultilineTableColumnHeader(inline: Markdown) extends MultilineTableElement
-final case class MultilineTableCell(inline: Markdown) extends MultilineTableElement
-// ToDo may header not present?
-// ToDo case class for row?
+case class MultilineTableCaption(inline: Markdown) extends MultilineTableElement
+case class MultilineTableCell(inline: Markdown) extends MultilineTableElement
 // ToDo capture alignment
-// ToDo capture relative width of a column
 
 /**
   * Raw markdown that is yet to be processed into blocks
+  *
   * @param inline - raw string
   */
 final case class Markdown(inline: String) extends Block

@@ -94,7 +94,9 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
   it should "parser table with header and caption" in {
     val term =
       """--------------------------------------------------------------------------------
-        |Term                  Description
+        |Term  1               Description 1
+        |
+        |Term  cont            Description cont
         |----------------      ------------------------------------------------
         |.It                   is a long established fact that
         |
