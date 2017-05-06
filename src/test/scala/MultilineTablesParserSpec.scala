@@ -10,16 +10,18 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
   class MultilineTablesParserTestSpec(val input: ParserInput) extends Parser with MultilineTablesParser {
   }
 
-  def tableMock(bodyColumns: Vector[MultilineTableColumn]) = MultilineTableBlock(
-    Vector(25.0f, 75.0f),
+  def tableMock(bodyColumns: Vector[MultilineTableColumn],
+                head: Option[MultilineTableRow] = Some(Vector(
+                  MultilineTableCell(Markdown(
+                    """Term  1
+                      |Term  cont""".stripMargin)),
+                  MultilineTableCell(Markdown(
+                    """Description 1
+                      |Description cont""".stripMargin)))),
+                widths: Vector[Float] = Vector(25.0f, 75.0f)) = MultilineTableBlock(
+    widths,
     Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
-    Some(Vector(
-      MultilineTableCell(Markdown(
-        """Term  1
-          |Term  cont""".stripMargin)),
-      MultilineTableCell(Markdown(
-        """Description 1
-          |Description cont""".stripMargin)))),
+    head,
     bodyColumns
   )
 
@@ -180,5 +182,24 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       Vector(
         MultilineTableCell(Markdown("is a long established fact that"))
     )))
+  }
+
+  it should "parse 1x1 table with header" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |Term  1
+        |
+        |Term  cont
+        |----------------
+        |.It
+        |
+        |--------------------------------------------------------------------------------
+        |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run().get shouldEqual tableMock(Vector(
+      Vector(MultilineTableCell(Markdown(".It")))), Some(Vector(
+      MultilineTableCell(Markdown(
+        """Term  1
+          |Term  cont""".stripMargin)))), Vector(100.0f))
   }
 }
