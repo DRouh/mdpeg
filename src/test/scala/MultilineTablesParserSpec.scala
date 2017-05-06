@@ -1,4 +1,4 @@
-import com.mdpeg.MultilineTablesParser
+import com.mdpeg._
 import com.mdpeg.Parser.parser
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
@@ -106,12 +106,21 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
     val parser = new MultilineTablesParserTestSpec(term)
-    parser.multiTable.run() match {
-      case Success(node) => println(node)
-      case Failure(e: ParseError) =>
-        println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
-      case Failure(e) =>
-        throw e
-    }
+    parser.multiTable.run().get shouldEqual MultilineTableBlock(
+      Vector(25.0f, 75.0f),
+      Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
+      Some(Vector(
+        MultilineTableCell(Markdown("""Term  1
+                                      |Term  cont""".stripMargin)),
+        MultilineTableCell(Markdown("""Description 1
+                                      |Description cont""".stripMargin)))),
+      Vector(Vector(
+        MultilineTableCell(Markdown(".It")),
+        MultilineTableCell(Markdown("CAPSED WORD")),
+        MultilineTableCell(Markdown("Many"))),
+      Vector(
+        MultilineTableCell(Markdown("is a long established fact that")),
+        MultilineTableCell(Markdown("The point of using Lorem Ipsum is")),
+        MultilineTableCell(Markdown("desktop publishing packages and")))))
   }
 }
