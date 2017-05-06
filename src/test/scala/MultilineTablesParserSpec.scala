@@ -99,11 +99,11 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |CAPSED WORD 2         The point of using Lorem Ipsum is 2
         |
         |Many                  desktop publishing packages and""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableBodyRaw.run()
+    val parsed = new MultilineTablesParserTestSpec(term).tableBody.run()
     noException should be thrownBy { parsed.get }
   }
 
-  it should "parser table with header and caption" in {
+  it should "parse table with header and caption" in {
     val term =
       """--------------------------------------------------------------------------------
         |Term  1               Description 1

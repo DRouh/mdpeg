@@ -1,29 +1,29 @@
 package com.mdpeg
-
 import org.parboiled2._
 
-import scala.collection.immutable
 import scala.collection.immutable.::
+import scala.compat.Platform.EOL
 import scala.util.Success
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
   /*_*/
-  def multiTable = rule(
-    tableHeadRaw.? ~ tableBodyRaw ~ tableBorder ~ tableCaption.? ~>
-      ((head: Option[Vector[String]], body:(Vector[List[String]], String), caption:Option[String]) => constructTable(head, body, caption))
+  def multiTable: Rule1[MultilineTableBlock] = rule(
+    tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~>
+      ((head: Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String]) => constructTable(head, body, caption))
   )
   /*_*/
 
-  def constructTable(head: Option[Vector[String]], bodyWithWidth:(Vector[List[String]], String), caption:Option[String]) = {
-    def calculateRelativeWidths(width: String) : Vector[Float] = {
+  def constructTable(head: Option[Vector[String]], bodyWithWidth: (Vector[List[String]], String), caption: Option[String]): MultilineTableBlock = {
+    def calculateRelativeWidths(width: String): Vector[Float] = {
       // todo improve calculation precision, use Largest Remainder Method and imrove upon relative error
-      val columnWidths = width.split(' ').filter(_!="").map(_.length)
+      val columnWidths = width.split(' ').filter(_ != "").map(_.length)
       val sum = columnWidths.sum.toFloat
-      columnWidths.map(100*_.toFloat/sum).toVector
+      columnWidths.map(100 * _.toFloat / sum).toVector
     }
+
     val (body, width: String) = bodyWithWidth
     val parsedHead = head.map(parseHeadContent(width, _))
-    
+
     val relativeWidths = calculateRelativeWidths(width)
     val tableCaption = caption.map(y => MultilineTableCaption(Markdown(y)))
     val headRow: Option[MultilineTableRow] = parsedHead.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
@@ -37,7 +37,7 @@ trait MultilineTablesParser extends PrimitiveRules {
     rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent:Seq[String],_:Any) => headContent.toVector))
   }
 
-  def tableBodyRaw: Rule1[(Vector[List[String]], String)] = {
+  def tableBody: Rule1[(Vector[List[String]], String)] = {
     def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLine | blankLine)))
     def contents = rule(bodyContentLine.+)
     rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~>
@@ -48,11 +48,15 @@ trait MultilineTablesParser extends PrimitiveRules {
   def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
   def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
   def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyChar.+ ~ nl.?)))
+  def dashes: Rule0 = rule((3 to 150).times("-"))
 
-  //aux rules
-  private def dashes: Rule0 = rule((3 to 150).times("-"))
-
-  //aux functions
+  /**
+    * Splits header content into cells using 'width separator'
+    * @param sep width separator string, '-- --- --'
+    * @param contents raw contents of the table head to be split into cells; blank lines removed, that is,
+    *                 there's no support for multi-row headers
+    * @return vector of cells in a header row
+    */
   private def parseHeadContent(sep: String, contents: Seq[String]) = {
     def isEmptyString(input: String) = {
       new PrimitvePaserHelper(input).blankLine.run() match {
@@ -77,9 +81,9 @@ trait MultilineTablesParser extends PrimitiveRules {
         }.
         filter(_.nonEmpty).
         map(_.map(_.trim))).
-    transpose(_.flatten).
-    reverse.
-    map(_.reduce(_+"\r\n"+_))
+      transpose(_.flatten).
+      reverse.
+      map(_.reduce(_ + EOL + _))
 
     cells
   }
@@ -87,10 +91,10 @@ trait MultilineTablesParser extends PrimitiveRules {
   /**
     * Splits body content into cells using 'width separator'
     * @param sep width separator string, '-- --- --'
-    * @param contents raw contents of the table to be split into cells; blank lines are split points
-    * @return vector of collumns containing cells.
+    * @param contents raw contents of the table body to be split into cells; blank lines are split points
+    * @return vector of columns containing cells.
     */
-  private def parseBodyContent(sep:String, contents: Seq[String]): (Vector[List[String]], String) = {
+  private def parseBodyContent(sep: String, contents: Seq[String]): (Vector[List[String]], String) = {
     def isEmptyString(input: String) = {
       new PrimitvePaserHelper(input).blankLine.run() match {
         case Success(_) => true
@@ -132,12 +136,12 @@ trait MultilineTablesParser extends PrimitiveRules {
               }
           }.filter(_ != "").reverse :: acc
       }).
-      transpose(_.transpose.map(_.reverse.reduce(_ + "\r\n" + _)).toVector).
+      transpose(_.transpose.map(_.reverse.reduce(_ + EOL + _)).toVector).
       toVector
     (cells, widths)
   }
 
-  // ToDo investigate hot to re-use parser on differen inputs in order to avoid creation of a new parser on every line
+  // ToDo investigate hot to re-use parser on different inputs in order to avoid creation of a new parser on every line
   // needed to facilitate some internal processing
   private class PrimitvePaserHelper(val input:ParserInput) extends Parser with PrimitiveRules
 }
