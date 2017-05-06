@@ -1,9 +1,6 @@
 import com.mdpeg._
-import com.mdpeg.Parser.parser
-import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
+import org.parboiled2.{ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
-
-import scala.util.{Failure, Success}
 
 class MultilineTablesParserSpec extends FlatSpec with Matchers {
 
@@ -29,9 +26,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
     val term ="""-------------------------------------------------------------------------------
       |""".stripMargin
     val parsed = new MultilineTablesParserTestSpec(term).tableBorder.run()
-    noException should be thrownBy {
-      parsed.get
-    }
+    noException should be thrownBy { parsed.get }
   }
 
   it should "parse table caption" in {
@@ -157,12 +152,11 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
             |Many""".stripMargin))),
       Vector(
         MultilineTableCell(Markdown("is a long established fact that")),
-        MultilineTableCell(Markdown(
-          """The point of using Lorem Ipsum is
-            |desktop publishing packages and""".stripMargin)))))
+        MultilineTableCell(Markdown("""The point of using Lorem Ipsum is
+                                      |desktop publishing packages and""".stripMargin)))))
   }
 
-  it should "eleminate trailing empty line in body row" in {
+  it should "eliminate trailing empty line in body row" in {
     val term =
       """--------------------------------------------------------------------------------
         |Term  1               Description 1
@@ -177,10 +171,8 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
     val parser = new MultilineTablesParserTestSpec(term)
     parser.multiTable.run().get shouldEqual tableMock(Vector(
-      Vector(
-        MultilineTableCell(Markdown(".It"))),
-      Vector(
-        MultilineTableCell(Markdown("is a long established fact that"))
+      Vector(MultilineTableCell(Markdown(".It"))),
+      Vector(MultilineTableCell(Markdown("is a long established fact that"))
     )))
   }
 
@@ -196,10 +188,56 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
     val parser = new MultilineTablesParserTestSpec(term)
-    parser.multiTable.run().get shouldEqual tableMock(Vector(
-      Vector(MultilineTableCell(Markdown(".It")))), Some(Vector(
-      MultilineTableCell(Markdown(
-        """Term  1
-          |Term  cont""".stripMargin)))), Vector(100.0f))
+    parser.multiTable.run().get shouldEqual tableMock(
+      Vector(Vector(MultilineTableCell(Markdown(".It")))),
+      Some(Vector(MultilineTableCell(Markdown("""Term  1
+                                                |Term  cont""".stripMargin)))),
+      Vector(100.0f))
+  }
+
+  it should "parse a rectangular table" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |Term  1       Term  2       Term  3       Term  4      Term  5
+        |-----------   -----------   -----------   -----------  -----------
+        |.It           is             a            rectangular  table
+        |--------------------------------------------------------------------------------
+        |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run().get shouldEqual MultilineTableBlock(
+      Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
+      Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
+      Some(
+        Vector(
+          MultilineTableCell(Markdown("Term  1")),
+          MultilineTableCell(Markdown("Term  2")),
+          MultilineTableCell(Markdown("Term  3")),
+          MultilineTableCell(Markdown("Term  4")),
+          MultilineTableCell(Markdown("Term  5")))),
+      Vector(
+        Vector(MultilineTableCell(Markdown(".It"))),
+        Vector(MultilineTableCell(Markdown("is"))),
+        Vector(MultilineTableCell(Markdown("a"))),
+        Vector(MultilineTableCell(Markdown("rectangular"))),
+        Vector(MultilineTableCell(Markdown("table")))))
+  }
+
+  it should "parse cut all text that doesn't fit into column" in {
+    val term =
+      """-----------   -----------   -----------   -----------  -----------
+        |.It is longer than neccesary and it should be truncated :)
+        |--------------------------------------------------------------------------------
+        |""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run().get shouldEqual MultilineTableBlock(
+      Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
+      None,
+      None,
+      Vector(
+        Vector(MultilineTableCell(Markdown(".It is long"))),
+        Vector(MultilineTableCell(Markdown("than necces"))),
+        Vector(MultilineTableCell(Markdown("and it sho"))),
+        Vector(MultilineTableCell(Markdown("be truncat"))),
+        Vector(MultilineTableCell(Markdown(" :)")))))
   }
 }
