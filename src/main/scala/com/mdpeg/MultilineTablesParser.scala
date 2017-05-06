@@ -8,15 +8,20 @@ import scala.util.Success
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
 
-  def multiTable = rule { tableHeadRaw ~ tableBodyRaw ~ tableBorder ~ tableCaption.? }
+  def multiTable = rule(tableHeadRaw.? ~ tableBodyRaw ~ tableBorder ~ tableCaption.? ~> ((head: Option[Vector[String]], body:(Vector[List[String]], String), caption:Option[String]) => constructTable(head, body, caption)))
+
+  def constructTable(head: Option[Vector[String]], bodyWithWidth:(Vector[List[String]], String), caption:Option[String]) = {
+    val (body, width) = bodyWithWidth
+    body
+  }
 
   def tableHeadRaw: Rule1[Vector[String]] = {
     def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine)))
     def contents :Rule1[Seq[String]] = rule(headContentLine.+)
-    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((y:Seq[String],_:Any) => y.toVector))
+    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent:Seq[String],_:Any) => headContent.toVector))
   }
 
-  def tableBodyRaw: Rule1[Vector[List[String]]] = {
+  def tableBodyRaw: Rule1[(Vector[List[String]], String)] = {
     def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLine | blankLine)))
     def contents = rule(bodyContentLine.+)
     rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~>
@@ -26,7 +31,7 @@ trait MultilineTablesParser extends PrimitiveRules {
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
   def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
   def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
-  def tableCaption: Rule0 = rule(atomic("Table: " ~ anyChar.+ ~ nl.?))
+  def tableCaption: Rule1[String] = rule(capture(atomic("Table: " ~ anyChar.+ ~ nl.?)))
 
   //aux rules
   private def dashes: Rule0 = rule((3 to 150).times("-"))
@@ -39,7 +44,7 @@ trait MultilineTablesParser extends PrimitiveRules {
     * @param contents raw contents of the table to be split into cells; blank lines are split points
     * @return vector of collumns containing cells.
     */
-  private def parseBodyContent(sep:String, contents: Seq[String]): Vector[List[String]] = {
+  private def parseBodyContent(sep:String, contents: Seq[String]): (Vector[List[String]], String) = {
     def isEmptyString(input: String) = {
       new PrimitvePaserHelper(input).blankLine.run() match {
         case Success(_) => true
@@ -79,7 +84,7 @@ trait MultilineTablesParser extends PrimitiveRules {
       })
       .transpose(_.transpose.map(_.reverse.reduce(_ + "\r\n" + _)).toVector)
       .toVector
-    cells
+    (cells, widths)
   }
 
   // ToDo investigate hot to re-use parser on differen inputs in order to avoid creation of a new parser on every line
