@@ -122,7 +122,7 @@ trait MultilineTablesParser extends PrimitiveRules {
       filter(_.nonEmpty)
 
     //split rows into cells by zipping every row with a 'width separator' and split upon every space it thereof
-    val cells: Vector[List[String]] = rows.
+    val cellsN: List[List[List[String]]] = rows.
       map(_.map(_.zip(widths).toList)).
       map(_.foldLeft(List.empty[List[String]]) {
         case (acc, currentLine) =>
@@ -130,14 +130,19 @@ trait MultilineTablesParser extends PrimitiveRules {
             case (acc1, cl) =>
               (acc1, cl) match {
                 case (x :: xs, (c, '-')) => (x + c.toString) :: xs
-                case (x :: xs, (_, ' ')) => "" :: x.trim :: xs
+                case (x :: xs, (_, ' ')) => "" :: x :: xs
                 case (Nil, (c, '-')) => c.toString :: Nil
                 case _ => Nil
               }
           }.filter(_ != "").reverse :: acc
-      }).
-      transpose(_.transpose.map(_.reverse.reduce(_ + EOL + _)).toVector).
-      toVector
+      })
+    val cells: Vector[List[String]] = transposeAnyShape(
+      cellsN.
+      map(
+        transposeAnyShape(_).
+        map(strings => trimEnd(strings.reverse.reduce((s1, s2) => trimEnd(s1) + EOL + s2)))
+      )).toVector
+
     (cells, widths)
   }
 

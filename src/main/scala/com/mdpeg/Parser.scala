@@ -6,7 +6,7 @@ import scala.io.Source
 import scala.util.{Failure, Success}
 
 object Parser extends App {
-  val fileText = Source.fromInputStream(getClass.getResourceAsStream("foo.md")).mkString
+  val fileText = Source.fromInputStream(getClass.getResourceAsStream("multiline table_complex.md")).mkString
   val parser = new BlockParser(fileText)
   parser.InputLine.run() match {
     case Success(node) => println(node)

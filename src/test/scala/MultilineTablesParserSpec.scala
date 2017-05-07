@@ -147,8 +147,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(
         MultilineTableCell(Markdown(".It")),
-        MultilineTableCell(Markdown(
-          """CAPSED WORD
+        MultilineTableCell(Markdown("""CAPSED WORD
             |Many""".stripMargin))),
       Vector(
         MultilineTableCell(Markdown("is a long established fact that")),
@@ -217,7 +216,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       Vector(
         Vector(MultilineTableCell(Markdown(".It"))),
         Vector(MultilineTableCell(Markdown("is"))),
-        Vector(MultilineTableCell(Markdown("a"))),
+        Vector(MultilineTableCell(Markdown(" a"))),
         Vector(MultilineTableCell(Markdown("rectangular"))),
         Vector(MultilineTableCell(Markdown("table")))))
   }
@@ -236,8 +235,91 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       Vector(
         Vector(MultilineTableCell(Markdown(".It is long"))),
         Vector(MultilineTableCell(Markdown("than necces"))),
-        Vector(MultilineTableCell(Markdown("and it sho"))),
-        Vector(MultilineTableCell(Markdown("be truncat"))),
+        Vector(MultilineTableCell(Markdown(" and it sho"))),
+        Vector(MultilineTableCell(Markdown(" be truncat"))),
         Vector(MultilineTableCell(Markdown(" :)")))))
+  }
+
+  it should "parse table with non equal number of lines in cells" in {
+    val term =
+      """--------------------------------------------------------------------------------
+        |LorimIpsum                        Where can I get some?
+        |-----------                       ---------------------------------
+        |**Why do we use it?**
+        |
+        |There-are                         It is a long established fact that a reader will be
+        |                                  distracted by the readable content of a page when looking at
+        |
+        |**Where can I get some?**
+        |
+        |dummy                             It uses a dictionary of over
+        |                                  Lorem Ipsum which looks reasonable
+        |
+        |text                              The generated Lorem Ipsum is
+        |
+        |printing                          or non-characteristic words etc
+        |
+        |**Where does it come from?**
+        |
+        |leap-into                         It uses a dictionary of over 200
+        |                                  you need to be sure there
+        |
+        |variations-join                   anything embarrassing hidden
+        |                                  you need to be sure there isn't
+        |                                  within this period
+        |
+        |**What is Lorem Ipsum?**
+        |
+        |Lorem                             "There are many variations of passages.
+        |                                  *randomised words which : 1597 z*
+        |
+        |anything                          but the majority have suffered alteration.
+        |                                  *to use a passage: "" (empty string)*
+        |--------------------------------------------------------------------------------
+        |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+    val parser = new MultilineTablesParserTestSpec(term)
+    parser.multiTable.run().get shouldEqual MultilineTableBlock(
+      Vector(25.0f, 75.0f),
+      Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
+      Some(Vector(
+        MultilineTableCell(Markdown("LorimIpsum")),
+        MultilineTableCell(Markdown("Where can I get some?")))),
+      Vector(
+        Vector(
+          MultilineTableCell(Markdown("**Why do we")),
+          MultilineTableCell(Markdown("""There-are
+                                        |""".stripMargin)),
+          MultilineTableCell(Markdown("**Where can")),
+          MultilineTableCell(Markdown("""dummy
+                                        |""".stripMargin)),
+          MultilineTableCell(Markdown("text")),
+          MultilineTableCell(Markdown("printing")),
+          MultilineTableCell(Markdown("**Where doe")),
+          MultilineTableCell(Markdown("""leap-into
+                                        |""".stripMargin)),
+          MultilineTableCell(Markdown("""variations-
+                                        |
+                                        |""".stripMargin)),
+          MultilineTableCell(Markdown("**What is L")),
+          MultilineTableCell(Markdown("""Lorem
+                                        |""".stripMargin)),
+          MultilineTableCell(Markdown("""anything
+                                        |""".stripMargin))),
+        Vector(
+          MultilineTableCell(Markdown("""It is a long established fact tha
+                                        |distracted by the readable conten""".stripMargin)),
+          MultilineTableCell(Markdown("""It uses a dictionary of over
+                                        |Lorem Ipsum which looks reasonabl""".stripMargin)),
+          MultilineTableCell(Markdown("The generated Lorem Ipsum is")),
+          MultilineTableCell(Markdown("or non-characteristic words etc")),
+          MultilineTableCell(Markdown("""It uses a dictionary of over 200
+                                        |you need to be sure there""".stripMargin)),
+          MultilineTableCell(Markdown("""anything embarrassing hidden
+                                        |you need to be sure there isn't
+                                        |within this period""".stripMargin)),
+          MultilineTableCell(Markdown(""""There are many variations of pas
+                                        |*randomised words which : 1597 z*""".stripMargin)),
+          MultilineTableCell(Markdown("""but the majority have suffered al
+                                        |*to use a passage: "" (empty stri""".stripMargin)))))
   }
 }
