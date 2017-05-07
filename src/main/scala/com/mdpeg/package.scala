@@ -49,6 +49,3 @@ package object mdpeg {
     rest :: result
   }
 }
-
-//1. add table to compound md
-//2. what to do with width?
