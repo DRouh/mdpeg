@@ -97,6 +97,17 @@ _ _ _ _
 # DJI therefore frequently
 DJI_EWEQ="-Qdxv3eqewq32 -rfre43rt:+terwfq43E#"
 ```
+
+--------------------------------------------------------------------------------
+Term                  Description
+----------------      ------------------------------------------------
+.It                   is a long established fact that
+
+CAPSED WORD           The point of using Lorem Ipsum is
+
+Many                   desktop publishing packages and
+--------------------------------------------------------------------------------
+
 This is a plaint string in the end.
 * 1st block - It is a long established fact that a reader will be distracted by the readable content of a
   page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
@@ -113,3 +124,39 @@ This is a plaint string in the end.
     1. and this is a first sub item of a first item of an ordered list
     2. and this is a second sub item of a first item of an ordered list
 2. And, finally, this is a second item of an ordered list
+
+--------------------------------------------------------------------------------
+LorimIpsum                        Where can I get some?
+-----------                       ---------------------------------
+**Why do we use it?**                 
+
+There-are                         It is a long established fact that a reader will be
+                                  distracted by the readable content of a page when looking at
+
+**Where can I get some?**                  
+
+dummy                             It uses a dictionary of over 
+                                  Lorem Ipsum which looks reasonable
+
+text                              The generated Lorem Ipsum is
+
+printing                          or non-characteristic words etc
+
+**Where does it come from?**                       
+
+leap-into                         It uses a dictionary of over 200
+                                  you need to be sure there
+
+variations-join                   anything embarrassing hidden 
+                                  you need to be sure there isn't
+                                  within this period
+
+**What is Lorem Ipsum?**                 
+ 
+Lorem                             "There are many variations of passages.
+                                  *randomised words which : 1597 z*
+
+anything                          but the majority have suffered alteration.
+                                  *to use a passage: "" (empty string)*
+--------------------------------------------------------------------------------
+Table: This is a table caption\label{table:table_lable_name}

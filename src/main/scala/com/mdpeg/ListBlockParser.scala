@@ -15,7 +15,7 @@ trait ListBlockParser extends PrimitiveRules {
   def enumerator: Rule0 = rule { nonIndentSpace ~ Digit.+ ~ "." ~ sp.+ }
 
   // unordered list
-  def bulletListTight: Rule1[UnorderedList] = rule((bulletListItem.+ ~> (toUnorderedList(_))) ~ blankLine.* ~ !bulletListSparse)
+  def bulletListTight: Rule1[UnorderedList] = rule((bulletListItem.+ ~> toUnorderedList _) ~ blankLine.* ~ !bulletListSparse)
   def bulletListSparse: Rule1[UnorderedList] = rule((bulletListItem ~ blankLine.*).+ ~> (toUnorderedList(_)))
   def bulletListItem: Rule1[Vector[String]] = {
     def listStart = rule(!horizontalRule ~ bullet)

@@ -5,6 +5,13 @@ package object mdpeg {
   type MultilineTableRow = Vector[MultilineTableCell]
 
   /**
+    * Flattens a vector of strings into one string, replaces all cr/crlf with spaces
+    * @param xs a vector of strings
+    * @return a flat string composed of original list
+    * */
+  def flattenString(xs:Vector[String]): String = xs.mkString(" ").replace("\r\n","").replace("\r", "").replace("\n", "")
+
+  /**
     * Transposes a list. Doesn't fail on lists of different sizes (unlike built-in function)
     * @param xs list to transpose
     * @tparam A element type

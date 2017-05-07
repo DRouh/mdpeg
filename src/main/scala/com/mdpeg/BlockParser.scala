@@ -36,12 +36,4 @@ class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules wit
 
   def paragraph: Rule1[Paragraph] = rule(capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph) // ToDo think if inline rule should include endLine as an ordered choice
   def plain: Rule1[Plain] = rule(capture(inline.+) ~ blankLine.? ~> Plain)
-
-  //utility methods
-  /**
-    * Flattens a vector of strings into one string, replaces all cr/crlf with spaces
-    * @param xs a vector of strings
-    * @return a flat string composed of original list
-    * */
-  private def flattenString(xs:Vector[String]) = xs.mkString(" ").replace("\r\n","").replace("\r", "").replace("\n", "")
 }
