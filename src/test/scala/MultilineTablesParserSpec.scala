@@ -221,7 +221,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         Vector(MultilineTableCell(Markdown("table")))))
   }
 
-  it should "parse cut all text that doesn't fit into column" in {
+  it should "parse doesn't cut text that doesn't fit into width separator" in {
     val term =
       """-----------   -----------   -----------   -----------  -----------
         |.It is longer than neccesary and it should be truncated :)
@@ -233,17 +233,17 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       None,
       None,
       Vector(
-        Vector(MultilineTableCell(Markdown(".It is long"))),
-        Vector(MultilineTableCell(Markdown("than necces"))),
-        Vector(MultilineTableCell(Markdown(" and it sho"))),
-        Vector(MultilineTableCell(Markdown(" be truncat"))),
+        Vector(MultilineTableCell(Markdown(".It is longer"))),
+        Vector(MultilineTableCell(Markdown("than neccesary"))),
+        Vector(MultilineTableCell(Markdown(" and it should"))),
+        Vector(MultilineTableCell(Markdown(" be truncated"))),
         Vector(MultilineTableCell(Markdown(" :)")))))
   }
 
   it should "parse table with non equal number of lines in cells" in {
     val term =
       """--------------------------------------------------------------------------------
-        |LorimIpsum                        Where can I get some?
+        |This header is longer than sep    And this header is also longer than this separator
         |-----------                       ---------------------------------
         |**Why do we use it?**
         |
@@ -282,34 +282,34 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       Vector(25.0f, 75.0f),
       Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
       Some(Vector(
-        MultilineTableCell(Markdown("LorimIpsum")),
-        MultilineTableCell(Markdown("Where can I get some?")))),
+        MultilineTableCell(Markdown("This header is longer than sep")),
+        MultilineTableCell(Markdown("And this header is also longer than this separator")))),
       Vector(
         Vector(
-          MultilineTableCell(Markdown("**Why do we")),
+          MultilineTableCell(Markdown("**Why do we use it?**")),
           MultilineTableCell(Markdown("""There-are
                                         |""".stripMargin)),
-          MultilineTableCell(Markdown("**Where can")),
+          MultilineTableCell(Markdown("**Where can I get some?**")),
           MultilineTableCell(Markdown("""dummy
                                         |""".stripMargin)),
           MultilineTableCell(Markdown("text")),
           MultilineTableCell(Markdown("printing")),
-          MultilineTableCell(Markdown("**Where doe")),
+          MultilineTableCell(Markdown("**Where does it come from?**")),
           MultilineTableCell(Markdown("""leap-into
                                         |""".stripMargin)),
-          MultilineTableCell(Markdown("""variations-
+          MultilineTableCell(Markdown("""variations-join
                                         |
                                         |""".stripMargin)),
-          MultilineTableCell(Markdown("**What is L")),
+          MultilineTableCell(Markdown("**What is Lorem Ipsum?**")),
           MultilineTableCell(Markdown("""Lorem
                                         |""".stripMargin)),
           MultilineTableCell(Markdown("""anything
                                         |""".stripMargin))),
         Vector(
-          MultilineTableCell(Markdown("""It is a long established fact tha
-                                        |distracted by the readable conten""".stripMargin)),
+          MultilineTableCell(Markdown("""It is a long established fact that a reader will be
+                                        |distracted by the readable content of a page when looking at""".stripMargin)),
           MultilineTableCell(Markdown("""It uses a dictionary of over
-                                        |Lorem Ipsum which looks reasonabl""".stripMargin)),
+                                        |Lorem Ipsum which looks reasonable""".stripMargin)),
           MultilineTableCell(Markdown("The generated Lorem Ipsum is")),
           MultilineTableCell(Markdown("or non-characteristic words etc")),
           MultilineTableCell(Markdown("""It uses a dictionary of over 200
@@ -317,9 +317,9 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
           MultilineTableCell(Markdown("""anything embarrassing hidden
                                         |you need to be sure there isn't
                                         |within this period""".stripMargin)),
-          MultilineTableCell(Markdown(""""There are many variations of pas
+          MultilineTableCell(Markdown(""""There are many variations of passages.
                                         |*randomised words which : 1597 z*""".stripMargin)),
-          MultilineTableCell(Markdown("""but the majority have suffered al
-                                        |*to use a passage: "" (empty stri""".stripMargin)))))
+          MultilineTableCell(Markdown("""but the majority have suffered alteration.
+                                        |*to use a passage: "" (empty string)*""".stripMargin)))))
   }
 }

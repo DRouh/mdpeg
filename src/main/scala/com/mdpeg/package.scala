@@ -23,8 +23,32 @@ package object mdpeg {
     */
   def trimEnd(s: String): String = s.
     reverseIterator.
-    dropWhile(_ == ' ').
+    dropWhile(s => s == ' ').
     toSeq.
     reverseIterator.
     mkString
+
+  /**
+    * Trims the end of the string, removes trailing cr/crlf
+    * @param s string to trim
+    * @return end-trimmed string with no cr/crlf
+    */
+  def trimEndWithEnding(s: String): String = s.
+    reverseIterator.
+    dropWhile(s => s == ' ' || s == '\r' || s == '\n').
+    toSeq.
+    reverseIterator.
+    mkString
+
+  def listSplit(pos: List[Int], str: String): List[String] = {
+    val (rest, result) = pos.foldRight(z = (str, List[String]())) {
+      case (curr, (s, res)) =>
+        val (rest, split) = s.splitAt(curr)
+        (rest, split :: res)
+    }
+    rest :: result
+  }
 }
+
+//1. add table to compound md
+//2. what to do with width?

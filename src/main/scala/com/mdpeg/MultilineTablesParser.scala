@@ -4,6 +4,7 @@ import org.parboiled2._
 import scala.collection.immutable.::
 import scala.compat.Platform.EOL
 import scala.util.Success
+
 trait MultilineTablesParser extends PrimitiveRules {
   this: Parser =>
   /*_*/
@@ -33,15 +34,15 @@ trait MultilineTablesParser extends PrimitiveRules {
 
   def tableHeadRaw: Rule1[Vector[String]] = {
     def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine)))
-    def contents :Rule1[Seq[String]] = rule(headContentLine.+)
-    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent:Seq[String],_:Any) => headContent.toVector))
+    def contents: Rule1[Seq[String]] = rule(headContentLine.+)
+    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String], _: Any) => headContent.toVector))
   }
 
   def tableBody: Rule1[(Vector[List[String]], String)] = {
     def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLine | blankLine)))
     def contents = rule(bodyContentLine.+)
     rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~>
-      ((sep:String, contents: Seq[String], _: Any) => parseBodyContent(sep, contents)))
+      ((sep: String, contents: Seq[String], _: Any) => parseBodyContent(sep, contents)))
   }
 
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
@@ -66,24 +67,12 @@ trait MultilineTablesParser extends PrimitiveRules {
     }
 
     val widths = sep.replaceAll("\r", "").replace("\n", "")
-    val rows = contents.filter(!isEmptyString(_))
-    val cells = rows.
-      map(_.zip(widths).toList).
-      map(_.
-        foldLeft(List.empty[List[String]]) {
-          case (acc, currentLine) =>
-            (acc, currentLine) match {
-              case (x :: xs, (c, '-')) => List(x.mkString + c.toString) :: xs
-              case (xs, (_, ' ')) => List.empty[String] :: xs
-              case (Nil, (c, '-')) => List(c.toString) :: Nil
-              case _ => Nil
-            }
-        }.
-        filter(_.nonEmpty).
-        map(_.map(_.trim))).
-      transpose(_.flatten).
-      reverse.
-      map(_.reduce(_ + EOL + _))
+    val rows = contents.filter(!isEmptyString(_)).toList
+    val indexes = " -".r.findAllMatchIn(widths).map(_.start + 1).toList
+    val cells =
+      transposeAnyShape(rows.map(s => listSplit(indexes, s))).
+      map(_.reduce((s1,s2) => trimEndWithEnding(s1) + EOL + s2)).
+      map(s => trimEndWithEnding(s))
 
     cells
   }
@@ -106,7 +95,7 @@ trait MultilineTablesParser extends PrimitiveRules {
     val widths = sep.replaceAll("\r", "").replace("\n", "")
 
     //split into rows by blank lines
-    val rows = contents.
+    val rows: List[List[String]] = contents.
       foldLeft(List.empty[List[String]]) {
         case (acc, currentLine) =>
           val isEmptyLine = isEmptyString(currentLine)
@@ -121,32 +110,19 @@ trait MultilineTablesParser extends PrimitiveRules {
       reverse.
       filter(_.nonEmpty)
 
-    //split rows into cells by zipping every row with a 'width separator' and split upon every space it thereof
-    val cellsN: List[List[List[String]]] = rows.
-      map(_.map(_.zip(widths).toList)).
-      map(_.foldLeft(List.empty[List[String]]) {
-        case (acc, currentLine) =>
-          currentLine.foldLeft(List.empty[String]) {
-            case (acc1, cl) =>
-              (acc1, cl) match {
-                case (x :: xs, (c, '-')) => (x + c.toString) :: xs
-                case (x :: xs, (_, ' ')) => "" :: x :: xs
-                case (Nil, (c, '-')) => c.toString :: Nil
-                case _ => Nil
-              }
-          }.filter(_ != "").reverse :: acc
-      })
-    val cells: Vector[List[String]] = transposeAnyShape(
-      cellsN.
-      map(
-        transposeAnyShape(_).
-        map(strings => trimEnd(strings.reverse.reduce((s1, s2) => trimEnd(s1) + EOL + s2)))
-      )).toVector
-
+    //split by every change from spaces to dashes in width separator
+    val indexes = " -".r.findAllMatchIn(widths).map(_.start + 1).toList
+    val cells: Vector[List[String]] =
+      transposeAnyShape(rows.
+          map(_.map(s => listSplit(indexes, s))).
+          map(transposeAnyShape(_).
+              map(strings => trimEnd(strings.reduce((s1, s2) => trimEnd(s1) + EOL + s2))).
+              filter(_ != ""))
+      ).toVector
     (cells, widths)
   }
 
   // ToDo investigate hot to re-use parser on different inputs in order to avoid creation of a new parser on every line
   // needed to facilitate some internal processing
-  private class PrimitvePaserHelper(val input:ParserInput) extends Parser with PrimitiveRules
+  private class PrimitvePaserHelper(val input: ParserInput) extends Parser with PrimitiveRules
 }
