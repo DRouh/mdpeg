@@ -5,8 +5,8 @@ import scala.collection.immutable.::
 import scala.compat.Platform.EOL
 import scala.util.Success
 
-trait MultilineTablesParser extends PrimitiveRules {
-  this: Parser =>
+trait MultilineTablesParser {
+  this: Parser with PrimitiveRules =>
   /*_*/
   def multiTable: Rule1[MultilineTableBlock] = rule(
     tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~>

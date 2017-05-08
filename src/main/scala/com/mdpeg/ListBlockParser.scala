@@ -2,8 +2,8 @@ package com.mdpeg
 
 import org.parboiled2._
 
-trait ListBlockParser extends PrimitiveRules {
-  this: Parser =>
+trait ListBlockParser {
+  this: Parser with PrimitiveRules =>
   import CharPredicate._
 
   def list: Rule1[Block]                  = rule { unorderedList | orderedList }

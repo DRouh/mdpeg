@@ -1,11 +1,11 @@
-import com.mdpeg.{ListBlockParser, Markdown, OrderedList, UnorderedList}
+import com.mdpeg._
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success, Try}
 
 class ListParserSpec extends FlatSpec with Matchers {
-  class ListParserTestSpec(val input: ParserInput) extends Parser with ListBlockParser {}
+  class ListParserTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockParser {}
   object PrettyPrintListParser {
     def apply(parser : ListParserTestSpec) : Unit= {
       val result= parser.bulletListItem.run()

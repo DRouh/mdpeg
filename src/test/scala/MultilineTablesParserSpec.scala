@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class MultilineTablesParserSpec extends FlatSpec with Matchers {
 
-  class MultilineTablesParserTestSpec(val input: ParserInput) extends Parser with MultilineTablesParser {
+  class MultilineTablesParserTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with MultilineTablesParser {
   }
 
   def tableMock(bodyColumns: Vector[MultilineTableColumn],
