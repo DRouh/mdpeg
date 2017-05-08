@@ -2,7 +2,7 @@ package com.mdpeg
 
 import org.parboiled2._
 
-class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockParser with MultilineTablesParser {
+class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockRules with MultilineTablesRules {
   def InputLine: Rule1[Seq[Block]] = rule(block.+ ~ EOI)
 
   def block: Rule1[Block] = rule { blockQuote | verbatim | heading | list | multiTable | horizontalRule | paragraph | plain  }

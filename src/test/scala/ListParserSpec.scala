@@ -5,9 +5,9 @@ import org.scalatest.{FlatSpec, Matchers}
 import scala.util.{Failure, Success, Try}
 
 class ListParserSpec extends FlatSpec with Matchers {
-  class ListParserTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockParser {}
+  class ListRulesTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockRules {}
   object PrettyPrintListParser {
-    def apply(parser : ListParserTestSpec) : Unit= {
+    def apply(parser : ListRulesTestSpec) : Unit= {
       val result= parser.bulletListItem.run()
       result match {
         case Failure(error) =>
@@ -39,48 +39,48 @@ class ListParserSpec extends FlatSpec with Matchers {
   it should "parse unordered list's bullets '-*+'" in {
     for (ch <- Vector("-","*","+")) {
       val term = s"""$ch """.stripMargin
-      new ListParserTestSpec(term).bullet.run().get
+      new ListRulesTestSpec(term).bullet.run().get
     }
   }
 
   it should "parse ordered list's enumerator 1..999" in {
     for (d <- 1 to 999) {
       val term = s"""$d. """.stripMargin
-      new ListParserTestSpec(term).enumerator.run().get
+      new ListRulesTestSpec(term).enumerator.run().get
     }
   }
 
   it should "parse tight bullet list" in {
-    val parsed = new ListParserTestSpec(TestData.tightUnorderedList).list.run()
+    val parsed = new ListRulesTestSpec(TestData.tightUnorderedList).list.run()
     parsed.get shouldEqual UnorderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond)))
   }
 
   it should "fail on sparse bullet list while parsing it as tight" in {
-    val parsed: Try[UnorderedList] = new ListParserTestSpec(TestData.sparseUnorderedList).bulletListTight.run()
+    val parsed: Try[UnorderedList] = new ListRulesTestSpec(TestData.sparseUnorderedList).bulletListTight.run()
     hasFailedUnordered(parsed) shouldEqual true
   }
 
   it should "parse sparse bullet list" in { // ToDo fix rules to get rid of these trailing blank lines
-    val parsed = new ListParserTestSpec(TestData.sparseUnorderedList).list.run()
+    val parsed = new ListRulesTestSpec(TestData.sparseUnorderedList).list.run()
     parsed.get shouldEqual UnorderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
                                                                                                      |
                                                                                                      |       """.stripMargin)))
   }
 
   it should "parse tight ordered list" in {
-    val parsed = new ListParserTestSpec(TestData.tightOrderedList).list.run()
+    val parsed = new ListRulesTestSpec(TestData.tightOrderedList).list.run()
     parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond)))
   }
 
   it should "parse sparse ordered list" in { // ToDo fix rules to get rid of these trailing blank lines
-    val parsed = new ListParserTestSpec(TestData.sparseOrderedList).list.run()
+    val parsed = new ListRulesTestSpec(TestData.sparseOrderedList).list.run()
     parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
                                                                                                   |
                                                                                                   |       """.stripMargin)))
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
-    val parsed = new ListParserTestSpec(TestData.sparseOrderedList).orderedListTight.run()
+    val parsed = new ListRulesTestSpec(TestData.sparseOrderedList).orderedListTight.run()
     hasFailedOrdered(parsed) shouldEqual true
   }
 
@@ -95,7 +95,7 @@ class ListParserSpec extends FlatSpec with Matchers {
                 |* 3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be
                 |* 4th list block - sure there isn't anything embarrassing hidden in the middle
                 |    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin
-    val parser = new ListParserTestSpec(term)
+    val parser = new ListRulesTestSpec(term)
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
         Markdown("""1st block - It is a long established fact that a reader will be distracted by the readable content of a
@@ -122,7 +122,7 @@ class ListParserSpec extends FlatSpec with Matchers {
         |- item 2
         |  - sub 3
         |  - sub 4""".stripMargin
-    val parser = new ListParserTestSpec(term)
+    val parser = new ListRulesTestSpec(term)
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
         Markdown("""item 1
@@ -142,7 +142,7 @@ class ListParserSpec extends FlatSpec with Matchers {
           |2. item 2
           |  1. sub 3
           |  2. sub 4""".stripMargin
-      val parser = new ListParserTestSpec(term)
+      val parser = new ListRulesTestSpec(term)
       parser.list.run().get shouldEqual OrderedList(
         Vector(
           Markdown("""item 1

@@ -2,7 +2,7 @@ package com.mdpeg
 
 import org.parboiled2._
 
-trait ListBlockParser {
+trait ListBlockRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 

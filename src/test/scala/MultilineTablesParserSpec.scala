@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class MultilineTablesParserSpec extends FlatSpec with Matchers {
 
-  class MultilineTablesParserTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with MultilineTablesParser {
+  class MultilineTablesRulesTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with MultilineTablesRules {
   }
 
   def tableMock(bodyColumns: Vector[MultilineTableColumn],
@@ -25,13 +25,13 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
   it should "parse table border" in {
     val term ="""-------------------------------------------------------------------------------
       |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableBorder.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableBorder.run()
     noException should be thrownBy { parsed.get }
   }
 
   it should "parse table caption" in {
     val term = """Table: This is a table caption\\label{table:table_lable_name}"""
-    val parsed = new MultilineTablesParserTestSpec(term).tableCaption.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableCaption.run()
     noException should be thrownBy { parsed.get }
   }
 
@@ -45,9 +45,9 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
     val term3 =
       """-----------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHeadWidthSeparator.run()
-    val parsed2 = new MultilineTablesParserTestSpec(term2).tableHeadWidthSeparator.run()
-    val parsed3 = new MultilineTablesParserTestSpec(term3).tableHeadWidthSeparator.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableHeadWidthSeparator.run()
+    val parsed2 = new MultilineTablesRulesTestSpec(term2).tableHeadWidthSeparator.run()
+    val parsed3 = new MultilineTablesRulesTestSpec(term3).tableHeadWidthSeparator.run()
     noException should be thrownBy { parsed.get }
     noException should be thrownBy { parsed2.get }
     noException should be thrownBy { parsed3.get }
@@ -59,7 +59,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Term 1                Description line 1
         |----------------      ------------------------------------------------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHeadRaw.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableHeadRaw.run()
     noException should be thrownBy { parsed.get }
   }
 
@@ -74,7 +74,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Term 4                Description line 4
         |----------------      ------------------------------------------------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHeadRaw.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableHeadRaw.run()
     noException should be thrownBy { parsed.get }
   }
 
@@ -83,7 +83,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
       """--------------------------------------------------------------------------------
         |----------------      ------------------------------------------------
         |""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableHeadRaw.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableHeadRaw.run()
     a [ParseError] should be thrownBy { parsed.get }
   }
 
@@ -99,7 +99,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |CAPSED WORD 2         The point of using Lorem Ipsum is 2
         |
         |Many                  desktop publishing packages and""".stripMargin
-    val parsed = new MultilineTablesParserTestSpec(term).tableBody.run()
+    val parsed = new MultilineTablesRulesTestSpec(term).tableBody.run()
     noException should be thrownBy { parsed.get }
   }
 
@@ -117,7 +117,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Many                  desktop publishing packages and
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(
         MultilineTableCell(Markdown(".It")),
@@ -143,7 +143,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |Many                  desktop publishing packages and
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(
         MultilineTableCell(Markdown(".It")),
@@ -168,7 +168,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(MultilineTableCell(Markdown(".It"))),
       Vector(MultilineTableCell(Markdown("is a long established fact that"))
@@ -186,7 +186,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual tableMock(
       Vector(Vector(MultilineTableCell(Markdown(".It")))),
       Some(Vector(MultilineTableCell(Markdown("""Term  1
@@ -202,7 +202,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |.It           is             a            rectangular  table
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
       Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),
@@ -227,7 +227,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |.It is longer than neccesary and it should be truncated :)
         |--------------------------------------------------------------------------------
         |""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
       None,
@@ -277,7 +277,7 @@ class MultilineTablesParserSpec extends FlatSpec with Matchers {
         |                                  *to use a passage: "" (empty string)*
         |--------------------------------------------------------------------------------
         |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
-    val parser = new MultilineTablesParserTestSpec(term)
+    val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual MultilineTableBlock(
       Vector(25.0f, 75.0f),
       Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))),

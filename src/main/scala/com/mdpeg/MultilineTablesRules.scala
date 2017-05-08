@@ -5,7 +5,7 @@ import scala.collection.immutable.::
 import scala.compat.Platform.EOL
 import scala.util.Success
 
-trait MultilineTablesParser {
+trait MultilineTablesRules {
   this: Parser with PrimitiveRules =>
   /*_*/
   def multiTable: Rule1[MultilineTableBlock] = rule(
@@ -16,7 +16,7 @@ trait MultilineTablesParser {
 
   def constructTable(head: Option[Vector[String]], bodyWithWidth: (Vector[List[String]], String), caption: Option[String]): MultilineTableBlock = {
     def calculateRelativeWidths(width: String): Vector[Float] = {
-      // todo improve calculation precision, use Largest Remainder Method and imrove upon relative error
+      // todo improve calculation precision, use Largest Remainder Method and improve upon relative error
       val columnWidths = width.split(' ').filter(_ != "").map(_.length)
       val sum = columnWidths.sum.toFloat
       columnWidths.map(100 * _.toFloat / sum).toVector
