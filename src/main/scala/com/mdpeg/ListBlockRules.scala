@@ -6,6 +6,9 @@ trait ListBlockRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 
+  private def anyLineList  : Rule0 = rule(!nl ~ !EOI ~ anyCharList.* ~ (nl | ""))
+  private def anyCharList  : Rule0 = rule(anyChar | backTick)
+
   def list: Rule1[Block]                  = rule { unorderedList | orderedList }
   def unorderedList: Rule1[UnorderedList] = rule { bulletListTight | bulletListSparse }
   def orderedList: Rule1[OrderedList]     = rule { orderedListTight | orderedListSparse }
@@ -43,7 +46,7 @@ trait ListBlockRules {
 
   // aux list rules
   def listBlock: Rule0 = {
-    def blockContents = rule(anyLine)
+    def blockContents = rule(anyLineList)
     def notOptionallyIndentedAnyListItem = rule(!(listIndent.? ~ (!bulletListItem | !orderedListItem)))
     def notPossibleStartOfAnyList        = rule(!listIndent ~ (!bullet | !enumerator))
     def blockRest = rule((notOptionallyIndentedAnyListItem ~ !blankLine ~ notPossibleStartOfAnyList ~ !indentedLine.?).*)

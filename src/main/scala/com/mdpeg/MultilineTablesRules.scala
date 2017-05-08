@@ -7,6 +7,10 @@ import scala.util.Success
 
 trait MultilineTablesRules {
   this: Parser with PrimitiveRules =>
+
+  private def anyLineTable  : Rule0 = rule(!nl ~ !EOI ~ anyCharTable.* ~ (nl | ""))
+  private def anyCharTable  : Rule0 = rule(anyChar | backTick)
+
   /*_*/
   def multiTable: Rule1[MultilineTableBlock] = rule(
     tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~ capture(nl.* | blankLine.*) ~>
@@ -33,13 +37,13 @@ trait MultilineTablesRules {
   }
 
   def tableHeadRaw: Rule1[Vector[String]] = {
-    def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLine | blankLine)))
+    def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLineTable | blankLine)))
     def contents: Rule1[Seq[String]] = rule(headContentLine.+)
     rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String], _: Any) => headContent.toVector))
   }
 
   def tableBody: Rule1[(Vector[List[String]], String)] = {
-    def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLine | blankLine)))
+    def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLineTable | blankLine)))
     def contents = rule(bodyContentLine.+)
     rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~>
       ((sep: String, contents: Seq[String], _: Any) => parseBodyContent(sep, contents)))
@@ -48,7 +52,7 @@ trait MultilineTablesRules {
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
   def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
   def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
-  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyChar.+) ~ (endLine | nl.?)))
+  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyCharTable.+) ~ (endLine | nl.?)))
   def dashes: Rule0 = rule((3 to 150).times("-"))
 
   /**
