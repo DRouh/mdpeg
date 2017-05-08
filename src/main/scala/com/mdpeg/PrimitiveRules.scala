@@ -21,10 +21,10 @@ trait PrimitiveRules {
   def endLine         : Rule0 = rule(sp.? ~ nl ~ !blankLine ~ !EOI)
   def indent          : Rule0 = rule("\t" | "    ")
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
-  def inline          : Rule0 = rule(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$"))
+  def inline          : Rule0 = rule(atomic(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$")))
   def blankLine       : Rule0 = rule(sp.* ~ nl)
   def punctuationChar : Rule0 = rule(anyOf(":;,.?!-’“”—")) // ToDo think how to handle backtick '`' so that it is not confused with verbatim block
   def nl              : Rule0 = rule('\r'.? ~ '\n')
   def spaces          : Rule0 = rule(sp.*)
-  def sp              : Rule0 = rule(anyOf(" \t"))
+  def sp              : Rule0 = rule(" "| "\t")
 }
