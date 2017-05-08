@@ -9,8 +9,8 @@ trait MultilineTablesParser {
   this: Parser with PrimitiveRules =>
   /*_*/
   def multiTable: Rule1[MultilineTableBlock] = rule(
-    tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~>
-      ((head: Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String]) => constructTable(head, body, caption))
+    tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~ capture(nl.* | blankLine.*) ~>
+      ((head: Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String], _: String) => constructTable(head, body, caption))
   )
   /*_*/
 
@@ -26,7 +26,7 @@ trait MultilineTablesParser {
     val parsedHead = head.map(parseHeadContent(width, _))
 
     val relativeWidths = calculateRelativeWidths(width)
-    val tableCaption = caption.map(y => MultilineTableCaption(Markdown(y)))
+    val tableCaption = caption.map(inline => MultilineTableCaption(Markdown(inline)))
     val headRow: Option[MultilineTableRow] = parsedHead.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
     val bodyColumns: Vector[MultilineTableColumn] = body.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
     MultilineTableBlock(relativeWidths, tableCaption, headRow, bodyColumns)
@@ -48,7 +48,7 @@ trait MultilineTablesParser {
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
   def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
   def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
-  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyChar.+ ~ nl.?)))
+  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyChar.+) ~ (endLine | nl.?)))
   def dashes: Rule0 = rule((3 to 150).times("-"))
 
   /**

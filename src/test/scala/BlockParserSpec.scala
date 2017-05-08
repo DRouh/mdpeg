@@ -93,6 +93,24 @@ class BlockParserSpec extends FlatSpec with Matchers {
     parsed shouldEqual Verbatim(TestData.codeBlock4)
   }
 
+  it should "parse several consequent multiline tables split by different intervals" in {
+    val term =
+      s"""${TestData.complexTable}
+         |${TestData.complexTable}
+         |
+         |${TestData.complexTable}
+         |
+         |
+         |${TestData.complexTable}
+         |""".stripMargin
+    val parsed = new BlockParser(term).InputLine.run().get
+    parsed shouldEqual Vector(
+      ExpectedTestResults.complexTable,
+      ExpectedTestResults.complexTable,
+      ExpectedTestResults.complexTable,
+      ExpectedTestResults.complexTable)
+  }
+
   it should "parse a compound document" in {
     val term = TestData.compoundMD
     val parsed = new BlockParser(term).InputLine.run().get
