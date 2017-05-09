@@ -22,7 +22,6 @@ trait PrimitiveRules {
   def anyChar         : Rule0 = rule(inlineChar | mathChar | specialCharEx)
   def mathChar        : Rule0 = rule(anyOf("=/\\*-+^%!<>[]{}"))
   def specialCharEx   : Rule0 = rule(anyOf("@#$\"“"))
-  def endLine         : Rule0 = rule(sp.? ~ nl ~ !blankLine ~ !EOI)
   def indent          : Rule0 = rule("\t" | "    ")
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
   def inlineChar      : Rule0 = rule(atomic(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$")))

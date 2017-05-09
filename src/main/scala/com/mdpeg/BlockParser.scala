@@ -23,7 +23,7 @@ class BlockParser(val input: ParserInput) extends Parser
   def reference: Rule1[ReferenceBlock] = {
     def uri = rule((!sp ~ !nl ~ anyChar).+)
     rule(nonIndentSpace ~ label ~ ":" ~ spnl ~ capture(uri) ~ (spnl ~ title).? ~ blankLine.* ~>
-      ((label:String, uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
+      ((label:Seq[Inline], uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
   }
   /*_*/
 
@@ -47,6 +47,8 @@ class BlockParser(val input: ParserInput) extends Parser
   }
 
   // ToDo think if inline rule should include endLine as an ordered choice
-  def paragraph: Rule1[Paragraph] = rule(capture((inlineChar | endLine).+) ~ blankLine.+ ~> Paragraph)
+  /*_*/
+  def paragraph: Rule1[Paragraph] = rule(inline.+ ~ nl ~ blankLine.+ ~> ((in: Seq[Inline]) => Paragraph(in)))
+  /*_*/
   def plain: Rule1[Plain] = rule(capture(inlineChar.+) ~ blankLine.? ~> Plain)
 }
