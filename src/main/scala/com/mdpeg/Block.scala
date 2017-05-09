@@ -2,7 +2,7 @@ package com.mdpeg
 
 //reference target
 sealed trait Target
-final case class Src(uri:String, title:String)
+final case class Src(uri:String, title: Option[String]) extends Target
 
 sealed trait Block
 

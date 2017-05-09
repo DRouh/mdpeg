@@ -2,7 +2,11 @@ package com.mdpeg
 
 import org.parboiled2._
 
-class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockRules with MultilineTablesRules {
+class BlockParser(val input: ParserInput) extends Parser
+  with PrimitiveRules
+  with ListBlockRules
+  with MultilineTablesRules
+  with InlineRules {
   def InputLine: Rule1[Seq[Block]] = rule(block.+ ~ EOI)
 
   def block: Rule1[Block] = rule { blockQuote | verbatim | heading | list | multiTable | horizontalRule | paragraph | plain  }
@@ -15,7 +19,12 @@ class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules wit
     rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)
   }
 
-  def reference: Rule1[ReferenceBlock] = ???
+  /*_*/
+  def reference: Rule1[ReferenceBlock] = {
+    def uri = rule((!sp ~ !nl ~ anyChar).+)
+    rule(nonIndentSpace ~ label ~ ":" ~ spnl ~ capture(uri) ~ spnl ~ title.? ~ blankLine.* ~> ((label:String, uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
+  }
+  /*_*/
 
   def blockQuote : Rule1[BlockQuote] = { // ToDo think if should store a Markdown instead of concatenated strings
     def blockQuoteLine: Rule1[String] = rule(nonIndentSpace ~ ">" ~ sp.+ ~ capture(anyLine))
@@ -36,6 +45,7 @@ class BlockParser(val input: ParserInput) extends Parser with PrimitiveRules wit
     rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
   }
 
-  def paragraph: Rule1[Paragraph] = rule(capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph) // ToDo think if inline rule should include endLine as an ordered choice
+  // ToDo think if inline rule should include endLine as an ordered choice
+  def paragraph: Rule1[Paragraph] = rule(capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph)
   def plain: Rule1[Plain] = rule(capture(inline.+) ~ blankLine.? ~> Plain)
 }
