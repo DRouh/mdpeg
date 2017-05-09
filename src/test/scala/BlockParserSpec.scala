@@ -1,5 +1,9 @@
+import com.mdpeg.Parser.fileText
 import com.mdpeg._
+import org.parboiled2.{ErrorFormatter, ParseError}
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.util.{Failure, Success}
 
 class BlockParserSpec extends FlatSpec with Matchers {
   it should "parse '_' Horizontal rule" in {
@@ -95,13 +99,20 @@ class BlockParserSpec extends FlatSpec with Matchers {
 
   it should "parse a reference with title" in {
     val term = s"""[arbitrary case-insensitive reference text]: https://www.mozilla.org 'this is title'""".stripMargin
-    new BlockParser(term).reference.run().get shouldEqual ReferenceBlock("arbitrary case-insensitive reference text", Src("https://www.mozilla.org", Some("this is title")))
+    new BlockParser(term).reference.run().get shouldEqual
+      ReferenceBlock("arbitrary case-insensitive reference text", Src("https://www.mozilla.org", Some("this is title")))
   }
 
   it should "parse a reference without title" in {
     val term = s"""[arbitrary case-insensitive 123 !@#]: https://www.mozilla.org""".stripMargin
     val parser = new BlockParser(term)
-    new BlockParser(term).reference.run().get shouldEqual ReferenceBlock("arbitrary case-insensitive 123 !@#", Src("https://www.mozilla.org", None))
+    parser.InputLine.run() match {
+      case Success(node) => println(node)
+      case Failure(e: ParseError) => println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
+      case Failure(e) => throw e
+    }
+    new BlockParser(term).reference.run().get shouldEqual
+      ReferenceBlock("arbitrary case-insensitive 123 !@#", Src("https://www.mozilla.org", None))
   }
 
   it should "parse several consequent multiline tables split by different intervals" in {

@@ -13,7 +13,7 @@ class BlockParser(val input: ParserInput) extends Parser
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
-    def inlineCodeChar = rule( inline | mathChar | specialChar ) // ToDo add blank line?
+    def inlineCodeChar = rule( inlineChar | mathChar | specialChar ) // ToDo add blank line?
     def verbatimBlockBound = rule(3.times("`"))
     def verbatimBlockContents = rule((nl | inlineCodeChar.+ ~ nl).+)
     rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)
@@ -22,7 +22,8 @@ class BlockParser(val input: ParserInput) extends Parser
   /*_*/
   def reference: Rule1[ReferenceBlock] = {
     def uri = rule((!sp ~ !nl ~ anyChar).+)
-    rule(nonIndentSpace ~ label ~ ":" ~ spnl ~ capture(uri) ~ spnl ~ title.? ~ blankLine.* ~> ((label:String, uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
+    rule(nonIndentSpace ~ label ~ ":" ~ spnl ~ capture(uri) ~ (spnl ~ title).? ~ blankLine.* ~>
+      ((label:String, uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
   }
   /*_*/
 
@@ -37,7 +38,7 @@ class BlockParser(val input: ParserInput) extends Parser
   def heading: Rule1[HeadingBlock] = rule { atxHeading }
 
   def atxHeading: Rule1[HeadingBlock] = {
-    def headingContents = rule(inline.+)
+    def headingContents = rule(inlineChar.+)
     @inline
     def h = (lev: Int) => rule {
       lev.times("#") ~ !endLine ~ !"#" ~ sp ~ capture(headingContents) ~ anyOf("# \t").* ~ nl.* ~> (HeadingBlock(lev, _))
@@ -46,6 +47,6 @@ class BlockParser(val input: ParserInput) extends Parser
   }
 
   // ToDo think if inline rule should include endLine as an ordered choice
-  def paragraph: Rule1[Paragraph] = rule(capture((inline | endLine).+) ~ blankLine.+ ~> Paragraph)
-  def plain: Rule1[Plain] = rule(capture(inline.+) ~ blankLine.? ~> Plain)
+  def paragraph: Rule1[Paragraph] = rule(capture((inlineChar | endLine).+) ~ blankLine.+ ~> Paragraph)
+  def plain: Rule1[Plain] = rule(capture(inlineChar.+) ~ blankLine.? ~> Plain)
 }
