@@ -15,13 +15,13 @@ trait PrimitiveRules {
 
   def indentedLine    : Rule0 = rule(indent ~ anyLine)
   def anyLine         : Rule0 = rule(!nl ~ !EOI ~ anyChar.* ~ (nl | ""))
-  def anyChar         : Rule0 = rule(inline | mathChar | specialChar)
+  def anyChar         : Rule0 = rule(inlineChar | mathChar | specialChar)
   def mathChar        : Rule0 = rule(anyOf("=/\\*-+^%!<>[]{}"))
   def specialChar     : Rule0 = rule(anyOf("@#$\"“"))
   def endLine         : Rule0 = rule(sp.? ~ nl ~ !blankLine ~ !EOI)
   def indent          : Rule0 = rule("\t" | "    ")
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
-  def inline          : Rule0 = rule(atomic(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$")))
+  def inlineChar      : Rule0 = rule(atomic(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$")))
   def blankLine       : Rule0 = rule(sp.* ~ nl)
   def punctuationChar : Rule0 = rule(anyOf(":;,.?!-’“”—")) // ToDo think how to handle backtick '`' so that it is not confused with verbatim block
   def spnl            : Rule0 = rule(spaces ~ (nl ~ sp | ""))
