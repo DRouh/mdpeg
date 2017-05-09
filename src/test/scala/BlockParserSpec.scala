@@ -138,7 +138,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
       Plain(TestData.plainText),
       ExpectedTestResults.unorderedList,
       ExpectedTestResults.orderedList,
-      ExpectedTestResults.complexTable
+      ExpectedTestResults.complexTable,
+      ExpectedTestResults.referenceType1,
+      ExpectedTestResults.referenceType2
     )
   }
 }

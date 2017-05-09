@@ -185,6 +185,10 @@ object TestData {
       |                                  *to use a passage: "" (empty string)*
       |--------------------------------------------------------------------------------
       |Table: This is a table caption\label{table:table_lable_name}""".stripMargin
+
+  val referenceType1 = "[arbitrary case-insensitive reference text]: https://www.mozilla.org 'this is title'"
+  val referenceType2 = "[arbitrary case-insensitive 123 !@#]: https://www.mozilla.org"
+
   val compoundMD: String =
     s"""# $headingOne
        |
@@ -207,6 +211,8 @@ object TestData {
        |```$codeBlock4```
        |$plainText
        |$twoDifferentLists
-       |$complexTable"""
+       |$complexTable
+       |$referenceType1
+       |$referenceType2"""
       .stripMargin
 }

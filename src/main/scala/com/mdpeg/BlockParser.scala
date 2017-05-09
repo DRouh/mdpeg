@@ -9,7 +9,7 @@ class BlockParser(val input: ParserInput) extends Parser
   with InlineRules {
   def InputLine: Rule1[Seq[Block]] = rule(block.+ ~ EOI)
 
-  def block: Rule1[Block] = rule { blockQuote | verbatim | heading | list | multiTable | horizontalRule | paragraph | plain  }
+  def block: Rule1[Block] = rule { blockQuote | verbatim | reference | heading | list | multiTable | horizontalRule | paragraph | plain  }
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
