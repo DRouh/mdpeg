@@ -93,6 +93,17 @@ class BlockParserSpec extends FlatSpec with Matchers {
     parsed shouldEqual Verbatim(TestData.codeBlock4)
   }
 
+  it should "parse a reference with title" in {
+    val term = s"""[arbitrary case-insensitive reference text]: https://www.mozilla.org 'this is title'""".stripMargin
+    new BlockParser(term).reference.run().get shouldEqual ReferenceBlock("arbitrary case-insensitive reference text", Src("https://www.mozilla.org", Some("this is title")))
+  }
+
+  it should "parse a reference without title" in {
+    val term = s"""[arbitrary case-insensitive 123 !@#]: https://www.mozilla.org""".stripMargin
+    val parser = new BlockParser(term)
+    new BlockParser(term).reference.run().get shouldEqual ReferenceBlock("arbitrary case-insensitive 123 !@#", Src("https://www.mozilla.org", None))
+  }
+
   it should "parse several consequent multiline tables split by different intervals" in {
     val term =
       s"""${TestData.complexTable}
@@ -127,7 +138,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
       Plain(TestData.plainText),
       ExpectedTestResults.unorderedList,
       ExpectedTestResults.orderedList,
-      ExpectedTestResults.complexTable
+      ExpectedTestResults.complexTable,
+      ExpectedTestResults.referenceType1,
+      ExpectedTestResults.referenceType2
     )
   }
 }

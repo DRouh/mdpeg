@@ -1,4 +1,4 @@
-import com.mdpeg._
+import com.mdpeg.{ReferenceBlock, _}
 object ExpectedTestResults {
   val unorderedList = UnorderedList(Vector(
     Markdown("""1st block - It is a long established fact that a reader will be distracted by the readable content of a
@@ -66,4 +66,7 @@ object ExpectedTestResults {
                                       |*randomised words which : 1597 z*""".stripMargin)),
         MultilineTableCell(Markdown("""but the majority have suffered alteration.
                                       |*to use a passage: "" (empty string)*""".stripMargin)))))
+
+  val referenceType1 = ReferenceBlock("arbitrary case-insensitive reference text",Src("https://www.mozilla.org",Some("this is title")))
+  val referenceType2 = ReferenceBlock("arbitrary case-insensitive 123 !@#", Src("https://www.mozilla.org", None))
 }
