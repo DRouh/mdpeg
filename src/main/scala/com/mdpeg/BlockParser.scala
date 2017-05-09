@@ -22,7 +22,8 @@ class BlockParser(val input: ParserInput) extends Parser
   /*_*/
   def reference: Rule1[ReferenceBlock] = {
     def uri = rule((!sp ~ !nl ~ anyChar).+)
-    rule(nonIndentSpace ~ label ~ ":" ~ spnl ~ capture(uri) ~ spnl ~ title.? ~ blankLine.* ~> ((label:String, uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
+    rule(nonIndentSpace ~ label ~ ":" ~ spnl ~ capture(uri) ~ (spnl ~ title).? ~ blankLine.* ~>
+      ((label:String, uri:String, title:Option[String]) => ReferenceBlock(label, Src(uri, title))))
   }
   /*_*/
 
