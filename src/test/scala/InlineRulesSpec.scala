@@ -1,4 +1,4 @@
-import com.mdpeg.{InlineRules, PrimitiveRules, Strong}
+import com.mdpeg._
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -8,11 +8,11 @@ class InlineRulesSpec extends FlatSpec with Matchers {
 
   it should "parse strong starred" in {
     val term = "**strong HI**"
-    new InlineRulesTestSpec(term).strong.run().get shouldEqual Strong("strong HI")
+    new InlineRulesTestSpec(term).strong.run().get shouldEqual Strong(Vector(Text("strong"), Space, Text("HI")))
   }
 
   it should "parse strong underlined" in {
     val term = "__strong HI__"
-    new InlineRulesTestSpec(term).strong.run().get shouldEqual Strong("strong HI")
+    new InlineRulesTestSpec(term).strong.run().get shouldEqual Strong(Vector(Text("strong"), Space, Text("HI")))
   }
 }

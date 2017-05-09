@@ -7,12 +7,12 @@ final case class Src(uri:String, title: Option[String]) extends Target
 sealed trait Block
 
 final case class Plain(inline: String) extends Block
-final case class Paragraph(inline: String) extends Block
+final case class Paragraph(inline: Seq[Inline]) extends Block
 case object HorizontalRuleBlock extends Block
 final case class HeadingBlock(level: Int, inline: String) extends Block
 final case class Verbatim(inline: String) extends Block
 final case class BlockQuote(inline: String) extends Block
-final case class ReferenceBlock(inline: String, target: Target) extends Block
+final case class ReferenceBlock(inline: Seq[Inline], target: Target) extends Block
 
 // list cases
 final case class OrderedList(inline: Vector[Block]) extends Block
