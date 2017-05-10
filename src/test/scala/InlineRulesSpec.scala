@@ -1,6 +1,9 @@
+import com.mdpeg.Parser.parser
 import com.mdpeg._
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.util.{Failure, Success}
 
 class InlineRulesSpec extends FlatSpec with Matchers {
 
@@ -65,5 +68,19 @@ class InlineRulesSpec extends FlatSpec with Matchers {
   it should "forbid having double italics _* wrapped" in {
     val term = "_*double strong*_"
     a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
+  }
+
+  it should "parse explicit link" in {
+    val term = "[I'm an inline-style link] https://www.google.com"
+    val parser = new InlineRulesTestSpec(term)
+    parser.explicitLink.run() match {
+      case Success(node) => println(node)
+      case Failure(e: ParseError) =>
+        println(parser.formatError(e, new ErrorFormatter(showTraces = true)))
+      case Failure(e) =>
+        throw e
+    }
+    parser.explicitLink.run().get shouldEqual ""
+
   }
 }

@@ -13,6 +13,27 @@ trait InlineRules {
   def spaces:  Rule1[Space.type] = rule(capture(sp.+) ~> ((_:String) => Space))
   def strong:  Rule1[Strong]     = rule(strongStarred | strongUnderlined)
   def italics: Rule1[Italics]    = rule(italicsStarred | italicsUnderlined)
+  def link:    Rule1[Link]       = rule(explicitLink | referenceLink)
+
+  def explicitLink:  Rule1[Link] = {
+    def excludeChars: Rule0 = rule(noneOf("()> \\n\\t"))
+    def source:  Rule1[String] = rule("<" ~ capture(source1) ~ ">" | capture(source1))
+    def source1: Rule0 = rule(zeroOrMore(excludeChars.+ | ("(" ~ source1 ~ ")") | ("<" ~ source1 ~ ">")))
+
+    /*_*/
+    def sourceAndTitle: Rule1[(String, Option[String])] = rule("(" ~ sp ~ source ~ spnl ~ title.? ~ sp ~ ")" ~> ((s:String, o:Option[String]) => (s, o)))
+
+    rule(label ~ spnl ~ sourceAndTitle ~> ((inline: Seq[Inline], uriTitle: (String, Option[String])) =>
+      uriTitle match {
+        case (uri:String, None) => Link(inline, Src(uri, None))
+        case (uri:String, title:Option[String]) => Link(inline, Src(uri, None))
+        case _ => Link(inline, Src(uriTitle._1, None))
+      })
+    )
+    /*_*/
+  }
+  def referenceLink: Rule1[Link] = ???
+
 
   def label: Rule1[Seq[Inline]] = rule("[" ~ (!"]" ~ inline).+ ~ "]") // [label]
   def title: Rule1[String] = rule { // 'title' or "title" for reference

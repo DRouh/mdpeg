@@ -27,7 +27,7 @@ trait PrimitiveRules {
   def inlineChar      : Rule0 = rule(atomic(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$")))
   def blankLine       : Rule0 = rule(sp.* ~ nl)
   def punctuationChar : Rule0 = rule(anyOf(":;,.?!-’“”—")) // ToDo think how to handle backtick '`' so that it is not confused with verbatim block
-  def spnl            : Rule0 = rule(sp ~ ((nl ~ sp).? | ""))
+  def spnl            : Rule0 = rule(sps ~ ((nl ~ sp).? | ""))
   def nl              : Rule0 = rule('\r'.? ~ '\n')
   def sps             : Rule0 = rule(sp.*)
   def sp              : Rule0 = rule(" "| "\t")
