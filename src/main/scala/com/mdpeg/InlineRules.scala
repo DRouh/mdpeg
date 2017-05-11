@@ -16,24 +16,28 @@ trait InlineRules {
   def link:    Rule1[Link]       = rule(explicitLink | referenceLink)
 
   def explicitLink:  Rule1[Link] = {
-    def excludeChars: Rule0 = rule(noneOf("()> \\n\\t"))
+    def excludeChars: Rule0 = rule(noneOf("()> \r\n\t"))
     def source:  Rule1[String] = rule("<" ~ capture(source1) ~ ">" | capture(source1))
     def source1: Rule0 = rule(zeroOrMore(excludeChars.+ | ("(" ~ source1 ~ ")") | ("<" ~ source1 ~ ">")))
 
     /*_*/
-    def sourceAndTitle: Rule1[(String, Option[String])] = rule("(" ~ sp ~ source ~ spnl ~ title.? ~ sp ~ ")" ~> ((s:String, o:Option[String]) => (s, o)))
-
+    def sourceAndTitle: Rule1[(String, Option[String])] = {
+      rule("(" ~ sps ~ source ~ spnl ~ title.? ~ sps ~ ")" ~> ((s: String, o: Option[String]) => (s, o)))
+    }
     rule(label ~ spnl ~ sourceAndTitle ~> ((inline: Seq[Inline], uriTitle: (String, Option[String])) =>
       uriTitle match {
         case (uri:String, None) => Link(inline, Src(uri, None))
-        case (uri:String, title:Option[String]) => Link(inline, Src(uri, None))
+        case (uri:String, title:Option[String]) => Link(inline, Src(uri, title))
         case _ => Link(inline, Src(uriTitle._1, None))
       })
     )
     /*_*/
   }
-  def referenceLink: Rule1[Link] = ???
 
+  def referenceLink: Rule1[Link] = {
+    rule(label ~ capture(spnl) ~ label ~> ((l1: Seq[Inline], s:String, l2: Seq[Inline]) => Link(l1, Ref(l2, s))) |
+         label ~> ((l: Seq[Inline]) => Link(l, ShortcutRef)))
+  }
 
   def label: Rule1[Seq[Inline]] = rule("[" ~ (!"]" ~ inline).+ ~ "]") // [label]
   def title: Rule1[String] = rule { // 'title' or "title" for reference
