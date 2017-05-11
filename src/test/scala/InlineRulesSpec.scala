@@ -72,21 +72,21 @@ class InlineRulesSpec extends FlatSpec with Matchers {
   it should "parse explicit link with title" in {
     val term = "[like this](google.com 'title')"
     val parser = new InlineRulesTestSpec(term)
-    parser.link.run().get shouldEqual
+    parser.inline.run().get shouldEqual
       Link(Vector(Text("like"), Space, Text("this")),Src("google.com",Some("title")))
   }
 
   it should "parse explicit link without title" in {
     val term = "[like this](google.com)"
     val parser = new InlineRulesTestSpec(term)
-    parser.link.run().get shouldEqual
+    parser.inline.run().get shouldEqual
       Link(Vector(Text("like"), Space, Text("this")),Src("google.com", None))
   }
 
   it should "parse reference link" in {
     val term = "[I'm a reference link][Arbitrary reference text]"
     val parser = new InlineRulesTestSpec(term)
-    parser.link.run().get shouldEqual
+    parser.inline.run().get shouldEqual
       Link(Vector(Text("I'm"), Space, Text("a"), Space, Text("reference"), Space, Text("link")),
         Ref(Vector(Text("Arbitrary"), Space, Text("reference"), Space, Text("text")),""))
   }
@@ -94,7 +94,7 @@ class InlineRulesSpec extends FlatSpec with Matchers {
   it should "parse reference link ShortcutRef style" in {
     val term = "[I'm a reference link]"
     val parser = new InlineRulesTestSpec(term)
-    parser.link.run().get shouldEqual
+    parser.inline.run().get shouldEqual
       Link(Vector(Text("I'm"), Space, Text("a"), Space, Text("reference"), Space, Text("link")),
         ShortcutRef)
   }
