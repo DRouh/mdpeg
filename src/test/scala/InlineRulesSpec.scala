@@ -99,17 +99,19 @@ class InlineRulesSpec extends FlatSpec with Matchers {
         ShortcutRef)
   }
 
-  it should "parser autolink uri" in {
+  it should "parse autolink uri" in {
     val term = "<http://google.com>"
     val parser = new InlineRulesTestSpec(term)
     parser.inline.run().get shouldEqual
       Link(Vector(Text("http://google.com")),Src("http://google.com",None))
   }
 
-  it should "parser autolink email" in {
+  it should "parse autolink email" in {
     val term = "<test@gmail.com>"
     val parser = new InlineRulesTestSpec(term)
     parser.inline.run().get shouldEqual
       Link(Vector(Text("test@gmail.com")),Src("mailto:test@gmail.com",None))
   }
+
+
 }
