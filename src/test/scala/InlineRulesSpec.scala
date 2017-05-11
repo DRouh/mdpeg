@@ -141,7 +141,7 @@ class InlineRulesSpec extends FlatSpec with Matchers {
       Image(Vector(Text("shortcut")),ShortcutRef,Some(73))
   }
 
-  it should "parse a shortcut style image link without title with width" in {
+  it should "parse a uri style image link without title with width" in {
     val term = "![Image label](src/images/image1.png){ width=2000% }"
     val parser = new InlineRulesTestSpec(term)
     parser.image.run().get shouldEqual
