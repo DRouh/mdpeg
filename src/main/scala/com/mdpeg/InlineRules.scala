@@ -43,7 +43,7 @@ trait InlineRules {
     rule("<" ~ capture(Alpha.+ ~ "://") ~ capture((!nl ~ !">" ~ ANY).+) ~ ">" ~>
       ((protocol: String, link: String) => Link(Vector(Text(protocol+link)), Src(protocol+link, None))))
   }
-  def autolinkEmail:  Rule1[Link] = {
+  def autolinkEmail: Rule1[Link] = {
     rule("<" ~ capture(Alpha.+ ~ "@" ~ (!nl ~ !">" ~ ANY).+) ~ ">" ~> ((s:String)=> Link(Vector(Text(s)), Src("mailto:" +s, None))))
   }
 
