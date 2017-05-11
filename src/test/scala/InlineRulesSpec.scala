@@ -113,5 +113,17 @@ class InlineRulesSpec extends FlatSpec with Matchers {
       Link(Vector(Text("test@gmail.com")),Src("mailto:test@gmail.com",None))
   }
 
+  it should "parse a shortcut style image link" in {
+    val term = "![shortcut]"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("shortcut")),ShortcutRef)
+  }
 
+  it should "parse a uri style image link" in {
+    val term = "![Image label](src/images/image1.png \"Image title\")"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("Image"), Space, Text("label")),Src("src/images/image1.png",Some("Image title")))
+  }
 }

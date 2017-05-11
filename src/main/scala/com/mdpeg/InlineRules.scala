@@ -15,6 +15,10 @@ trait InlineRules {
   def italics:  Rule1[Italics]    = rule(italicsStarred | italicsUnderlined)
   def link:     Rule1[Link]       = rule(explicitLink | referenceLink)
   def autolink: Rule1[Link]       = rule(autolinkUri | autolinkEmail)
+  def image:    Rule1[Image]      = rule("!" ~ link ~> ((l:Link) => l match {
+    case Link(inline, target) => Image(inline, target)
+    case _ => sys.error("Error trying convert Link to image in patter matching expression.")
+  }))
 
   def explicitLink:  Rule1[Link] = {
     def excludeChars: Rule0 = rule(noneOf("()> \r\n\t"))
