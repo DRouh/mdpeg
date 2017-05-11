@@ -2,6 +2,8 @@ import com.mdpeg._
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.util.{Failure, Success}
+
 class InlineRulesSpec extends FlatSpec with Matchers {
 
   class InlineRulesTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with InlineRules {}
@@ -65,5 +67,49 @@ class InlineRulesSpec extends FlatSpec with Matchers {
   it should "forbid having double italics _* wrapped" in {
     val term = "_*double strong*_"
     a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
+  }
+
+  it should "parse explicit link with title" in {
+    val term = "[like this](google.com 'title')"
+    val parser = new InlineRulesTestSpec(term)
+    parser.inline.run().get shouldEqual
+      Link(Vector(Text("like"), Space, Text("this")),Src("google.com",Some("title")))
+  }
+
+  it should "parse explicit link without title" in {
+    val term = "[like this](google.com)"
+    val parser = new InlineRulesTestSpec(term)
+    parser.inline.run().get shouldEqual
+      Link(Vector(Text("like"), Space, Text("this")),Src("google.com", None))
+  }
+
+  it should "parse reference link" in {
+    val term = "[I'm a reference link][Arbitrary reference text]"
+    val parser = new InlineRulesTestSpec(term)
+    parser.inline.run().get shouldEqual
+      Link(Vector(Text("I'm"), Space, Text("a"), Space, Text("reference"), Space, Text("link")),
+        Ref(Vector(Text("Arbitrary"), Space, Text("reference"), Space, Text("text")),""))
+  }
+
+  it should "parse reference link ShortcutRef style" in {
+    val term = "[I'm a reference link]"
+    val parser = new InlineRulesTestSpec(term)
+    parser.inline.run().get shouldEqual
+      Link(Vector(Text("I'm"), Space, Text("a"), Space, Text("reference"), Space, Text("link")),
+        ShortcutRef)
+  }
+
+  it should "parser autolink uri" in {
+    val term = "<http://google.com>"
+    val parser = new InlineRulesTestSpec(term)
+    parser.inline.run().get shouldEqual
+      Link(Vector(Text("http://google.com")),Src("http://google.com",None))
+  }
+
+  it should "parser autolink email" in {
+    val term = "<test@gmail.com>"
+    val parser = new InlineRulesTestSpec(term)
+    parser.inline.run().get shouldEqual
+      Link(Vector(Text("test@gmail.com")),Src("mailto:test@gmail.com",None))
   }
 }
