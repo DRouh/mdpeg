@@ -6,7 +6,7 @@ trait InlineRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 
-  def inline:  Rule1[Inline] = rule(strong | italics | endLine | link | autolink | spaces | text)
+  def inline:  Rule1[Inline] = rule(strong | italics | endLine | link | image | autolink | spaces | text)
 
   def text:     Rule1[Text]       = rule(capture(textChar.+) ~> Text)
   def endLine:  Rule1[Space.type] = rule(capture(" ".? ~ nl ~ !blankLine ~ !EOI) ~> ((_:String) => Space))
