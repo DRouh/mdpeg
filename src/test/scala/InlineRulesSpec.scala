@@ -99,17 +99,60 @@ class InlineRulesSpec extends FlatSpec with Matchers {
         ShortcutRef)
   }
 
-  it should "parser autolink uri" in {
+  it should "parse autolink uri" in {
     val term = "<http://google.com>"
     val parser = new InlineRulesTestSpec(term)
     parser.inline.run().get shouldEqual
       Link(Vector(Text("http://google.com")),Src("http://google.com",None))
   }
 
-  it should "parser autolink email" in {
+  it should "parse autolink email" in {
     val term = "<test@gmail.com>"
     val parser = new InlineRulesTestSpec(term)
     parser.inline.run().get shouldEqual
       Link(Vector(Text("test@gmail.com")),Src("mailto:test@gmail.com",None))
+  }
+
+  it should "parse a shortcut style image link" in {
+    val term = "![shortcut]"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("shortcut")),ShortcutRef, None)
+  }
+
+  it should "parse an explicit style image link" in {
+    val term = "![Image label](src/images/image1.png \"Image title\")"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("Image"), Space, Text("label")),Src("src/images/image1.png",Some("Image title")), None)
+  }
+
+  it should "parse an explicit style image link with width" in {
+    val term = "![Image label](src/images/image1.png \"Image title\") { width=50% }"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("Image"), Space, Text("label")),Src("src/images/image1.png",Some("Image title")), Some(50))
+  }
+
+  it should "parse a shortcut style image link with width" in {
+    val term = "![shortcut]{WIDTH = 73% }"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("shortcut")),ShortcutRef,Some(73))
+  }
+
+  it should "parse an explicit style image link without title with width" in {
+    val term = "![Image label](src/images/image1.png){ width=2000% }"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("Image"), Space, Text("label")),Src("src/images/image1.png",None),Some(2000))
+  }
+  it should "parse a reference style image link with width" in {
+    val term = "![I'm a reference link][Arbitrary reference text]{ width=1% }"
+    val parser = new InlineRulesTestSpec(term)
+    parser.image.run().get shouldEqual
+      Image(Vector(Text("I'm"), Space, Text("a"), Space, Text("reference"), Space, Text("link")),
+        Ref(Vector(Text("Arbitrary"), Space, Text("reference"), Space, Text("text")),""),
+        Some(1))
   }
 }

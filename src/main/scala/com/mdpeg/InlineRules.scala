@@ -16,6 +16,16 @@ trait InlineRules {
   def link:     Rule1[Link]       = rule(explicitLink | referenceLink)
   def autolink: Rule1[Link]       = rule(autolinkUri | autolinkEmail)
 
+  def image: Rule1[Image] = {
+    def width: Rule1[Int] = rule("{" ~ sps ~ ("width"|"WIDTH") ~ sps ~ "=" ~ sps ~ capture(Digit.+) ~ "%" ~ sps ~ "}" ~> ((w:String) => w.toInt))
+    /*_*/
+    rule("!" ~ link ~ sps ~ width.? ~> ((l: Link, w:Option[Int]) => l match {
+      case Link(inline, target) => Image(inline, target, w)
+      case _ => sys.error("Error trying convert Link to image in patter matching expression.")
+    }))
+    /*_*/
+  }
+
   def explicitLink:  Rule1[Link] = {
     def excludeChars: Rule0 = rule(noneOf("()> \r\n\t"))
     def source:  Rule1[String] = rule("<" ~ capture(source1) ~ ">" | capture(source1))
@@ -43,7 +53,7 @@ trait InlineRules {
     rule("<" ~ capture(Alpha.+ ~ "://") ~ capture((!nl ~ !">" ~ ANY).+) ~ ">" ~>
       ((protocol: String, link: String) => Link(Vector(Text(protocol+link)), Src(protocol+link, None))))
   }
-  def autolinkEmail:  Rule1[Link] = {
+  def autolinkEmail: Rule1[Link] = {
     rule("<" ~ capture(Alpha.+ ~ "@" ~ (!nl ~ !">" ~ ANY).+) ~ ">" ~> ((s:String)=> Link(Vector(Text(s)), Src("mailto:" +s, None))))
   }
 
