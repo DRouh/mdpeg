@@ -120,14 +120,14 @@ class InlineRulesSpec extends FlatSpec with Matchers {
       Image(Vector(Text("shortcut")),ShortcutRef, None)
   }
 
-  it should "parse a uri style image link" in {
+  it should "parse an explicit style image link" in {
     val term = "![Image label](src/images/image1.png \"Image title\")"
     val parser = new InlineRulesTestSpec(term)
     parser.image.run().get shouldEqual
       Image(Vector(Text("Image"), Space, Text("label")),Src("src/images/image1.png",Some("Image title")), None)
   }
 
-  it should "parse a uri style image link with width" in {
+  it should "parse an explicit style image link with width" in {
     val term = "![Image label](src/images/image1.png \"Image title\") { width=50% }"
     val parser = new InlineRulesTestSpec(term)
     parser.image.run().get shouldEqual
@@ -141,7 +141,7 @@ class InlineRulesSpec extends FlatSpec with Matchers {
       Image(Vector(Text("shortcut")),ShortcutRef,Some(73))
   }
 
-  it should "parse a uri style image link without title with width" in {
+  it should "parse an explicit style image link without title with width" in {
     val term = "![Image label](src/images/image1.png){ width=2000% }"
     val parser = new InlineRulesTestSpec(term)
     parser.image.run().get shouldEqual
