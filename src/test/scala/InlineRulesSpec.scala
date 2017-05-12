@@ -161,4 +161,9 @@ class InlineRulesSpec extends FlatSpec with Matchers {
     val term = "`this is code{}!@#$%^&*()\r\n`"
     new InlineRulesTestSpec(term).code.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
   }
+
+  it should "parse an inline code with 10 ticks" in {
+    val term = "``````````this is code{}!@#$%^&*()\r\n``````````"
+    new InlineRulesTestSpec(term).code.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
+  }
 }
