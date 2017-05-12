@@ -147,6 +147,7 @@ class InlineRulesSpec extends FlatSpec with Matchers {
     parser.inline.run().get shouldEqual
       Image(Vector(Text("Image"), Space, Text("label")),Src("src/images/image1.png",None),Some(2000))
   }
+
   it should "parse a reference style image link with width" in {
     val term = "![I'm a reference link][Arbitrary reference text]{ width=1% }"
     val parser = new InlineRulesTestSpec(term)
@@ -154,5 +155,15 @@ class InlineRulesSpec extends FlatSpec with Matchers {
       Image(Vector(Text("I'm"), Space, Text("a"), Space, Text("reference"), Space, Text("link")),
         Ref(Vector(Text("Arbitrary"), Space, Text("reference"), Space, Text("text")),""),
         Some(1))
+  }
+
+  it should "parse an inline code" in {
+    val term = "`this is code{}!@#$%^&*()\r\n`"
+    new InlineRulesTestSpec(term).inline.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
+  }
+
+  it should "parse an inline code with 10 ticks" in {
+    val term = "``````````this is code{}!@#$%^&*()\r\n``````````"
+    new InlineRulesTestSpec(term).inline.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
   }
 }
