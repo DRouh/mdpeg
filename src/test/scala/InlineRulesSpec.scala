@@ -1,3 +1,4 @@
+import com.mdpeg.Parser.parser
 import com.mdpeg._
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
@@ -165,5 +166,10 @@ class InlineRulesSpec extends FlatSpec with Matchers {
   it should "parse an inline code with 10 ticks" in {
     val term = "``````````this is code{}!@#$%^&*()\r\n``````````"
     new InlineRulesTestSpec(term).inline.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
+  }
+
+  it should "parse a line break" in {
+    val term = "  \r\n after line break"
+    new InlineRulesTestSpec(term).inline.run().get shouldEqual LineBreak
   }
 }
