@@ -52,7 +52,7 @@ trait MultilineTablesRules {
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
   def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
   def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
-  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyCharTable.+) ~ (endLine | nl.?)))
+  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyCharTable.+) ~ nl.?))
   def dashes: Rule0 = rule((3 to 150).times("-"))
 
   /**

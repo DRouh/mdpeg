@@ -47,8 +47,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
         |
         |
         """.stripMargin
+    val parser =new BlockParser(term)
     val parsed = new BlockParser(term).paragraph.run().get
-    parsed shouldEqual Paragraph(TestData.paragraphOne)
+    parsed shouldEqual ExpectedTestResults.paragraphOne
   }
 
   it should "parse Plain text" in {
@@ -95,13 +96,14 @@ class BlockParserSpec extends FlatSpec with Matchers {
 
   it should "parse a reference with title" in {
     val term = s"""[arbitrary case-insensitive reference text]: https://www.mozilla.org 'this is title'""".stripMargin
-    new BlockParser(term).reference.run().get shouldEqual ReferenceBlock("arbitrary case-insensitive reference text", Src("https://www.mozilla.org", Some("this is title")))
+    new BlockParser(term).reference.run().get shouldEqual
+      ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")),Src("https://www.mozilla.org",Some("this is title")))
   }
 
   it should "parse a reference without title" in {
-    val term = s"""[arbitrary case-insensitive 123 !@#]: https://www.mozilla.org""".stripMargin
-    val parser = new BlockParser(term)
-    new BlockParser(term).reference.run().get shouldEqual ReferenceBlock("arbitrary case-insensitive 123 !@#", Src("https://www.mozilla.org", None))
+    val term = s"""[arbitrary case-insensitive 123]: https://www.mozilla.org""".stripMargin
+    new BlockParser(term).reference.run().get shouldEqual
+      ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")),Src("https://www.mozilla.org",None))
   }
 
   it should "parse several consequent multiline tables split by different intervals" in {
@@ -124,12 +126,13 @@ class BlockParserSpec extends FlatSpec with Matchers {
 
   it should "parse a compound document" in {
     val term = TestData.compoundMD
-    val parsed = new BlockParser(term).InputLine.run().get
-    parsed shouldEqual Vector(
+    val parser = new BlockParser(term)
+    val parsed = parser.InputLine.run()
+    parsed.get shouldEqual Vector(
       HeadingBlock(1, TestData.headingOne),
       HeadingBlock(2, TestData.headingTwo),
-      Paragraph(TestData.paragraphOne),
-      Paragraph(TestData.paragraphTwo),
+      ExpectedTestResults.paragraphOne,
+      ExpectedTestResults.paragraphTwo,
       HorizontalRuleBlock,
       HorizontalRuleBlock,
       BlockQuote(TestData.blockQuote),

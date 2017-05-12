@@ -2,7 +2,7 @@ import com.mdpeg._
 import org.parboiled2.{ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
-class MultilineTablesParserSpec extends FlatSpec with Matchers {
+class MultilineTablesRulesSpec extends FlatSpec with Matchers {
 
   class MultilineTablesRulesTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with MultilineTablesRules {
   }
