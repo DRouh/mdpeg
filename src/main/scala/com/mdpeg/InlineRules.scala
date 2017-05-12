@@ -15,8 +15,7 @@ trait InlineRules {
   def italics:  Rule1[Italics]    = rule(italicsStarred | italicsUnderlined)
   def link:     Rule1[Link]       = rule(explicitLink | referenceLink)
   def autolink: Rule1[Link]       = rule(autolinkUri | autolinkEmail)
-
-  def image: Rule1[Image] = {
+  def image:    Rule1[Image] = {
     def width: Rule1[Int] = rule("{" ~ sps ~ ("width"|"WIDTH") ~ sps ~ "=" ~ sps ~ capture(Digit.+) ~ "%" ~ sps ~ "}" ~> ((w:String) => w.toInt))
     /*_*/
     rule("!" ~ link ~ sps ~ width.? ~> ((l: Link, w:Option[Int]) => l match {
@@ -24,6 +23,14 @@ trait InlineRules {
       case _ => sys.error("Error trying convert Link to image in patter matching expression.")
     }))
     /*_*/
+  }
+  def code:     Rule1[Code] = {
+    def ticks: Int => Rule0 = (n:Int) => rule{n.times("`") ~ !"`"}
+    def betweenTicks: Int => Rule1[String] = (n:Int) => rule{ticks(n) ~ capture((noneOf("`").+ | !ticks(n) ~ oneOrMore("`")).+) ~ ticks(n)}
+    rule{&("`") ~ (betweenTicks(10) | betweenTicks(9)| betweenTicks(8)| betweenTicks(7)|
+      betweenTicks(6)| betweenTicks(5)| betweenTicks(4)| betweenTicks(3)| betweenTicks(2)| betweenTicks(1)) ~>
+      ((s:Any)=> Code(s))
+    }
   }
 
   def explicitLink:  Rule1[Link] = {
