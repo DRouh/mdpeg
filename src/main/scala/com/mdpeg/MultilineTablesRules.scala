@@ -8,17 +8,42 @@ import scala.util.Success
 trait MultilineTablesRules {
   this: Parser with PrimitiveRules =>
 
-  private def anyLineTable  : Rule0 = rule(!nl ~ !EOI ~ anyCharTable.* ~ (nl | ""))
-  private def anyCharTable  : Rule0 = rule(anyChar | backTick)
+  type WidthSeparator = String
+  type RawBody = Vector[List[String]]
 
-  /*_*/
-  def multiTable: Rule1[MultilineTableBlock] = rule(
-    tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~ capture(nl.* | blankLine.*) ~>
-      ((head: Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String], _: String) => constructTable(head, body, caption))
-  )
-  /*_*/
+  def multiTable:              Rule1[MultilineTableBlock]            = {
+    /*_*/
+    rule(
+      tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~ capture(nl.* | blankLine.*) ~>
+        ((head: Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String], _: String) => constructTable(head, body, caption))
+    )
+    /*_*/
+  }
+  def tableHeadRaw:            Rule1[Vector[String]]                 = {
+    def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLineTable | blankLine)))
+    def contents: Rule1[Seq[String]] = rule(headContentLine.+)
+    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String], _: Any) => headContent.toVector))
+  }
+  def tableBody:               Rule1[(RawBody, WidthSeparator)]      = {
+    def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLineTable | blankLine)))
+    def contents = rule(bodyContentLine.+)
+    rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~>
+      ((sep: String, contents: Seq[String], _: Any) => parseBodyContent(sep, contents)))
+  }
+  def tableCaption:            Rule1[String]                         = {
+    rule(atomic("Table: " ~ capture(anyCharTable.+) ~ nl.?))
+  }
+  def tableHeadWidthSeparator: Rule0                                 = {
+    // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
+    rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
+  }
+  def tableBorder:             Rule0                                 = rule(atomic(!horizontalRule ~ dashes ~ nl))
+  def dashes:                  Rule0                                 = rule((3 to 150).times("-"))
+  private def anyLineTable:    Rule0                                 = rule(!nl ~ !EOI ~ anyCharTable.* ~ (nl | ""))
+  private def anyCharTable:    Rule0                                 = rule(anyChar | backTick)
 
-  def constructTable(head: Option[Vector[String]], bodyWithWidth: (Vector[List[String]], String), caption: Option[String]): MultilineTableBlock = {
+  //aux functions
+  private def constructTable(head: Option[Vector[String]], bodyWithWidth: (RawBody, WidthSeparator), caption: Option[String]): MultilineTableBlock = {
     def calculateRelativeWidths(width: String): Vector[Float] = {
       // todo improve calculation precision, use Largest Remainder Method and improve upon relative error
       val columnWidths = width.split(' ').filter(_ != "").map(_.length)
@@ -35,25 +60,6 @@ trait MultilineTablesRules {
     val bodyColumns: Vector[MultilineTableColumn] = body.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
     MultilineTableBlock(relativeWidths, tableCaption, headRow, bodyColumns)
   }
-
-  def tableHeadRaw: Rule1[Vector[String]] = {
-    def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLineTable | blankLine)))
-    def contents: Rule1[Seq[String]] = rule(headContentLine.+)
-    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String], _: Any) => headContent.toVector))
-  }
-
-  def tableBody: Rule1[(Vector[List[String]], String)] = {
-    def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLineTable | blankLine)))
-    def contents = rule(bodyContentLine.+)
-    rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~>
-      ((sep: String, contents: Seq[String], _: Any) => parseBodyContent(sep, contents)))
-  }
-
-  // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
-  def tableHeadWidthSeparator: Rule0 = rule(atomic(!horizontalRule ~ (dashes ~ sp.*).+ ~ nl.?))
-  def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
-  def tableCaption: Rule1[String] = rule(atomic("Table: " ~ capture(anyCharTable.+) ~ nl.?))
-  def dashes: Rule0 = rule((3 to 150).times("-"))
 
   /**
     * Splits header content into cells using 'width separator'
@@ -87,7 +93,7 @@ trait MultilineTablesRules {
     * @param contents raw contents of the table body to be split into cells; blank lines are split points
     * @return vector of columns containing cells.
     */
-  private def parseBodyContent(sep: String, contents: Seq[String]): (Vector[List[String]], String) = {
+  private def parseBodyContent(sep: String, contents: Seq[String]): (RawBody, WidthSeparator) = {
     def isEmptyString(input: String) = {
       new PrimitvePaserHelper(input).blankLine.run() match {
         case Success(_) => true
