@@ -55,7 +55,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
   it should "parse Plain text" in {
     val term = TestData.plainText
     val parsed = new BlockParser(term).plain.run().get
-    parsed shouldEqual Plain(TestData.plainText)
+    parsed shouldEqual ExpectedTestResults.plainText
   }
 
   it should "parse ATX Heading" in {
@@ -138,7 +138,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
       BlockQuote(TestData.blockQuote),
       HorizontalRuleBlock,
       Verbatim(TestData.codeBlock4),
-      Plain(TestData.plainText),
+      ExpectedTestResults.plainTextCompound,
       ExpectedTestResults.unorderedList,
       ExpectedTestResults.orderedList,
       ExpectedTestResults.complexTable,

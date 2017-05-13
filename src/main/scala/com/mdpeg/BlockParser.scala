@@ -50,5 +50,5 @@ class BlockParser(val input: ParserInput) extends Parser
   /*_*/
   def paragraph: Rule1[Paragraph] = rule(inline.+ ~ nl ~ blankLine.+ ~> ((in: Seq[Inline]) => Paragraph(in)))
   /*_*/
-  def plain: Rule1[Plain] = rule(capture(inlineChar.+) ~ blankLine.? ~> Plain)
+  def plain: Rule1[Plain] = rule(inline.+ ~ blankLine.? ~> Plain)
 }
