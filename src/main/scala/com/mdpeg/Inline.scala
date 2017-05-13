@@ -1,11 +1,11 @@
 package com.mdpeg
 
 sealed trait Inline
-case class Code(inline: Any) extends Inline
-case class Image(inline: Seq[Inline], target: Target, width: Option[Int]) extends Inline
-case class Strong(inline: Seq[Inline]) extends Inline
-case class Italics(inline: Seq[Inline]) extends Inline
-case class Link(inline: Seq[Inline], target: Target) extends Inline
-case class Text(inline: String) extends Inline //{ override def toString = s"""Text("${inline}")""" }
-case object Space extends Inline
-case object LineBreak extends Inline
+final case class Code(inline: String) extends Inline
+final case class Image(inline: InlineContent, target: Target, width: Option[Int]) extends Inline
+final case class Strong(inline: InlineContent) extends Inline
+final case class Italics(inline: InlineContent) extends Inline
+final case class Link(inline: InlineContent, target: Target) extends Inline
+final case class Text(inline: String) extends Inline //{ override def toString = s"""Text("${inline}")""" }
+final case object Space extends Inline
+final case object LineBreak extends Inline

@@ -4,6 +4,7 @@ package object mdpeg {
   type MultilineTableColumn = Vector[MultilineTableCell]
   type MultilineTableRow = Vector[MultilineTableCell]
 
+  type InlineContent = Seq[Inline]
   /**
     * Flattens a vector of strings into one string, replaces all cr/crlf with spaces
     * @param xs a vector of strings
