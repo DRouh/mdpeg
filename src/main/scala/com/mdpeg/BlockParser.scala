@@ -28,7 +28,7 @@ class BlockParser(val input: ParserInput) extends Parser
   /*_*/
 
   def blockQuote : Rule1[BlockQuote] = { // ToDo think if should store a Markdown instead of concatenated strings
-    def blockQuoteLine: Rule1[String] = rule(nonIndentSpace ~ ">" ~ sp.+ ~ capture(anyLine))
+    def blockQuoteLine: Rule1[String] = rule(nonIndentSpace ~ ">" ~ sps ~ capture(anyLine))
     // ToDo think if keep line breaks or keep as it is (i.e. replaced with spaces)
     def toBQ = (x: Seq[String]) => BlockQuote(flattenString(x.toVector))
 

@@ -18,7 +18,7 @@ trait PrimitiveRules {
   def specialChar     : Rule0 = rule(anyOf("*_`&[]<!\\"))
 
   def indentedLine    : Rule0 = rule(indent ~ anyLine)
-  def anyLine         : Rule0 = rule(!nl ~ !EOI ~ anyChar.* ~ (nl | ""))
+  def anyLine         : Rule0 = rule((!nl ~ !EOI ~ ANY).+ ~ nl.?)
   def anyChar         : Rule0 = rule(inlineChar | mathChar | specialCharEx)
   def mathChar        : Rule0 = rule(anyOf("=/\\*-+^%!<>[]{}"))
   def specialCharEx   : Rule0 = rule(anyOf("@#$\"“"))
