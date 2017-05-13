@@ -131,7 +131,6 @@ class BlockParserSpec extends FlatSpec with Matchers {
     parsed.get shouldEqual Vector(
       ExpectedTestResults.headingOne,
       ExpectedTestResults.headingTwo,
-
       ExpectedTestResults.paragraphOne,
       ExpectedTestResults.paragraphTwo,
       HorizontalRuleBlock,
