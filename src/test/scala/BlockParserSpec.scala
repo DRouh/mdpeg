@@ -66,7 +66,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val ts = (1 to 6).map(i => (i, "#" * i + term))
     for (t <- ts) {
       val parsed = new BlockParser(t._2).heading.run().get
-      parsed shouldEqual HeadingBlock(t._1, TestData.headingOne)
+      parsed shouldEqual HeadingBlock(t._1,Vector(Text("Heading"), Space, Text("One")))
     }
   }
 
@@ -129,8 +129,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val parser = new BlockParser(term)
     val parsed = parser.InputLine.run()
     parsed.get shouldEqual Vector(
-      HeadingBlock(1, TestData.headingOne),
-      HeadingBlock(2, TestData.headingTwo),
+      ExpectedTestResults.headingOne,
+      ExpectedTestResults.headingTwo,
+
       ExpectedTestResults.paragraphOne,
       ExpectedTestResults.paragraphTwo,
       HorizontalRuleBlock,

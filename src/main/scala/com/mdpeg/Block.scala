@@ -5,7 +5,7 @@ sealed trait Block
 final case class Plain(inline: Seq[Inline]) extends Block
 final case class Paragraph(inline: Seq[Inline]) extends Block
 case object HorizontalRuleBlock extends Block
-final case class HeadingBlock(level: Int, inline: String) extends Block
+final case class HeadingBlock(level: Int, inline: Seq[Inline]) extends Block
 final case class Verbatim(inline: String) extends Block
 final case class BlockQuote(inline: String) extends Block
 final case class ReferenceBlock(inline: Seq[Inline], target: Target) extends Block

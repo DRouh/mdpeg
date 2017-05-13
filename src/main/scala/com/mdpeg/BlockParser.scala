@@ -38,10 +38,10 @@ class BlockParser(val input: ParserInput) extends Parser
   def heading: Rule1[HeadingBlock] = rule { atxHeading }
 
   def atxHeading: Rule1[HeadingBlock] = {
-    def headingContents = rule(inlineChar.+)
+    def headingContents = rule(inline.+)
     @inline
     def h = (lev: Int) => rule {
-      lev.times("#") ~ !endLine ~ !"#" ~ sp ~ capture(headingContents) ~ anyOf("# \t").* ~ nl.* ~> (HeadingBlock(lev, _))
+      lev.times("#") ~ !endLine ~ !"#" ~ sp ~ headingContents ~ anyOf("# \t").* ~ nl.* ~> (HeadingBlock(lev, _))
     }
     rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
   }
