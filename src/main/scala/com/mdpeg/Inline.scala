@@ -1,7 +1,7 @@
 package com.mdpeg
 
 sealed trait Inline
-case class Code(inline: Any) extends Inline
+case class Code(inline: String) extends Inline
 case class Image(inline: InlineContent, target: Target, width: Option[Int]) extends Inline
 case class Strong(inline: InlineContent) extends Inline
 case class Italics(inline: InlineContent) extends Inline
