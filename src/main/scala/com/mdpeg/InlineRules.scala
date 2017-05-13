@@ -6,13 +6,13 @@ trait InlineRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 
-  def inline:    Rule1[Inline] = rule(strong | italics | code | linebreak | endLine | spaces | link | image | autolink | text)
+  def inline: Rule1[Inline] = rule(strong | italics | code | linebreak | endLine | spaces | link | image | autolink | text)
 
-  def text:      Rule1[Text]           = rule(capture(textChar.+) ~> Text)
-  def endLine:   Rule1[Space.type]     = rule(capture(" ".? ~ nl ~ !blankLine ~ !EOI) ~> ((_:String) => Space))
+  def text: Rule1[Text] = rule(capture(textChar.+) ~> Text)
+  def endLine: Rule1[Space.type] = rule(capture(" ".? ~ nl ~ !blankLine ~ !EOI) ~> ((_:String) => Space))
   def linebreak: Rule1[LineBreak.type] = rule("  " ~ sps ~ endLine ~> ((_:Any) => LineBreak))
-  def spaces:    Rule1[Space.type]     = rule(capture(sp.+) ~> ((_:String) => Space))
-  def strong:    Rule1[Strong]         = {
+  def spaces: Rule1[Space.type] = rule(capture(sp.+) ~> ((_:String) => Space))
+  def strong: Rule1[Strong] = {
     def twoStar:  Rule0 = rule("**" ~ !twoStar)
     def twoUnder: Rule0 = rule("__" ~ !twoStar) //!twoStar to forbid having strong in strong
     def strongStarred:     Rule1[Strong]  = {
@@ -25,7 +25,7 @@ trait InlineRules {
     }
     rule(strongStarred | strongUnderlined)
   }
-  def italics:   Rule1[Italics]        = {
+  def italics: Rule1[Italics] = {
     def oneStar:  Rule0 = rule("*" ~ !oneStar)
     def oneUnder: Rule0 = rule("_" ~ !oneUnder)
     def italicsStarred:    Rule1[Italics] = {
@@ -38,7 +38,7 @@ trait InlineRules {
     }
     rule(italicsStarred | italicsUnderlined)
   }
-  def link:      Rule1[Link]           = {
+  def link: Rule1[Link] = {
     def explicitLink:  Rule1[Link] = {
       def excludeChars: Rule0 = rule(noneOf("()> \r\n\t"))
       def source:  Rule1[String] = rule("<" ~ capture(source1) ~ ">" | capture(source1))
@@ -64,7 +64,7 @@ trait InlineRules {
     }
     rule(explicitLink | referenceLink)
   }
-  def autolink:  Rule1[Link]           = {
+  def autolink: Rule1[Link] = {
     def autolinkUri:   Rule1[Link] = {
       rule("<" ~ capture(Alpha.+ ~ "://") ~ capture((!nl ~ !">" ~ ANY).+) ~ ">" ~>
         ((protocol: String, link: String) => Link(Vector(Text(protocol+link)), Src(protocol+link, None))))
@@ -74,7 +74,7 @@ trait InlineRules {
     }
     rule(autolinkUri | autolinkEmail)
   }
-  def image:     Rule1[Image]          = {
+  def image: Rule1[Image] = {
     def width: Rule1[Int] = rule("{" ~ sps ~ ("width"|"WIDTH") ~ sps ~ "=" ~ sps ~ capture(Digit.+) ~ "%" ~ sps ~ "}" ~> ((w:String) => w.toInt))
     /*_*/
     rule("!" ~ link ~ sps ~ width.? ~> ((l: Link, w:Option[Int]) => l match {
@@ -83,7 +83,7 @@ trait InlineRules {
     }))
     /*_*/
   }
-  def code:      Rule1[Code]           = {
+  def code: Rule1[Code] = {
     def ticks: Int => Rule0 = (n:Int) => rule{n.times("`") ~ !"`"}
     def betweenTicks: Int => Rule1[String] = (n:Int) => rule{ticks(n) ~ capture((noneOf("`").+ | !ticks(n) ~ oneOrMore("`")).+) ~ ticks(n)}
     rule{&("`") ~ (betweenTicks(10) | betweenTicks(9)| betweenTicks(8)| betweenTicks(7)|
