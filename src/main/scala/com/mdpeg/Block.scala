@@ -5,7 +5,7 @@ sealed trait Block
 final case class Plain(inline: InlineContent) extends Block
 final case class Paragraph(inline: InlineContent) extends Block
 final case class HeadingBlock(level: Int, inline: InlineContent) extends Block
-final case class BlockQuote(inline: String) extends Block
+final case class BlockQuote(inline: Vector[Block]) extends Block
 final case class UnorderedList(inline: Vector[Block]) extends Block
 final case class OrderedList(inline: Vector[Block]) extends Block
 final case class Verbatim(inline: String) extends Block

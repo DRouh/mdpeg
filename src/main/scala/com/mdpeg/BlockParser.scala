@@ -27,12 +27,11 @@ class BlockParser(val input: ParserInput) extends Parser
   }
   /*_*/
 
-  def blockQuote : Rule1[BlockQuote] = { // ToDo think if should store a Markdown instead of concatenated strings
-    def blockQuoteLine: Rule1[String] = rule(nonIndentSpace ~ ">" ~ sps ~ capture(anyLine))
-    // ToDo think if keep line breaks or keep as it is (i.e. replaced with spaces)
-    def toBQ = (x: Seq[String]) => BlockQuote(flattenString(x.toVector))
-
-    rule(blockQuoteLine.+ ~ (!blankLine ~ anyLine).* ~ blankLine.* ~> toBQ)
+  def blockQuote : Rule1[BlockQuote] = {
+    def blockQuoteLine: Rule1[Markdown] = {
+      rule(nonIndentSpace ~ ">" ~ sps ~ capture(anyLine) ~> ((s:String) => Markdown(trimEndWithEnding(s))))
+    }
+    rule(blockQuoteLine.+ ~ (!blankLine ~ anyLine).* ~ blankLine.* ~> ((x: Seq[Markdown]) => BlockQuote(x.toVector)))
   }
 
   def heading: Rule1[HeadingBlock] = rule { atxHeading }

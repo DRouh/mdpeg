@@ -38,7 +38,11 @@ class BlockParserSpec extends FlatSpec with Matchers {
 
     val expectedText = TestData.blockQuote
     val parsed = new BlockParser(term).blockQuote.run().get
-    parsed shouldEqual BlockQuote(expectedText)
+    parsed shouldEqual
+      BlockQuote(Vector(
+        Markdown("This is quote"),
+        Markdown("and should span several"),
+        Markdown("yet another line for the block")))
   }
 
   it should "parse Paragraph" in {
@@ -135,7 +139,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
       ExpectedTestResults.paragraphTwo,
       HorizontalRuleBlock,
       HorizontalRuleBlock,
-      BlockQuote(TestData.blockQuote),
+      ExpectedTestResults.blockQuote,
       HorizontalRuleBlock,
       Verbatim(TestData.codeBlock4),
       ExpectedTestResults.plainTextCompound,

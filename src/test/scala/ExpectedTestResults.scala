@@ -11,6 +11,11 @@ object ExpectedTestResults {
   val plainText = Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
   val plainTextCompound = Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end."),Space))
 
+  val blockQuote = BlockQuote(Vector(
+    Markdown("This is quote"),
+    Markdown("and should span several"),
+    Markdown("yet another line for the block")))
+
   val unorderedList = UnorderedList(Vector(Markdown(
     """1st block - It is a long established fact that a reader will be distracted by the readable content of a
       |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
