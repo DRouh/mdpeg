@@ -23,12 +23,11 @@ object ASTTransform {
   }
 
   def transformNode(b: Block): Either[FailureMessage, Seq[Block]] = {
-    def processContainerWithMarkdown(v:Seq[Block]) = {
-      val tt = transformTree(v)
-      if(tt.isLeft)
-        Left(tt.left.get.fold("")(_+EOL+_))
-      else
-        Right(tt.right.get.flatten)
+    def processContainerWithMarkdown(v:Seq[Block]): Either[FailureMessage, Seq[Block]] = {
+      transformTree(v) match {
+        case Left(t) => Left(t.fold("")(_+EOL+_))
+        case Right(r) => Right(r.flatten)
+      }
     }
 
     b match {
