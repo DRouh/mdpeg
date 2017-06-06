@@ -21,4 +21,25 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         Vector(Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))
     )
   }
+
+  it should "process Markdown blocks nested inside other blocks" in {
+    val rawAstTree = Vector(
+      BlockQuote(
+        Vector(
+          Markdown("This is quote"),
+          Markdown("and should span several"),
+          Markdown("yet another line for the block")))
+    )
+    val transformedTree = rawAstTree |> transformTree
+
+    transformedTree shouldEqual
+      Right(
+        Vector(
+          Vector(
+            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
+            Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
+            Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block"))))
+        )
+      )
+  }
 }

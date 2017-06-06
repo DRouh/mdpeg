@@ -1,6 +1,9 @@
 package com.mdpeg
 
 import org.parboiled2.{ErrorFormatter, ParseError}
+import scala.compat.Platform.EOL
+
+
 import scala.util.{Failure, Success}
 
 object ASTTransform {
@@ -20,12 +23,25 @@ object ASTTransform {
   }
 
   def transformNode(b: Block): Either[FailureMessage, Seq[Block]] = {
+    def processContainerWithMarkdown(v:Seq[Block]) = {
+      val tt = transformTree(v)
+      if(tt.isLeft)
+        Left(tt.left.get.fold("")(_+EOL+_))
+      else
+        Right(tt.right.get.flatten)
+    }
+
     b match {
       case m @ Markdown(_) =>
         processMarkdown(m) match {
           case l @ Left(_) => l
           case r @ Right(_) => r
         }
+
+      case UnorderedList(v) => processContainerWithMarkdown(v)
+      case OrderedList(v) => processContainerWithMarkdown(v)
+      case BlockQuote(v) => processContainerWithMarkdown(v)
+
       case _  => Right(Vector(b))
     }
   }
