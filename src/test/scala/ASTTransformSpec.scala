@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ASTTransformSpec extends FlatSpec with Matchers {
 
-  it should "transform one level of Markdown to block seq" in {
+  it should "parse Markdown blocks to block seq" in {
     val rawAstTree = Vector(
       Markdown("This is quote"),
       Markdown("and should span several"),
