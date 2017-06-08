@@ -53,50 +53,53 @@ object ASTTransform {
       case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks.toVector))))
       case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks.toVector))))
       case MultilineTableBlock(relativeWidth, caption, head, body) =>
-        val transformedCaption = caption map { c =>
+        val transformedCaption: Option[Either[Seq[FailureMessage], Seq[Block]]] = caption map { c =>
           val MultilineTableCaption(md) = c
           processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks.toVector))))
         }
 
-        val transformedHead = head map { head =>
+        val transformedHead: Option[Either[Seq[FailureMessage], Seq[Block]]] = head map { head =>
           val cells = head.flatMap { h =>
-            val MultilineTableCell(blocks) = h
-            blocks
+            val MultilineTableCell(z) = h
+            z
           } // ToDo Validate that flatten is correct here
           processMarkdownContainer(cells)(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
         }
 
-        val transformedBody: Vector[Seq[Either[Seq[FailureMessage], Seq[Block]]]] = body map { body =>
-          val rows: immutable.Seq[Vector[Block]] = body.map { h =>
-            val MultilineTableCell(blocks) = h
-            blocks
-          } // ToDo Validate that flatten is correct here
-
-          rows.map { cells =>
-            processMarkdownContainer(cells)(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
-          }
+        val transformedBody: Vector[Either[Seq[FailureMessage], Vector[MultilineTableCell]]] = body map { body =>
+          body.map { h =>
+              val MultilineTableCell(blocks) = h
+              blocks
+            }
+            .map(processMarkdownContainer(_)(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))) |>
+            join |>
+            (_.map(x => x.map(c => MultilineTableCell(c.toVector)).toVector))
         }
-
-        // ToDo monadic check for eithers
 
         // ToDo this is unsafe and should be re-implemented
-        val transformedBodyColumns: Vector[MultilineTableColumn] = transformedBody.map { b =>
-          b.map(c => MultilineTableCell(c.right.get.toVector)).toVector
-        }
+        val transformedBodyColumns: Either[Seq[FailureMessage], Vector[MultilineTableColumn]] =
+          transformedBody |> join |> (_.map(_.map(_.toVector).toVector))
 
-        val result = MultilineTableBlock(relativeWidth, caption, head, transformedBodyColumns)
-        Right(Vector(result))
+        (transformedCaption, transformedHead, transformedBodyColumns) match {
+          case (Some(Left(l)), _, _) =>  Left(l)
+          case (_, Some(Left(l)), _) => Left(l)
+          case (_, _,  Left(l)) =>  Left(l)
+
+          case (c,h,b) =>
+            val cc = c.map(x => MultilineTableCaption(x.right.get.toVector))
+            val hh= h.map(y => Vector(MultilineTableCell(y.right.get.toVector)))
+            val bb = b.right.get
+            Right(Vector(MultilineTableBlock(relativeWidth, cc, hh, bb)))
+        }
       case _ => Right(Vector(block))
     }
   }
 
-  def join(parsed: Seq[Either[Seq[FailureMessage], Seq[Block]]]): Either[Seq[FailureMessage], Seq[MacroBlock]] = {
+  def join[L, R](parsed: Seq[Either[Seq[L], Seq[R]]]): Either[Seq[L], Seq[Seq[R]]] = {
     parsed.partition(_.isLeft) match {
-      case (Nil, blocks) =>
-        val mbs: Seq[MacroBlock] = for (Right(i) <- blocks) yield i
-        Right(mbs)
+      case (Nil, blocks) => Right(for (Right(i) <- blocks) yield i)
       case (pe, _) =>
-        val pes: Seq[Seq[FailureMessage]] = for (Left(s) <- pe) yield s
+        val pes = for (Left(s) <- pe) yield s
         Left(pes.flatten)
     }
   }
