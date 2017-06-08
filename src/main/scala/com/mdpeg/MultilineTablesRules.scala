@@ -55,7 +55,7 @@ trait MultilineTablesRules {
     val parsedHead = head.map(parseHeadContent(width, _))
 
     val relativeWidths = calculateRelativeWidths(width)
-    val tableCaption = caption.map(inline => MultilineTableCaption(Markdown(inline)))
+    val tableCaption = caption.map(inline => MultilineTableCaption(Vector(Markdown(inline))))
     val headRow: Option[MultilineTableRow] = parsedHead.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
     val bodyColumns: Vector[MultilineTableColumn] = body.map(_.map(inline => MultilineTableCell(Markdown(inline))).toVector)
     MultilineTableBlock(relativeWidths, tableCaption, headRow, bodyColumns)

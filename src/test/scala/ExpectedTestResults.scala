@@ -38,7 +38,7 @@ object ExpectedTestResults {
       |""".stripMargin), Markdown(
     """And, finally, this is a second item of an ordered list
       |""".stripMargin)))
-  val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f), Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))), Some(Vector(MultilineTableCell(Markdown("This header is longer than sep")), MultilineTableCell(Markdown("And this header is also longer than this separator")))), Vector(Vector(MultilineTableCell(Markdown("**Why do we use it?**")), MultilineTableCell(Markdown(
+  val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f), Some(MultilineTableCaption(Vector(Markdown("This is a table caption\\label{table:table_lable_name}")))), Some(Vector(MultilineTableCell(Markdown("This header is longer than sep")), MultilineTableCell(Markdown("And this header is also longer than this separator")))), Vector(Vector(MultilineTableCell(Markdown("**Why do we use it?**")), MultilineTableCell(Markdown(
     """There-are
       |""".stripMargin)), MultilineTableCell(Markdown("**Where can I get some?**")), MultilineTableCell(Markdown(
     """dummy
