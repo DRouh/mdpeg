@@ -20,4 +20,4 @@ final case class MultilineTableBlock(relativeWidth: Vector[Float],
 
 sealed trait MultilineTableElement
 final case class MultilineTableCaption(inline: Vector[Block]) extends MultilineTableElement
-final case class MultilineTableCell(inline: Markdown) extends MultilineTableElement
+final case class MultilineTableCell(inline: Vector[Block]) extends MultilineTableElement
