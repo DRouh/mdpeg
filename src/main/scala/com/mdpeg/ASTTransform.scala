@@ -1,9 +1,8 @@
 package com.mdpeg
 
 import org.parboiled2.{ErrorFormatter, ParseError}
-import scala.compat.Platform.EOL
 
-
+import scala.collection.immutable
 import scala.util.{Failure, Success}
 
 object ASTTransform {
@@ -53,6 +52,40 @@ object ASTTransform {
       case UnorderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(UnorderedList(blocks.toVector))))
       case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks.toVector))))
       case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks.toVector))))
+      case MultilineTableBlock(relativeWidth, caption, head, body) =>
+        val transformedCaption = caption map { c =>
+          val MultilineTableCaption(md) = c
+          processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks.toVector))))
+        }
+
+        val transformedHead = head map { head =>
+          val cells = head.flatMap { h =>
+            val MultilineTableCell(blocks) = h
+            blocks
+          } // ToDo Validate that flatten is correct here
+          processMarkdownContainer(cells)(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
+        }
+
+        val transformedBody: Vector[Seq[Either[Seq[FailureMessage], Seq[Block]]]] = body map { body =>
+          val rows: immutable.Seq[Vector[Block]] = body.map { h =>
+            val MultilineTableCell(blocks) = h
+            blocks
+          } // ToDo Validate that flatten is correct here
+
+          rows.map { cells =>
+            processMarkdownContainer(cells)(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
+          }
+        }
+
+        // ToDo monadic check for eithers
+
+        // ToDo this is unsafe and should be re-implemented
+        val transformedBodyColumns: Vector[MultilineTableColumn] = transformedBody.map { b =>
+          b.map(c => MultilineTableCell(c.right.get.toVector)).toVector
+        }
+
+        val result = MultilineTableBlock(relativeWidth, caption, head, transformedBodyColumns)
+        Right(Vector(result))
       case _ => Right(Vector(block))
     }
   }

@@ -32,15 +32,6 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     )
     val transformedTree = rawAstTree |> transformTree
 
-//    transformedTree shouldEqual
-//      Right(
-//        Vector(
-//          Vector(
-//            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
-//            Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-//            Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block"))))
-//        )
-//      )
     transformedTree shouldEqual
     Right(
       Vector(
@@ -83,5 +74,24 @@ class ASTTransformSpec extends FlatSpec with Matchers {
                   Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block"))))),
               Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))))
     )
+  }
+
+  it should "parse Multiline Table's nested elements" in {
+    val term =
+      """-----------   -----------   -----------   -----------  -----------
+        |.It is longer than neccesary and it should be truncated :)
+        |--------------------------------------------------------------------------------
+        |""".stripMargin
+    val transformedTree = new BlockParser(term).InputLine.run().get |> transformTree
+
+    transformedTree shouldEqual
+      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
+        Vector(
+          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It"), Space, Text("is"), Space, Text("longer")))))))),
+          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Text("than"), Space, Text("neccesary")))))))),
+          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("and"), Space, Text("it"), Space, Text("should")))))))),
+          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("be"), Space, Text("truncated")))))))),
+          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text(":)"))))))))
+        )))))
   }
 }
