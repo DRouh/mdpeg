@@ -59,19 +59,10 @@ object ASTTransform {
       }
 
       def parseColumn(body: MultilineTableColumn): Either[Seq[FailureMessage], MultilineTableColumn] = {
-        def toColumn(value: Either[Seq[FailureMessage], Seq[Seq[Block]]]): Either[Seq[FailureMessage], Vector[MultilineTableCell]] = {
-          value.map{ (x: Seq[Seq[Block]]) =>
-            x.
-              toVector.
-              map{case Vector(MultilineTableCell(inner)) => inner}.
-              map{case Vector(i) => MultilineTableCell(Vector(i))}
-          }
-        }
-
         body.
-            map { case MultilineTableCell(blocks) => blocks}.
-            map(processMarkdownContainer(_)(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))) |>
-            join |> toColumn
+          map { case MultilineTableCell(blocks) => blocks }.
+          map(processMarkdownContainer(_)(blocks =>Right(Vector(MultilineTableCell(blocks.toVector))))) |>
+          join |> (_.map(_.toVector.map { case Vector(MultilineTableCell(inner)) => MultilineTableCell(inner) }))
       }
 
       val transformedBodyColumns = rawBody.map(parseColumn) |> join |> (_.map(_.map(_.toVector).toVector))
