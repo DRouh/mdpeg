@@ -76,13 +76,15 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     )
   }
 
-  it should "parse Multiline Table's nested elements" in {
-    val term =
-      """-----------   -----------   -----------   -----------  -----------
-        |.It is longer than neccesary and it should be truncated :)
-        |--------------------------------------------------------------------------------
-        |""".stripMargin
-    val transformedTree = new BlockParser(term).InputLine.run().get |> transformTree
+  it should "parse Multiline Table's body nested elements" in {
+    val rawTree = Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
+      Vector(
+        Vector(MultilineTableCell(Vector(Markdown(".It is longer")))),
+        Vector(MultilineTableCell(Vector(Markdown("than neccesary")))),
+        Vector(MultilineTableCell(Vector(Markdown(" and it should")))),
+        Vector(MultilineTableCell(Vector(Markdown(" be truncated")))),
+        Vector(MultilineTableCell(Vector(Markdown(" :)")))))))
+    val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
       Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
