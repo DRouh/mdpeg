@@ -46,19 +46,19 @@ object ASTTransform {
     }
 
     def transformTable(mt: MultilineTableBlock) = {
-      val MultilineTableBlock(relativeWidth, caption, head, body) = mt
-      val transformedCaption = caption map { c =>
+      val MultilineTableBlock(relativeWidth, rawCaption, rawHead, rawBody) = mt
+      val transformedCaption = rawCaption map { c =>
         val MultilineTableCaption(md) = c
         processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks.toVector))))
       }
 
-      val transformedHead = head map { head =>
+      val transformedHead = rawHead map { head =>
         processMarkdownContainer {
           head.flatMap { case MultilineTableCell(bs) => bs }
         }(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
       }
 
-      val transformedBodyColumns = body.
+      val transformedBodyColumns = rawBody.
         map { body =>
           body.
             map { h =>
@@ -78,12 +78,12 @@ object ASTTransform {
         case (_, _, Left(l)) => Left(l)
 
         case (c, h, b) =>
-          val cc = c.map(x => MultilineTableCaption(x.right.get.toVector))
-          val hh = h.map { y =>
-            y.right.get.toVector match { case Vector(MultilineTableCell(cs)) => cs.map((a1: Block) => MultilineTableCell(Vector(a1))) }
+          val maybeCaption = c.map(x => MultilineTableCaption(x.right.get.toVector))
+          val maybeHeader = h.map {
+            _.right.get.toVector match { case Vector(MultilineTableCell(bs)) => bs.map(i => MultilineTableCell(Vector(i))) }
           }
-          val bb = b.right.get
-          Right(Vector(MultilineTableBlock(relativeWidth, cc, hh, bb)))
+          val body = b.right.get
+          Right(Vector(MultilineTableBlock(relativeWidth, maybeCaption, maybeHeader, body)))
       }
     }
 
