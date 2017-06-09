@@ -96,4 +96,43 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text(":)"))))))))
         )))))
   }
+
+  it should "parse Multiline Table's nested elements" in {
+    val rawTree = Vector(MultilineTableBlock(
+      Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
+      //Some(MultilineTableCaption(Vector(Markdown("This is a table caption\\label{table:table_lable_name}")))),
+      None,
+      Some(
+        Vector(
+          MultilineTableCell(Vector(Markdown("Term  1"))),
+          MultilineTableCell(Vector(Markdown("Term  2"))),
+          MultilineTableCell(Vector(Markdown("Term  3"))),
+          MultilineTableCell(Vector(Markdown("Term  4"))),
+          MultilineTableCell(Vector(Markdown("Term  5"))))),
+      Vector(
+        Vector(MultilineTableCell(Vector(Markdown(".It")))),
+        Vector(MultilineTableCell(Vector(Markdown("is")))),
+        Vector(MultilineTableCell(Vector(Markdown(" a")))),
+        Vector(MultilineTableCell(Vector(Markdown("rectangular")))),
+        Vector(MultilineTableCell(Vector(Markdown("table")))))))
+
+    val transformedTree = rawTree |> transformTree
+
+    transformedTree shouldEqual
+      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,
+        Some(Vector(
+              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"))))),
+              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("2"))))),
+              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("3"))))),
+              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("4"))))),
+              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("5")))))
+            )),
+        Vector(
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text("is")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("a")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text("rectangular")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text("table"      ))))))
+      )))))
+  }
 }

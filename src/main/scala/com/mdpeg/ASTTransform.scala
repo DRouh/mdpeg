@@ -54,10 +54,7 @@ object ASTTransform {
 
       val transformedHead = head map { head =>
         processMarkdownContainer {
-          head.flatMap { h =>
-            val MultilineTableCell(bs) = h
-            bs
-          }
+          head.flatMap { case MultilineTableCell(bs) => bs }
         }(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
       }
 
@@ -82,7 +79,9 @@ object ASTTransform {
 
         case (c, h, b) =>
           val cc = c.map(x => MultilineTableCaption(x.right.get.toVector))
-          val hh = h.map(y => Vector(MultilineTableCell(y.right.get.toVector)))
+          val hh = h.map { y =>
+            y.right.get.toVector match { case Vector(MultilineTableCell(cs)) => cs.map((a1: Block) => MultilineTableCell(Vector(a1))) }
+          }
           val bb = b.right.get
           Right(Vector(MultilineTableBlock(relativeWidth, cc, hh, bb)))
       }
