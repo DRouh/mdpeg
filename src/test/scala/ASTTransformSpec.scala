@@ -89,11 +89,11 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     transformedTree shouldEqual
       Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
         Vector(
-          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It"), Space, Text("is"), Space, Text("longer")))))))),
-          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Text("than"), Space, Text("neccesary")))))))),
-          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("and"), Space, Text("it"), Space, Text("should")))))))),
-          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("be"), Space, Text("truncated")))))))),
-          Vector(MultilineTableCell(Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text(":)"))))))))
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It"), Space, Text("is"), Space, Text("longer")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text("than"), Space, Text("neccesary")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("and"), Space, Text("it"), Space, Text("should")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("be"), Space, Text("truncated")))))),
+          Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text(":)"))))))
         )))))
   }
 
@@ -135,4 +135,5 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("table"      ))))))
       )))))
   }
+
 }
