@@ -4,6 +4,7 @@ import org.parboiled2._
 import scala.collection.immutable.::
 import scala.compat.Platform.EOL
 import scala.util.Success
+import scala.util.matching.Regex
 
 trait MultilineTablesRules {
   this: Parser with PrimitiveRules =>
@@ -55,7 +56,12 @@ trait MultilineTablesRules {
     val parsedHead = head.map(parseHeadContent(width, _))
 
     val relativeWidths = calculateRelativeWidths(width)
-    val tableCaption = caption.map(inline => MultilineTableCaption(Vector(Markdown(inline))))
+    val tableCaption: Option[MultilineTableCaption] = caption.map{inline =>
+      val labelPattern = """\\label\{(.*)\}""".r
+      val maybeLabel = (for (ex <- labelPattern.findAllMatchIn(inline)) yield (ex.group(0), ex.group(1))).toVector.headOption
+      val maybeWholeMatch = maybeLabel.map(_._1).getOrElse("")
+      MultilineTableCaption(Vector(Markdown(inline.replace(maybeWholeMatch, ""))), maybeLabel.map(_._2))
+    }
     val headRow: Option[MultilineTableRow] = parsedHead.map(_.map(inline => MultilineTableCell(Vector(Markdown(inline)))).toVector)
     val bodyColumns: Vector[MultilineTableColumn] = body.map(_.map(inline => MultilineTableCell(Vector(Markdown(inline)))).toVector)
     MultilineTableBlock(relativeWidths, tableCaption, headRow, bodyColumns)

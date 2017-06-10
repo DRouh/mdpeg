@@ -17,7 +17,7 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
                       |Description cont""".stripMargin))))),
                 widths: Vector[Float] = Vector(25.0f, 75.0f)) = MultilineTableBlock(
     widths,
-    Some(MultilineTableCaption(Vector(Markdown("This is a table caption\\label{table:table_lable_name}")))),
+    Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
     head,
     bodyColumns
   )
@@ -205,7 +205,7 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
     val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
-      Some(MultilineTableCaption(Vector(Markdown("This is a table caption\\label{table:table_lable_name}")))),
+      Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
       Some(
         Vector(
           MultilineTableCell(Vector(Markdown("Term  1"))),
@@ -280,7 +280,7 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
     val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual MultilineTableBlock(
       Vector(25.0f, 75.0f),
-      Some(MultilineTableCaption(Vector(Markdown("This is a table caption\\label{table:table_lable_name}")))),
+      Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
       Some(Vector(
         MultilineTableCell(Vector(Markdown("This header is longer than sep"))),
         MultilineTableCell(Vector(Markdown("And this header is also longer than this separator"))))),

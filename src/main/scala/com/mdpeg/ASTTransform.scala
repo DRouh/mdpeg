@@ -55,8 +55,8 @@ object ASTTransform {
 
       val MultilineTableBlock(relativeWidth, rawCaption, rawHead, rawBody) = mt
       val transformedCaption = rawCaption map { c =>
-        val MultilineTableCaption(md) = c
-        processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks))))
+        val MultilineTableCaption(md, label) = c
+        processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks, label))))
       }
 
       val transformedHead = rawHead map { head =>
@@ -73,7 +73,10 @@ object ASTTransform {
         case (_, _, Left(l)) => Left(l)
 
         case (c, h, b) =>
-          val maybeCaption = c.map(x => MultilineTableCaption(x.right.get))
+          val maybeCaption = c.map { x =>
+            val Vector(MultilineTableCaption(blocks, label)) = x.right.get
+            MultilineTableCaption(blocks, label)
+          }
           val maybeHeader = h.map {
             _.right.get match { case Vector(MultilineTableCell(bs)) => bs.map(i => MultilineTableCell(Vector(i))) }
           }
