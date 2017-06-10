@@ -7,11 +7,11 @@ import scala.util.{Failure, Success}
 object ASTTransform {
   type FailureMessage = String
 
-  def processMarkdown(m: Markdown): Either[FailureMessage, Seq[Block]] = {
+  private def processMarkdown(m: Markdown): Either[FailureMessage, Vector[Block]] = {
     val Markdown(inline) = m
     val parser = new BlockParser(inline)
     parser.InputLine.run() match {
-      case Success(node) => Right(node)
+      case Success(node) => Right(node.toVector)
       case Failure(e: ParseError) =>
         val error = parser.formatError(e, new ErrorFormatter(showTraces = true))
         Left(error)
@@ -19,9 +19,9 @@ object ASTTransform {
     }
   }
 
-  def transformNode(block: Block): Either[Seq[FailureMessage], Seq[Block]] = {
-    def processMarkdownContainer[Container <: Block](v: Seq[Block])(resultMap: Seq[Block] => Either[Nothing, Seq[Container]]) = {
-      def process(v: Seq[Block]) = {
+  private def transformNode(block: Block): Either[Vector[FailureMessage], Vector[Block]] = {
+    def processMarkdownContainer[Container <: Block](v: Vector[Block])(resultMap: Vector[Block] => Either[Nothing, Vector[Container]]) = {
+      def process(v: Vector[Block]) = {
         transformTree(v) match {
           case Left(t) => Left(t)
           case Right(r) =>
@@ -46,26 +46,26 @@ object ASTTransform {
     }
 
     def transformTable(mt: MultilineTableBlock) = {
+      def parseColumn(body: MultilineTableColumn) = {
+        body.
+          map { case MultilineTableCell(blocks) => blocks }.
+          map(processMarkdownContainer(_)(blocks => Right(Vector(MultilineTableCell(blocks))))) |>
+          join |> (_.map(_.map { case Vector(MultilineTableCell(inner)) => MultilineTableCell(inner) }))
+      }
+
       val MultilineTableBlock(relativeWidth, rawCaption, rawHead, rawBody) = mt
       val transformedCaption = rawCaption map { c =>
         val MultilineTableCaption(md) = c
-        processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks.toVector))))
+        processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks))))
       }
 
       val transformedHead = rawHead map { head =>
         processMarkdownContainer {
           head.flatMap { case MultilineTableCell(bs) => bs }
-        }(blocks => Right(Vector(MultilineTableCell(blocks.toVector))))
+        }(blocks => Right(Vector(MultilineTableCell(blocks))))
       }
 
-      def parseColumn(body: MultilineTableColumn): Either[Seq[FailureMessage], MultilineTableColumn] = {
-        body.
-          map { case MultilineTableCell(blocks) => blocks }.
-          map(processMarkdownContainer(_)(blocks =>Right(Vector(MultilineTableCell(blocks.toVector))))) |>
-          join |> (_.map(_.toVector.map { case Vector(MultilineTableCell(inner)) => MultilineTableCell(inner) }))
-      }
-
-      val transformedBodyColumns = rawBody.map(parseColumn) |> join |> (_.map(_.map(_.toVector).toVector))
+      val transformedBodyColumns = rawBody.map(parseColumn) |> join
 
       (transformedCaption, transformedHead, transformedBodyColumns) match {
         case (Some(Left(l)), _, _) => Left(l)
@@ -73,9 +73,9 @@ object ASTTransform {
         case (_, _, Left(l)) => Left(l)
 
         case (c, h, b) =>
-          val maybeCaption = c.map(x => MultilineTableCaption(x.right.get.toVector))
+          val maybeCaption = c.map(x => MultilineTableCaption(x.right.get))
           val maybeHeader = h.map {
-            _.right.get.toVector match { case Vector(MultilineTableCell(bs)) => bs.map(i => MultilineTableCell(Vector(i))) }
+            _.right.get match { case Vector(MultilineTableCell(bs)) => bs.map(i => MultilineTableCell(Vector(i))) }
           }
           val body = b.right.get
           Right(Vector(MultilineTableBlock(relativeWidth, maybeCaption, maybeHeader, body)))
@@ -84,24 +84,30 @@ object ASTTransform {
 
     block match {
       case m @ Markdown(_) => processMarkdownBlock(m)
-      case UnorderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(UnorderedList(blocks.toVector))))
-      case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks.toVector))))
-      case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks.toVector))))
+      case UnorderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(UnorderedList(blocks))))
+      case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks))))
+      case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks))))
       case mt @ MultilineTableBlock(_, _, _, _) => transformTable(mt)
       case _ => Right(Vector(block))
     }
   }
 
-  def join[L, R](parsed: Seq[Either[Seq[L], Seq[R]]]): Either[Seq[L], Seq[Seq[R]]] = {
+  private def join[L, R](parsed: Seq[Either[Seq[L], Seq[R]]]): Either[Vector[L], Vector[Vector[R]]] = {
     parsed.partition(_.isLeft) match {
-      case (Nil, blocks) => Right(for (Right(i) <- blocks) yield i)
+      case (Nil, blocks) => Right((for (Right(i) <- blocks) yield i.toVector).toVector)
       case (pe, _) =>
         val pes = for (Left(s) <- pe) yield s
-        Left(pes.flatten)
+        Left(pes.flatten.toVector)
     }
   }
 
-  def transformTree(tree: Seq[Block]): Either[Seq[FailureMessage], Seq[Seq[Block]]] = {
+  /**
+    * Transforms a raw AST tree to a complete one (parses nested blocks, gathers links)
+    * @param tree AST tree from Block parser
+    * @return transformed AST tree or parse failure results, that is -- either tree having all nested markdown parsed or
+    *         a list of parse failure messages
+    */
+  def transformTree(tree: Seq[Block]): Either[Vector[FailureMessage], Vector[Vector[Block]]] = {
     tree.map(transformNode) |> join
   }
 }
