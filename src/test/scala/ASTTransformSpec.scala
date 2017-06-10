@@ -97,11 +97,10 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         )))))
   }
 
-  it should "parse Multiline Table's nested elements" in {
+  it should "parse nested elements in a rectangular Multiline Table" in {
     val rawTree = Vector(MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
-      //Some(MultilineTableCaption(Vector(Markdown("This is a table caption\\label{table:table_lable_name}")))),
-      None,
+      Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
       Some(
         Vector(
           MultilineTableCell(Vector(Markdown("Term  1"))),
@@ -119,7 +118,10 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
-      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,
+      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
+        Some(
+          MultilineTableCaption(Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space, Text("caption")))),
+          Some("table:table_lable_name"))),
         Some(Vector(
               MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"))))),
               MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("2"))))),
@@ -136,4 +138,44 @@ class ASTTransformSpec extends FlatSpec with Matchers {
       )))))
   }
 
+  it should "parse Multiline Table's with nested elements spanning multiple lines in a cell" in {
+    val rawTree = Vector(
+      MultilineTableBlock(Vector(25.0f, 75.0f),
+      Some(MultilineTableCaption(Vector(Markdown("This is a table caption")),Some("table:table_lable_name"))),
+        Some(Vector(MultilineTableCell(Vector(Markdown(
+          """Term  1
+            |Term  cont""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """Description 1
+              |Description cont""".stripMargin))))),
+        Vector(
+          Vector(
+            MultilineTableCell(Vector(Markdown(".It"))),
+            MultilineTableCell(Vector(Markdown(
+              """CAPSED WORD
+                |Many""".stripMargin)))),
+          Vector(
+            MultilineTableCell(Vector(Markdown("is a long established fact that"))),
+            MultilineTableCell(Vector(Markdown(
+              """The point of using Lorem Ipsum is
+                |desktop publishing packages and""".stripMargin))))
+        )))
+
+    val transformedTree = rawTree |> transformTree
+
+    transformedTree shouldEqual
+      Right(Vector(Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
+        Some(MultilineTableCaption(Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space, Text("caption")))),Some("table:table_lable_name"))),
+        Some(Vector(
+          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"), Space, Text("Term"), Space, Text("cont"))))),
+          MultilineTableCell(Vector(Plain(Vector(Text("Description"), Space, Text("1"), Space, Text("Description"), Space, Text("cont"))))))),
+        Vector(
+          Vector(
+            MultilineTableCell(Vector(Plain(Vector(Text(".It"))))),
+            MultilineTableCell(Vector(Plain(Vector(Text("CAPSED"), Space, Text("WORD"), Space, Text("Many")))))),
+          Vector(
+            MultilineTableCell(Vector(Plain(Vector(Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"), Space, Text("that"))))),
+            MultilineTableCell(Vector(Plain(Vector(Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space, Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
+        )))))
+  }
 }
