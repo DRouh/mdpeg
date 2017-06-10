@@ -56,4 +56,6 @@ package object mdpeg {
     }
     rest :: result
   }
+
+  implicit def toPipe[A](a: A): Pipe[A] = Pipe(a)
 }

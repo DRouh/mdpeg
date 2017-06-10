@@ -38,33 +38,33 @@ object ExpectedTestResults {
       |""".stripMargin), Markdown(
     """And, finally, this is a second item of an ordered list
       |""".stripMargin)))
-  val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f), Some(MultilineTableCaption(Markdown("This is a table caption\\label{table:table_lable_name}"))), Some(Vector(MultilineTableCell(Markdown("This header is longer than sep")), MultilineTableCell(Markdown("And this header is also longer than this separator")))), Vector(Vector(MultilineTableCell(Markdown("**Why do we use it?**")), MultilineTableCell(Markdown(
+  val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f), Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))), Some(Vector(MultilineTableCell(Vector(Markdown("This header is longer than sep"))), MultilineTableCell(Vector(Markdown("And this header is also longer than this separator"))))), Vector(Vector(MultilineTableCell(Vector(Markdown("**Why do we use it?**"))), MultilineTableCell(Vector(Markdown(
     """There-are
-      |""".stripMargin)), MultilineTableCell(Markdown("**Where can I get some?**")), MultilineTableCell(Markdown(
+      |""".stripMargin))), MultilineTableCell(Vector(Markdown("**Where can I get some?**"))), MultilineTableCell(Vector(Markdown(
     """dummy
-      |""".stripMargin)), MultilineTableCell(Markdown("text")), MultilineTableCell(Markdown("printing")), MultilineTableCell(Markdown("**Where does it come from?**")), MultilineTableCell(Markdown(
+      |""".stripMargin))), MultilineTableCell(Vector(Markdown("text"))), MultilineTableCell(Vector(Markdown("printing"))), MultilineTableCell(Vector(Markdown("**Where does it come from?**"))), MultilineTableCell(Vector(Markdown(
     """leap-into
-      |""".stripMargin)), MultilineTableCell(Markdown(
+      |""".stripMargin))), MultilineTableCell(Vector(Markdown(
     """variations-join
       |
-      |""".stripMargin)), MultilineTableCell(Markdown("**What is Lorem Ipsum?**")), MultilineTableCell(Markdown(
+      |""".stripMargin))), MultilineTableCell(Vector(Markdown("**What is Lorem Ipsum?**"))), MultilineTableCell(Vector(Markdown(
     """Lorem
-      |""".stripMargin)), MultilineTableCell(Markdown(
+      |""".stripMargin))), MultilineTableCell(Vector(Markdown(
     """anything
-      |""".stripMargin))), Vector(MultilineTableCell(Markdown(
+      |""".stripMargin)))), Vector(MultilineTableCell(Vector(Markdown(
     """It is a long established fact that a reader will be
-      |distracted by the readable content of a page when looking at""".stripMargin)), MultilineTableCell(Markdown(
+      |distracted by the readable content of a page when looking at""".stripMargin))), MultilineTableCell(Vector(Markdown(
     """It uses a dictionary of over
-      |Lorem Ipsum which looks reasonable""".stripMargin)), MultilineTableCell(Markdown("The generated Lorem Ipsum is")), MultilineTableCell(Markdown("or non-characteristic words etc")), MultilineTableCell(Markdown(
+      |Lorem Ipsum which looks reasonable""".stripMargin))), MultilineTableCell(Vector(Markdown("The generated Lorem Ipsum is"))), MultilineTableCell(Vector(Markdown("or non-characteristic words etc"))), MultilineTableCell(Vector(Markdown(
     """It uses a dictionary of over 200
-      |you need to be sure there""".stripMargin)), MultilineTableCell(Markdown(
+      |you need to be sure there""".stripMargin))), MultilineTableCell(Vector(Markdown(
     """anything embarrassing hidden
       |you need to be sure there isn't
-      |within this period""".stripMargin)), MultilineTableCell(Markdown(
+      |within this period""".stripMargin))), MultilineTableCell(Vector(Markdown(
     """"There are many variations of passages.
-      |*randomised words which : 1597 z*""".stripMargin)), MultilineTableCell(Markdown(
+      |*randomised words which : 1597 z*""".stripMargin))), MultilineTableCell(Vector(Markdown(
     """but the majority have suffered alteration.
-      |*to use a passage: "" (empty string)*""".stripMargin)))))
+      |*to use a passage: "" (empty string)*""".stripMargin))))))
 
   val referenceType1 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")), Src("https://www.mozilla.org", Some("this is title")))
   val referenceType2 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")), Src("https://www.mozilla.org", None))
