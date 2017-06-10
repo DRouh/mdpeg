@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ASTTransformSpec extends FlatSpec with Matchers {
 
-  it should "parse Markdown blocks to block seq" in {
+  it should "process Markdown blocks to block seq" in {
     val rawAstTree = Vector(
       Markdown("This is quote"),
       Markdown("and should span several"),
@@ -76,7 +76,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     )
   }
 
-  it should "parse Multiline Table's body nested elements" in {
+  it should "process Multiline Table's body nested elements" in {
     val rawTree = Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
       Vector(
         Vector(MultilineTableCell(Vector(Markdown(".It is longer")))),
@@ -97,7 +97,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         )))))
   }
 
-  it should "parse nested elements in a rectangular Multiline Table" in {
+  it should "process nested elements in a rectangular Multiline Table" in {
     val rawTree = Vector(MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
       Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
@@ -138,7 +138,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
       )))))
   }
 
-  it should "parse Multiline Table's with nested elements spanning multiple lines in a cell" in {
+  it should "process Multiline Table's with nested elements spanning multiple lines in a cell" in {
     val rawTree = Vector(
       MultilineTableBlock(Vector(25.0f, 75.0f),
       Some(MultilineTableCaption(Vector(Markdown("This is a table caption")),Some("table:table_lable_name"))),
@@ -177,5 +177,59 @@ class ASTTransformSpec extends FlatSpec with Matchers {
             MultilineTableCell(Vector(Plain(Vector(Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"), Space, Text("that"))))),
             MultilineTableCell(Vector(Plain(Vector(Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space, Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
         )))))
+  }
+
+  it should "process nested elements in an unordered list" in {
+    val rawTree = Vector(UnorderedList(
+      Vector(
+        Markdown("""item 1
+                   |     - sub 1
+                   |     - sub 2
+                   |""".stripMargin),
+        Markdown("""item 2
+                   |  - sub 3
+                   |  - sub 4""".stripMargin))))
+    rawTree |> transformTree shouldEqual
+      Right(Vector(
+        Vector(
+          UnorderedList(Vector(
+            Plain(Vector(Text("item"), Space, Text("1"))),
+            UnorderedList(Vector(
+              Plain(Vector(Text("sub"), Space, Text("1"))),
+              Plain(Vector(Text("sub"), Space, Text("2"))))
+            ),
+            Plain(Vector(Text("item"), Space, Text("2"))),
+            UnorderedList(Vector(
+              Plain(Vector(Text("sub"), Space, Text("3"))),
+              Plain(Vector(Text("sub"), Space, Text("4"))))
+            )
+          )))))
+  }
+
+  it should "process nested elements in an ordered list" in {
+    val rawTree = Vector(UnorderedList(
+      Vector(
+        Markdown("""item 1
+                   |     1. sub 1
+                   |     2. sub 2
+                   |""".stripMargin),
+        Markdown("""item 2
+                   |  1. sub 3
+                   |  2. sub 4""".stripMargin))))
+    rawTree |> transformTree shouldEqual
+      Right(Vector(
+        Vector(
+          UnorderedList(Vector(
+            Plain(Vector(Text("item"), Space, Text("1"))),
+            UnorderedList(Vector(
+              Plain(Vector(Text("sub"), Space, Text("1"))),
+              Plain(Vector(Text("sub"), Space, Text("2"))))
+            ),
+            Plain(Vector(Text("item"), Space, Text("2"))),
+            UnorderedList(Vector(
+              Plain(Vector(Text("sub"), Space, Text("3"))),
+              Plain(Vector(Text("sub"), Space, Text("4"))))
+            )
+          )))))
   }
 }
