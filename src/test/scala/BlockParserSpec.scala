@@ -151,7 +151,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
     )
   }
 
-  it should "should parse paragraph followed by a list as a paragraph and a list" in {
+  it should "parse paragraph followed by a list as a paragraph and a list" in {
     val term =
       """hello from the other side
         |second line from the other side
@@ -172,20 +172,25 @@ class BlockParserSpec extends FlatSpec with Matchers {
       ))
   }
 
-  it should "bla" in {
-    val compoundMD: String =
-      s"""${TestData.plainText}
-         |${TestData.twoDifferentLists}
-         |"""
-        .stripMargin
-    //println(compoundMD)
-    val parser = new BlockParser(compoundMD)
-    val parsed = parser.InputLine.run()
-    parsed.get shouldEqual Vector(
-      ExpectedTestResults.plainTextCompound,
-      ExpectedTestResults.unorderedList,
-      ExpectedTestResults.orderedList
-
-    )
+  it should "parse a plain text followed by an unordered list as plain followed by an unordered list" in {
+    val term =
+      """hello from the other side
+        |second line from the other side
+        |    * sub 1
+        |    * sub 2
+        |    * sub 3
+        |    * sub 4""".stripMargin
+    val parser = new BlockParser(term)
+    parser.InputLine.run().get shouldEqual
+      Vector(
+        Plain(Vector(
+          Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space,
+          Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space,
+          Text("side"), Space, Space)),
+        UnorderedList(Vector(Markdown("""sub 1
+                                        |    * sub 2
+                                        |    * sub 3
+                                        |    * sub 4""".stripMargin)))
+      )
   }
 }
