@@ -214,26 +214,27 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         Markdown("""hello from the other side
                    |second line from the other side
                    |    * sub 1
+                   |      what if I do this
+                   |      and what if I do that
                    |    * sub 2
                    |    * sub 3
                    |    * sub 4""".stripMargin))))
     rawTree |> transformTree shouldEqual
-    Right(Vector( //ToDo working here
-      Vector(
+      Right(Vector(Vector(
         UnorderedList(Vector(
-          Plain(Vector(
-            Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"),
+          Plain(Vector(Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"),
             Space, Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"),
             Space, Text("side"), Space, Space)),
           UnorderedList(Vector(
-            Plain(Vector(Text("sub"), Space, Text("1"), Space, Space)),
+            Plain(Vector(Text("sub"), Space, Text("1"), Space, Space, Text("what"), Space, Text("if"), Space, Text("I"),
+              Space, Text("do"), Space, Text("this"), Space, Space, Text("and"), Space, Text("what"), Space, Text("if"),
+              Space, Text("I"), Space, Text("do"), Space, Text("that"), Space, Space)),
             UnorderedList(Vector(
               Plain(Vector(Text("sub"), Space, Text("2"), Space, Space)),
               UnorderedList(Vector(
                 Plain(Vector(Text("sub"), Space, Text("3"), Space, Space)),
-                UnorderedList(Vector(Plain(Vector(Text("sub"), Space, Text("4")))))))
-            )))))))
-    ))
+                UnorderedList(Vector(Plain(Vector(Text("sub"), Space, Text("4")))))
+              )))))))))))
   }
 
   it should "process nested elements in an ordered list" in {
