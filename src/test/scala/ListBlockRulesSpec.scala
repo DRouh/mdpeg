@@ -134,7 +134,7 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
                    |  - sub 4""".stripMargin)))
   }
 
-    it should "create markdown for each full/half indented chunk in ordered list" in {
+  it should "create markdown for each full/half indented chunk in ordered list" in {
       val term =
         """1. item 1
           |     1. sub 1
