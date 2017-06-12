@@ -87,7 +87,12 @@ object ASTTransform {
 
     block match {
       case m @ Markdown(_) => processMarkdownBlock(m)
-      case UnorderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(UnorderedList(blocks))))
+      case UnorderedList(v) =>
+        val ass = v.flatMap{
+          case Markdown(ss) => ss.split("\0").map(Markdown)
+          case b => Vector(b)
+        }.toVector
+        processMarkdownContainer(v)(blocks => Right(Vector(UnorderedList(blocks))))
       case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks))))
       case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks))))
       case mt @ MultilineTableBlock(_, _, _, _) => transformTable(mt)

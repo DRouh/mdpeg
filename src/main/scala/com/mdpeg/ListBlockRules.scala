@@ -23,11 +23,15 @@ trait ListBlockRules {
   def bulletListItem: Rule1[Vector[String]] = {
     def listStart = rule(!horizontalRule ~ bullet)
     def listRest  = rule(listContinuationBlock.*)
-    def ff(x:String, y: String): Vector[String] = {
-      //println(s"bulletListItem:Vector($x) ++ ($y)")
-      Vector(x+y)
+    def combinePreCont(pre:String, cont: String): Vector[String] = {
+      (pre, cont) match {
+        case ("", "") => Vector("")
+        case ("", s2) => Vector(trimEndWithEnding(s2))
+        case (s1, "") => Vector(trimEndWithEnding(s1))
+        case (s1, s2) => Vector(trimEndWithEnding(s1+"\0"+s2)) // this's needed to process nested lists
+      }
     }
-    rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> ((x:String, y: String) => ff(x,y)))
+    rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> (combinePreCont(_,_)))
   }
 
   // ordered list
@@ -42,7 +46,6 @@ trait ListBlockRules {
     }
     rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> ((x:String, y: String) => ff(x,y)))
   }
-
 
   // aux list rules
   def listBlock: Rule0 = {

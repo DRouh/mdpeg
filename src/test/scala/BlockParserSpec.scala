@@ -182,15 +182,12 @@ class BlockParserSpec extends FlatSpec with Matchers {
         |    * sub 4""".stripMargin
     val parser = new BlockParser(term)
     parser.InputLine.run().get shouldEqual
-      Vector(
-        Plain(Vector(
-          Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space,
-          Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space,
-          Text("side"), Space, Space)),
+      Vector(Plain(Vector(Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space,
+        Text("side"), Space, Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"),
+        Space, Text("other"), Space, Text("side"), Space, Space)),
         UnorderedList(Vector(Markdown("""sub 1
-                                        |    * sub 2
+                                        |{$__0break-it}    * sub 2
                                         |    * sub 3
-                                        |    * sub 4""".stripMargin)))
-      )
+                                        |    * sub 4""".stripMargin))))
   }
 }

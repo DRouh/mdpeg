@@ -62,9 +62,10 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
 
   it should "parse sparse bullet list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListBlockRulesTestSpec(TestData.sparseUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
-                                                                                                     |
-                                                                                                     |       """.stripMargin)))
+    parsed.get shouldEqual UnorderedList(Vector(Markdown("""First item
+                                                         |""".stripMargin), Markdown("""Second item
+                                                                                       |
+                                                                                       |""".stripMargin)))
   }
 
   it should "parse tight ordered list" in {
@@ -74,9 +75,9 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
 
   it should "parse sparse ordered list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListBlockRulesTestSpec(TestData.sparseOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
-                                                                                                  |
-                                                                                                  |       """.stripMargin)))
+    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """|
+                                                                                                  |""" + "\0"+
+                                                                                                  """|       """.stripMargin)))
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
@@ -123,14 +124,14 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
         |  - sub 3
         |  - sub 4""".stripMargin
     val parser = new ListBlockRulesTestSpec(term)
+    val nulChar = "\0"
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
-        Markdown("""item 1
-                   |     - sub 1
-                   |     - sub 2
-                   |""".stripMargin),
-        Markdown("""item 2
-                   |  - sub 3
+        Markdown(s"""item 1
+                   |${nulChar}     - sub 1
+                   |     - sub 2""".stripMargin),
+        Markdown(s"""item 2
+                   |${nulChar}  - sub 3
                    |  - sub 4""".stripMargin)))
   }
 
