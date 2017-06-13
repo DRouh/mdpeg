@@ -21,15 +21,13 @@ object ASTTransform {
 
   private def transformNode(block: Block): Either[Vector[FailureMessage], Vector[Block]] = {
     def processMarkdownContainer[Container <: Block](v: Vector[Block])(resultMap: Vector[Block] => Either[Nothing, Vector[Container]]) = {
-      def process(v: Vector[Block]) = {
-        transformTree(v) match {
-          case Left(t) => Left(t)
-          case Right(r) =>
-            r.flatten |> transformTree match {
-              case Left(errors) => Left(errors)
-              case Right(blocks) => Right(blocks.flatten)
-            }
-        }
+      def process(v: Vector[Block]) = transformTree(v) match {
+        case Left(t) => Left(t)
+        case Right(r) =>
+          r.flatten |> transformTree match {
+            case Left(errors) => Left(errors)
+            case Right(blocks) => Right(blocks.flatten)
+          }
       }
 
       process(v) match {
@@ -88,20 +86,52 @@ object ASTTransform {
     block match {
       case m @ Markdown(_) => processMarkdownBlock(m)
       case UnorderedList(v) =>
-        val ass = v.flatMap {
+        def unwrap(b:Vector[Block]) = b match {
+          case Vector(UnorderedList(content)) => content
+          case otherwise => otherwise
+        }
+
+        def toVector(e: Either[List[FailureMessage], List[Block]]) = e match {
+          case Left(value) => Left(value.toVector)
+          case Right(value) => Right(value.toVector)
+        }
+        def lift(b:Block) = Vector(b)
+        def process(blocks: Seq[Block]): Either[List[FailureMessage], List[Block]] = {
+          def sub(x: Block): Either[Vector[FailureMessage], Vector[Block]] = {
+            val p = x |> lift
+            processMarkdownContainer(p)(ps => Right(ps))
+          }
+
+          blocks match {
+            case x :: xs => sub(x) match {
+              case Left(l) => Left(l.toList)
+              case Right(rr) => process(xs) match {
+                case Left(ll) => Left(ll)
+                case Right(rrr) =>
+                  val a1 =rr |> unwrap |>(_.toList)
+                  Right(a1 ::: rrr)
+              }
+            }
+            case bs =>
+              val a = List.empty[Block]
+              Right(bs.toList)
+          }
+        }
+        val parts: Vector[Block] = v.flatMap {
           case Markdown(ss) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_!="").map(Markdown)
           case b => Vector(b)
         }
-        val asdf: Either[Vector[FailureMessage], Vector[Block]] = ass.map{ a =>
-          val sd = Vector(a)
-          processMarkdownContainer(sd)(blocks => Right(blocks))
-        } |> join |> {
-          case l@Left(ll) => Left(ll)
-          case r@Right((rr)) => Right(Vector(UnorderedList(rr.flatten)))
+
+        parts.toList |> process |> toVector |> { p =>
+          p.map(_.filter {
+            case Plain(Vector(Space)) => false
+            case otherwise => true
+          })
+        } |> {
+          case l@Left(_) => l
+          case Right(r) => Right(UnorderedList(r) |> lift)
         }
-        //  x.map((y: Vector[Vector[Block]]) => Right(y.flatten)))
-        asdf
-        //processMarkdownContainer(v)(blocks => Right(Vector(UnorderedList(blocks))))
+
       case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks))))
       case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks))))
       case mt @ MultilineTableBlock(_, _, _, _) => transformTable(mt)
