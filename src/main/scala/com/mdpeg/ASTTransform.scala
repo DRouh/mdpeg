@@ -12,9 +12,7 @@ object ASTTransform {
     val parser = new BlockParser(inline)
     parser.InputLine.run() match {
       case Success(node) => Right(node.toVector)
-      case Failure(e: ParseError) =>
-        val error = parser.formatError(e, new ErrorFormatter(showTraces = true))
-        Left(error)
+      case Failure(e: ParseError) => Left(parser.formatError(e, new ErrorFormatter(showTraces = true)))
       case Failure(e) => sys.error(e.getMessage)
     }
   }
@@ -83,54 +81,65 @@ object ASTTransform {
       }
     }
 
+    def processUnorderedList(v: Vector[Block]): Either[Vector[FailureMessage], Vector[Block]] = {
+      def unwrap(b: Vector[Block]): Vector[Block] = b match {
+        case Vector(UnorderedList(content)) => content flatMap (_ |> lift |> unwrap)
+        case otherwise => otherwise
+      }
+
+      def toVector(e: Either[List[FailureMessage], List[Block]]) = e match {
+        case Left(value) => Left(value.toVector)
+        case Right(value) => Right(value.toVector)
+      }
+
+      def lift(b: Block) = Vector(b)
+
+      def process(blocks: Seq[Block]): Either[List[FailureMessage], List[Block]] = {
+        def listProcess(x: Block, xs: List[Block]) = {
+          sub(x) match {
+            case Left(l) => Left(l.toList)
+            case Right(rr) => process(xs) match {
+              case Left(ll) => Left(ll)
+              case Right(rrr) => Right(rr.toList ::: rrr)
+            }
+          }
+        }
+
+        def sub(x: Block): Either[Vector[FailureMessage], Vector[Block]] = {
+          val p = x |> lift
+          processMarkdownContainer(p)(ps => Right(ps))
+        }
+
+        blocks match {
+          case x :: Nil => sub(x) match {
+            case l @ Left(value) => Left(value.toList)
+            case Right(value) => Right(value |> unwrap |> (_.toList))
+          }
+
+          case x :: xs => listProcess(x, xs)
+          case otherwise => Right(otherwise.toList)
+        }
+      }
+
+      val parts: Vector[Block] = v.flatMap {
+        case Markdown(ss) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_ != "").map(Markdown)
+        case otherwise => Vector(otherwise)
+      }
+
+      parts.toList |> process |> toVector |> { p =>
+        p.map(_.filter {
+          case Plain(Vector(Space)) => false
+          case otherwise => true
+        })
+      } |> {
+        case l@Left(_) => l
+        case Right(r) => Right(UnorderedList(r) |> lift)
+      }
+    }
+
     block match {
       case m @ Markdown(_) => processMarkdownBlock(m)
-      case UnorderedList(v) =>
-        def unwrap(b:Vector[Block]) = b match {
-          case Vector(UnorderedList(content)) => content
-          case otherwise => otherwise
-        }
-
-        def toVector(e: Either[List[FailureMessage], List[Block]]) = e match {
-          case Left(value) => Left(value.toVector)
-          case Right(value) => Right(value.toVector)
-        }
-        def lift(b:Block) = Vector(b)
-        def process(blocks: Seq[Block]): Either[List[FailureMessage], List[Block]] = {
-          def sub(x: Block): Either[Vector[FailureMessage], Vector[Block]] = {
-            val p = x |> lift
-            processMarkdownContainer(p)(ps => Right(ps))
-          }
-
-          blocks match {
-            case x :: xs => sub(x) match {
-              case Left(l) => Left(l.toList)
-              case Right(rr) => process(xs) match {
-                case Left(ll) => Left(ll)
-                case Right(rrr) =>
-                  val a1 =rr |> unwrap |>(_.toList)
-                  Right(a1 ::: rrr)
-              }
-            }
-            case bs =>
-              val a = List.empty[Block]
-              Right(bs.toList)
-          }
-        }
-        val parts: Vector[Block] = v.flatMap {
-          case Markdown(ss) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_!="").map(Markdown)
-          case b => Vector(b)
-        }
-
-        parts.toList |> process |> toVector |> { p =>
-          p.map(_.filter {
-            case Plain(Vector(Space)) => false
-            case otherwise => true
-          })
-        } |> {
-          case l@Left(_) => l
-          case Right(r) => Right(UnorderedList(r) |> lift)
-        }
+      case UnorderedList(v) => processUnorderedList(v)
 
       case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks))))
       case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks))))
