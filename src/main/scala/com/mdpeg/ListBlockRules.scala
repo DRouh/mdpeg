@@ -6,7 +6,7 @@ trait ListBlockRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 
-  private def anyLineList  : Rule0 = rule(!nl ~ !EOI ~ anyCharList.* ~ (nl | ""))
+  private def anyLineList  : Rule0 = rule((!nl ~ !EOI ~ ANY).* ~ (nl | ""))
   private def anyCharList  : Rule0 = rule(anyChar | backTick)
 
   def list: Rule1[Block]                  = rule { unorderedList | orderedList }
