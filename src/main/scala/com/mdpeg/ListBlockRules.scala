@@ -49,11 +49,11 @@ trait ListBlockRules {
 
   // aux list rules
   def listBlock: Rule0 = {
-    def blockContents = rule(anyLineList)
-    def notOptionallyIndentedAnyListItem = rule(!(listIndent.? ~ (!bulletListItem | !orderedListItem)))
-    def notPossibleStartOfAnyList        = rule(!listIndent ~ (!bullet | !enumerator))
-    def blockRest = rule((notOptionallyIndentedAnyListItem ~ !blankLine ~ notPossibleStartOfAnyList ~ !indentedLine.?).*)
-    rule(blockContents ~ blockRest)
+    def blockRest = rule {
+      (!(listIndent.? ~ (bulletListItem | orderedListItem)) ~ !blankLine ~ !(listIndent ~ (bullet | enumerator)) ~ optionallyIndentedLine).*
+    }
+
+    rule(anyLineList ~ blockRest)
   }
 
   // ToDo improve continuation to handle inner lists

@@ -17,6 +17,7 @@ trait PrimitiveRules {
   def escapedChar     : Rule0 = rule(CharPredicate('\\') ~ ANY)
   def specialChar     : Rule0 = rule(anyOf("*_`&[]<!\\"))
 
+  def optionallyIndentedLine : Rule0 = rule(indent.? ~ anyLine)
   def indentedLine    : Rule0 = rule(indent ~ anyLine)
   def anyLine         : Rule0 = rule((!nl ~ !EOI ~ ANY).+ ~ nl.?)
   def anyChar         : Rule0 = rule(inlineChar | mathChar | specialCharEx)
