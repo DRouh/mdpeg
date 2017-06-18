@@ -9,15 +9,13 @@ trait PrimitiveRules {
   def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
     @inline
     def h = (ch: String) => rule(ch ~ sps ~ ch ~ sps ~ ch ~ (sps ~ ch).* ~ sps ~ nl ~ blankLine.+)
-    def toHr = (_: String) => HorizontalRuleBlock
-    rule(nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr)
+    rule(nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> ((x:String) => HorizontalRuleBlock))
   }
 
   def textChar        : Rule0 = rule(escapedChar | (!(specialChar | sp) ~ !nl ~ ANY))
   def escapedChar     : Rule0 = rule(CharPredicate('\\') ~ ANY)
   def specialChar     : Rule0 = rule(anyOf("*_`&[]<!\\"))
 
-  def optionallyIndentedLine : Rule0 = rule(indent.? ~ anyLine)
   def indentedLine    : Rule0 = rule(indent ~ anyLine)
   def anyLine         : Rule0 = rule((!nl ~ !EOI ~ ANY).+ ~ nl.?)
   def anyChar         : Rule0 = rule(inlineChar | mathChar | specialCharEx)

@@ -1,5 +1,8 @@
 import com.mdpeg._
+import org.parboiled2.{ErrorFormatter, ParseError}
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.util.{Failure, Success}
 
 class BlockParserSpec extends FlatSpec with Matchers {
   it should "parse '_' Horizontal rule" in {
@@ -132,6 +135,14 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val term = TestData.compoundMD
     val parser = new BlockParser(term)
     val parsed = parser.InputLine.run()
+
+    val parser1: BlockParser = new BlockParser(term)
+    parser1.InputLine.run() match {
+      case s@Success(node) => node
+      case Failure(e: ParseError) =>
+        println(parser1.formatError(e, new ErrorFormatter(showTraces = true)))
+      case Failure(e) => sys.error(e.getMessage)
+    }
     parsed.get shouldEqual Vector(
       ExpectedTestResults.headingOne,
       ExpectedTestResults.headingTwo,

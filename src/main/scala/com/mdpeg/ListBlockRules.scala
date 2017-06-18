@@ -8,8 +8,7 @@ trait ListBlockRules {
   import CharPredicate._
 
   private def anyLineList: Rule0 = rule((!nl ~ !EOI ~ ANY).* ~ (nl | ""))
-
-  private def anyCharList: Rule0 = rule(anyChar | backTick)
+  private def optionallyIndentedLine : Rule0 = rule(listIndent.? ~ anyLine)
 
   def list: Rule1[Block] = rule {
     unorderedList | orderedList
@@ -39,20 +38,14 @@ trait ListBlockRules {
   def bulletListSparse: Rule1[UnorderedList] = rule((bulletListItem ~ blankLine.*).+ ~> (toUnorderedList(_)))
 
   def bulletListItem: Rule1[Vector[String]] = {
-    def listStart = rule(!horizontalRule ~ bullet)
-
-    def listRest = rule(listContinuationBlock.*)
-
-    def combinePreCont(pre: String, cont: String): Vector[String] = {
-      (pre, cont) match {
-        case ("", "") => Vector("")
-        case ("", s2) => Vector(trimEndWithEnding(s2))
-        case (s1, "") => Vector(trimEndWithEnding(s1))
-        case (s1, s2) => Vector(trimEndWithEnding(s1 + "\0" + s2)) // this's needed to process nested lists
-      }
+    def combinePreCont(pre: String, cont: String): Vector[String] = (pre, cont) match {
+      case ("", "") => Vector("")
+      case ("", s2) => Vector(trimEndWithEnding(s2))
+      case (s1, "") => Vector(trimEndWithEnding(s1))
+      case (s1, s2) => Vector(trimEndWithEnding(s1 + "\0" + s2)) // this's needed to process nested lists
     }
 
-    rule(listStart ~ capture(listBlock) ~ capture(listRest) ~> (combinePreCont(_, _)))
+    rule(!horizontalRule ~ bullet ~ capture(listBlock) ~ capture(listContinuationBlock.*) ~> (combinePreCont(_, _)))
   }
 
   // ordered list
@@ -76,10 +69,12 @@ trait ListBlockRules {
   }
 
   // aux list rules
-  def listBlock: Rule0 = {
-    rule(anyLineList ~ (!(listIndent.? ~ (bulletListItem | orderedListItem)) ~
-      !blankLine ~ !(listIndent ~ (bullet | enumerator)) ~ optionallyIndentedLine).*)
-  }
+  def listBlock: Rule0 = rule(anyLineList ~
+    (!(listIndent.? ~ (bulletListItem | orderedListItem)) ~
+      !blankLine ~
+      !(listIndent ~ (bullet | enumerator)) ~
+      optionallyIndentedLine).*)
+
 
   // ToDo improve continuation to handle inner lists
   def listContinuationBlock: Rule0 = {
@@ -87,7 +82,7 @@ trait ListBlockRules {
   }
 
   // aux rules
-  private def listIndent = rule(indent | halfIndent)
+  private def listIndent = rule( indent | halfIndent )
 
   private def halfIndent = rule("  ")
 
