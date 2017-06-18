@@ -152,6 +152,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse paragraph followed by a list as a paragraph and a list" in {
+    val nulChar = "\0"
     val term =
       """hello from the other side
         |second line from the other side
@@ -163,16 +164,19 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val parsed = parser.InputLine.run()
     parsed.get shouldEqual Vector(
       Plain(Vector(
-        Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"),
-        Space, Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"),
-        Space, Text("side"))),
-      UnorderedList(Vector(
-        Plain(Vector(Text("sub"), Space, Text("1"))),
-        Plain(Vector(Text("sub"), Space, Text("2"))))
-      ))
+        Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space, Text("second"), Space,
+        Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space, Space))
+      , UnorderedList(Vector(
+        Markdown(s"""sub 1
+                   |${nulChar}    * sub 2
+                   |    * sub 3
+                   |    * sub 4""".stripMargin))))
+
   }
 
   it should "parse a plain text followed by an unordered list as plain followed by an unordered list" in {
+    val nulChar = "\0"
+
     val term =
       """hello from the other side
         |second line from the other side
@@ -185,8 +189,8 @@ class BlockParserSpec extends FlatSpec with Matchers {
       Vector(Plain(Vector(Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space,
         Text("side"), Space, Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"),
         Space, Text("other"), Space, Text("side"), Space, Space)),
-        UnorderedList(Vector(Markdown("""sub 1
-                                        |{$__0break-it}    * sub 2
+        UnorderedList(Vector(Markdown(s"""sub 1
+                                        |${nulChar}    * sub 2
                                         |    * sub 3
                                         |    * sub 4""".stripMargin))))
   }

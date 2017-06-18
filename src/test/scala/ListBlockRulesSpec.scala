@@ -61,9 +61,10 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "parse sparse bullet list" in { // ToDo fix rules to get rid of these trailing blank lines
+    val nulChar = "\0"
     val parsed = new ListBlockRulesTestSpec(TestData.sparseUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Markdown("First item"), Markdown("""Second item
-                                                                                   | """.stripMargin)))
+    parsed.get shouldEqual UnorderedList(Vector(Markdown("First item"), Markdown(s"""Second item
+                                                                                   |${nulChar}""".stripMargin)))
   }
 
   it should "parse tight ordered list" in {
@@ -100,15 +101,15 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
         Markdown(s"""1st block - It is a long established fact that a reader will be distracted by the readable content of a
-                   |${nulChar}  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
+                   |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
                    |    normal distribution of letters, as opposed to using 'Content here, content here',""".stripMargin),
         Markdown(s"""2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
-                   |${nulChar}     'lorem ipsum' will uncover many web sites still in their infancy. Various versions
+                   |     'lorem ipsum' will uncover many web sites still in their infancy. Various versions
                    |     injected humour and the like).
                    |     There are many variations of passages of Lorem Ipsum available, but the majority have""".stripMargin),
         Markdown("""3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin),
         Markdown(s"""4th list block - sure there isn't anything embarrassing hidden in the middle
-                   |${nulChar}    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
+                   |    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
   }
 
   it should "create markdown for each full/half indented chunk in unordered list" in {
