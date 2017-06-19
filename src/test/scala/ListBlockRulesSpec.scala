@@ -61,22 +61,18 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "parse sparse bullet list" in { // ToDo fix rules to get rid of these trailing blank lines
-    val nulChar = "\0"
     val parsed = new ListBlockRulesTestSpec(TestData.sparseUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Markdown("First item"), Markdown(s"""Second item
-                                                                                   |${nulChar}""".stripMargin)))
+    parsed.get shouldEqual UnorderedList(Vector(Markdown("First item"), Markdown("""Second item""".stripMargin)))
   }
 
   it should "parse tight ordered list" in {
     val parsed = new ListBlockRulesTestSpec(TestData.tightOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst + EOL), Markdown(expectedSecond)))
+    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst ), Markdown(expectedSecond)))
   }
 
   it should "parse sparse ordered list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListBlockRulesTestSpec(TestData.sparseOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst + EOL), Markdown("""Second item
-                                                                                        |
-                                                                                        |       """.stripMargin)))
+    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown("""Second item""".stripMargin)))
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
@@ -85,8 +81,6 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "create markdown for every list item in unordered list" in {
-    val nulChar = "\0"
-
     val term ="""* 1st block - It is a long established fact that a reader will be distracted by the readable content of a
                 |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
                 |    normal distribution of letters, as opposed to using 'Content here, content here',
@@ -113,6 +107,7 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "create markdown for each full/half indented chunk in unordered list" in {
+    val nulChar = "\0"
     val term =
       """- item 1
         |    - sub 1
@@ -121,7 +116,6 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
         |  - sub 3
         |  - sub 4""".stripMargin
     val parser = new ListBlockRulesTestSpec(term)
-    val nulChar = "\0"
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
         Markdown(s"""item 1
@@ -133,7 +127,8 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "create markdown for each full/half indented chunk in ordered list" in {
-      val term =
+    val nulChar = "\0"
+    val term =
         """1. item 1
           |     1. sub 1
           |     2. sub 2
@@ -143,12 +138,11 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
       val parser = new ListBlockRulesTestSpec(term)
       parser.list.run().get shouldEqual OrderedList(
         Vector(
-          Markdown("""item 1
-                     |     1. sub 1
-                     |     2. sub 2
-                     |""".stripMargin),
-          Markdown("""item 2
-                     |  1. sub 3
+          Markdown(s"""item 1
+                     |${nulChar}     1. sub 1
+                     |     2. sub 2""".stripMargin),
+          Markdown(s"""item 2
+                     |${nulChar}  1. sub 3
                      |  2. sub 4""".stripMargin)))
   }
 }

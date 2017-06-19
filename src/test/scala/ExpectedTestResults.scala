@@ -27,13 +27,12 @@ object ExpectedTestResults {
     """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin), Markdown(
     """4th list block - sure there isn't anything embarrassing hidden in the middle
       |  of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
-  val orderedList = OrderedList(Vector(Markdown(
-    """This is a first item of an ordered list
-      |    1. and this is a first sub item of a first item of an ordered list
-      |    2. and this is a second sub item of a first item of an ordered list
-      |""".stripMargin), Markdown(
-    """And, finally, this is a second item of an ordered list
-      |""".stripMargin)))
+  val nul = "\0"
+  val orderedList = OrderedList(Vector(
+    Markdown(s"""This is a first item of an ordered list
+               |${nul}    1. and this is a first sub item of a first item of an ordered list
+               |    2. and this is a second sub item of a first item of an ordered list""".stripMargin),
+    Markdown("And, finally, this is a second item of an ordered list")))
   val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f), Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))), Some(Vector(MultilineTableCell(Vector(Markdown("This header is longer than sep"))), MultilineTableCell(Vector(Markdown("And this header is also longer than this separator"))))), Vector(Vector(MultilineTableCell(Vector(Markdown("**Why do we use it?**"))), MultilineTableCell(Vector(Markdown(
     """There-are
       |""".stripMargin))), MultilineTableCell(Vector(Markdown("**Where can I get some?**"))), MultilineTableCell(Vector(Markdown(

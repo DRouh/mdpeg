@@ -120,8 +120,7 @@ object TestData {
     s"""1. $firstItemInList
        |
        |2. $secondItemInList
-       |
-       """.stripMargin
+       |""".stripMargin
   val tightOrderedList: String =
     s"""1. $firstItemInList
        |2. $secondItemInList""".stripMargin
@@ -129,8 +128,7 @@ object TestData {
     s"""- $firstItemInList
        |
        |- $secondItemInList
-       |
-       """.stripMargin
+       |""".stripMargin
   val tightUnorderedList: String =
     s"""- $firstItemInList
        |- $secondItemInList""".stripMargin
