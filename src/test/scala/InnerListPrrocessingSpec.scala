@@ -23,39 +23,39 @@ class InnerListPrrocessingSpec extends FlatSpec with Matchers {
       case Failure(e) => sys.error(e.getMessage)
     }
   }
-
-  it should "process nested elements in an unordered list 2" in {
-    val nulChar = "\0"
-    val tab = "\t"
-    val rawTree = Vector(UnorderedList(
-      Vector(Markdown(
-        s"""item 1
-           |${nulChar}    - sub 1
-           |    - sub 2""".stripMargin),
-        Markdown(
-          s"""item 2
-             |${nulChar}  - sub 3
-             |  - sub 4""".stripMargin))))
-
-    s"""- item 1
-       |    - sub 1
-       |    - sub 2
-       |- item 2
-       |  - sub 3
-       |  - sub 4""".stripMargin |>
-      parse |> (_.map { case Vector(UnorderedList(Vector(mm@Markdown(_), mmm@Markdown(_)))) => for (x <- mm |> processMarkdown; y <- mmm |> processMarkdown) yield (x, y)
-    }) shouldEqual
-      Right(Right((
-        Vector(
-          Plain(Vector(Text("item"), Space, Text("1"))),
-          UnorderedList(Vector(Markdown(
-            s"""sub 1
-               |${nulChar}    - sub 2""".stripMargin)))),
-        Vector(Plain(Vector(Text("item"), Space, Text("2"))),
-          UnorderedList(Vector(Markdown(
-            s"""sub 3
-               |${nulChar}  - sub 4""".stripMargin)))))))
-  }
+//
+//  it should "process nested elements in an unordered list 2" in {
+//    val nulChar = "\0"
+//    val tab = "\t"
+//    val rawTree = Vector(UnorderedList(
+//      Vector(Markdown(
+//        s"""item 1
+//           |${nulChar}    - sub 1
+//           |    - sub 2""".stripMargin),
+//        Markdown(
+//          s"""item 2
+//             |${nulChar}  - sub 3
+//             |  - sub 4""".stripMargin))))
+//
+//    s"""- item 1
+//       |    - sub 1
+//       |    - sub 2
+//       |- item 2
+//       |  - sub 3
+//       |  - sub 4""".stripMargin |>
+//      parse |> (_.map { case Vector(UnorderedList(Vector(mm@Markdown(_), mmm@Markdown(_)))) => for (x <- mm |> processMarkdown; y <- mmm |> processMarkdown) yield (x, y)
+//    }) shouldEqual
+//      Right(Right((
+//        Vector(
+//          Plain(Vector(Text("item"), Space, Text("1"))),
+//          UnorderedList(Vector(Markdown(
+//            s"""sub 1
+//               |${nulChar}    - sub 2""".stripMargin)))),
+//        Vector(Plain(Vector(Text("item"), Space, Text("2"))),
+//          UnorderedList(Vector(Markdown(
+//            s"""sub 3
+//               |${nulChar}  - sub 4""".stripMargin)))))))
+//  }
 
   it should "unwrap tree" in {
     val tree = Vector(Vector(

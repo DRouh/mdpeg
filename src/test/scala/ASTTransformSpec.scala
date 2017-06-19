@@ -16,9 +16,13 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     transformedTree shouldEqual
     Right(
       Vector(
-        Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
-        Vector(Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several")))),
-        Vector(Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))
+        Vector(
+          Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
+        Vector(
+          Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several")))),
+        Vector(
+          Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"),
+            Space, Text("block")))))
     )
   }
 
@@ -40,7 +44,8 @@ class ASTTransformSpec extends FlatSpec with Matchers {
             Vector(
               Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
               Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))))
+              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                Text("the"), Space, Text("block")))))))
     )
   }
 
@@ -71,8 +76,10 @@ class ASTTransformSpec extends FlatSpec with Matchers {
                 Vector(
                   Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
                   Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-                  Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block"))))),
-              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))))
+                  Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                               Text("the"), Space, Text("block"))))),
+              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                           Text("the"), Space, Text("block")))))))
     )
   }
 
@@ -120,7 +127,9 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     transformedTree shouldEqual
       Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
         Some(
-          MultilineTableCaption(Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space, Text("caption")))),
+          MultilineTableCaption(Vector(
+            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
+                         Text("caption")))),
           Some("table:table_lable_name"))),
         Some(Vector(
               MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"))))),
@@ -165,17 +174,27 @@ class ASTTransformSpec extends FlatSpec with Matchers {
 
     transformedTree shouldEqual
       Right(Vector(Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
-        Some(MultilineTableCaption(Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space, Text("caption")))),Some("table:table_lable_name"))),
+        Some(
+          MultilineTableCaption(Vector(
+            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
+                         Text("caption")))),Some("table:table_lable_name"))),
         Some(Vector(
-          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"), Space, Text("Term"), Space, Text("cont"))))),
-          MultilineTableCell(Vector(Plain(Vector(Text("Description"), Space, Text("1"), Space, Text("Description"), Space, Text("cont"))))))),
+          MultilineTableCell(Vector(
+            Plain(Vector(Text("Term"), Space, Text("1"), Space, Text("Term"), Space, Text("cont"))))),
+          MultilineTableCell(Vector(
+            Plain(Vector(Text("Description"), Space, Text("1"), Space, Text("Description"), Space, Text("cont"))))))),
         Vector(
           Vector(
             MultilineTableCell(Vector(Plain(Vector(Text(".It"))))),
             MultilineTableCell(Vector(Plain(Vector(Text("CAPSED"), Space, Text("WORD"), Space, Text("Many")))))),
           Vector(
-            MultilineTableCell(Vector(Plain(Vector(Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"), Space, Text("that"))))),
-            MultilineTableCell(Vector(Plain(Vector(Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space, Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
+            MultilineTableCell(Vector(Plain(Vector(
+              Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"),
+              Space, Text("that"))))),
+            MultilineTableCell(Vector(Plain(Vector(
+              Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"),
+              Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space,
+              Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
         )))))
   }
 
