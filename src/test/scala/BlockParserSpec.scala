@@ -226,7 +226,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val parser = new BlockParser(term)
     parser.InputLine.run().get shouldEqual
       Vector(
-        Paragraph(Vector(
+        Plain(Vector(
           Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space,
           Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"),
           Space, Text("other"), Space, Text("side"))),
