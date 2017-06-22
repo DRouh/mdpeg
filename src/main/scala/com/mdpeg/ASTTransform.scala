@@ -25,7 +25,8 @@ object ASTTransform {
     case Right(value) => Right(value.toVector)
   }
 
-  private def processMarkdownContainer[Container <: Block](v: Vector[Block])(resultMap: Vector[Block] => Either[Nothing, Vector[Container]]) = {
+  private def processMarkdownContainer(v: Vector[Block])(resultMap: Vector[Block] => Vector[Block]):
+  Either[Vector[FailureMessage], Vector[Block]] = {
     def process(v: Vector[Block]) = transformTree(v) match {
       case Left(t) => Left(t)
       case Right(r) => r.flatten |> transformTree match {
@@ -36,7 +37,7 @@ object ASTTransform {
 
     process(v) match {
       case l@Left(_) => l
-      case Right(blocks) => resultMap(blocks)
+      case Right(blocks) => Right(resultMap(blocks))
     }
   }
 
@@ -63,9 +64,11 @@ object ASTTransform {
     }
   }
 
-  private def processUnorderedList(v: Vector[Block]): Either[Vector[FailureMessage], Vector[Block]] = {
+  private def processList(v: Vector[Block])(resultMap: Vector[Block] => Vector[Block]):
+  Either[Vector[FailureMessage], Vector[Block]] = {
     def unwrap(b: Vector[Block]): Vector[Block] = b match {
       case Vector(UnorderedList(content)) => content flatMap (_ |> liftV |> unwrap)
+      case Vector(OrderedList(content)) => content flatMap (_ |> liftV |> unwrap)
       case otherwise => otherwise
     }
 
@@ -80,10 +83,7 @@ object ASTTransform {
         }
       }
 
-      def sub(x: Block): Either[Vector[FailureMessage], Vector[Block]] = {
-        val p = x |> liftV
-        processMarkdownContainer(p)(ps => Right(ps))
-      }
+      def sub(x: Block): Either[Vector[FailureMessage], Vector[Block]] = processMarkdownContainer(x |> liftV)(identity)
 
       blocks match {
         case x :: Nil => sub(x) match {
@@ -95,7 +95,8 @@ object ASTTransform {
       }
     }
 
-    val parts: Vector[Block] = v.flatMap { case Markdown(ss) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_ != "").map(Markdown)
+    val parts: Vector[Block] = v.flatMap { case Markdown(ss) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_
+      != "").map(Markdown)
     case otherwise => Vector(otherwise)
     }
 
@@ -104,25 +105,28 @@ object ASTTransform {
       case otherwise => true
       })
     } |> { case l@Left(_) => l
-    case Right(r) => Right(UnorderedList(r) |> liftV)
+    case Right(r) => Right(resultMap(r))
     }
   }
 
   private def transformTable(mt: MultilineTableBlock) = {
     def parseColumn(body: MultilineTableColumn) = {
-      body.map { case MultilineTableCell(blocks) => blocks }.map(processMarkdownContainer(_)(blocks => Right(Vector(MultilineTableCell(blocks))))) |> halfJoin |> (_.map(_.map { case Vector(MultilineTableCell(inner)) => MultilineTableCell(inner) }))
+      body.map { case MultilineTableCell(blocks) => blocks }.
+        map(processMarkdownContainer(_)(blocks => Vector (MultilineTableCell(blocks)))) |>
+        halfJoin |>
+        (_.map(_.map { case Vector(MultilineTableCell(inner)) => MultilineTableCell(inner) }))
     }
 
     val MultilineTableBlock(relativeWidth, rawCaption, rawHead, rawBody) = mt
     val transformedCaption = rawCaption map { c =>
       val MultilineTableCaption(md, label) = c
-      processMarkdownContainer(md)(blocks => Right(Vector(MultilineTableCaption(blocks, label))))
+      processMarkdownContainer(md)(blocks => Vector(MultilineTableCaption(blocks, label)))
     }
 
     val transformedHead = rawHead map { head =>
       processMarkdownContainer {
         head.flatMap { case MultilineTableCell(bs) => bs }
-      }(blocks => Right(Vector(MultilineTableCell(blocks))))
+      }(blocks => Vector(MultilineTableCell(blocks)))
     }
 
     val transformedBodyColumns = rawBody.map(parseColumn) |> halfJoin
@@ -148,9 +152,9 @@ object ASTTransform {
   private def transformNode(block: Block): Either[Vector[FailureMessage], Vector[Block]] = {
     block match {
       case m@Markdown(_) => processMarkdown(m)
-      case UnorderedList(v) => processUnorderedList(v)
-      case OrderedList(v) => processMarkdownContainer(v)(blocks => Right(Vector(OrderedList(blocks))))
-      case BlockQuote(v) => processMarkdownContainer(v)(blocks => Right(Vector(BlockQuote(blocks))))
+      case UnorderedList(v) => processList(v)(r => UnorderedList(r) |> liftV)
+      case OrderedList(v) => processList(v)(r => OrderedList(r) |> liftV)
+      case BlockQuote(v) => processMarkdownContainer(v)(blocks => Vector(BlockQuote(blocks)))
       case mt@MultilineTableBlock(_, _, _, _) => transformTable(mt)
       case _ => Right(Vector(block))
     }

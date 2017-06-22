@@ -1,4 +1,3 @@
-import com.mdpeg.ASTTransform._
 import com.mdpeg._
 import org.parboiled2.{ErrorFormatter, ParseError}
 import org.scalatest.{FlatSpec, Ignore, Matchers}

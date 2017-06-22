@@ -215,20 +215,24 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Plain(Vector(Text("sub"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("2")))
         )))))
+  }
 
-    // ToDo Ideal vvv
-    //    Right(Vector(Vector(
-    //      UnorderedList(Vector(
-    //        Plain(Vector(Text("item"), Space, Text("1"))),
-    //        UnorderedList(Vector(
-    //          Plain(Vector(Text("sub"), Space, Text("1"))),
-    //          Plain(Vector(Text("sub"), Space, Text("2"))))),
-    //        Plain(Vector(Text("item"), Space, Text("1"))),
-    //        UnorderedList(Vector(
-    //          Plain(Vector(Text("sub"), Space, Text("1"))),
-    //          Plain(Vector(Text("sub"), Space, Text("2"))))
-    //        )
-    //    )))))
-
+  it should "process nested elements in an ordered list" in {
+    val nulChar = "\0"
+    val content =
+      s"""item 1
+         |${nulChar}  1. sub 1
+         |  77. sub 2""".stripMargin
+    val rawTree = Vector(OrderedList(Vector(Markdown(content), Markdown(content))))
+    rawTree |> transformTree shouldEqual
+      Right(Vector(Vector(
+        OrderedList(Vector(
+          Plain(Vector(Text("item"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("2"))),
+          Plain(Vector(Text("item"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("2")))
+        )))))
   }
 }
