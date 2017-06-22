@@ -34,20 +34,20 @@ class BlockParser(val input: ParserInput) extends Parser
     rule(blockQuoteLine.+ ~ (!blankLine ~ anyLine).* ~ blankLine.* ~> ((x: Seq[Markdown]) => BlockQuote(x.toVector)))
   }
 
-  def heading: Rule1[HeadingBlock] = rule { atxHeading }
+  def heading: Rule1[HeadingBlock] = rule(atxHeading)
 
-  def atxHeading: Rule1[HeadingBlock] = {
+  private def atxHeading: Rule1[HeadingBlock] = {
     def headingContents = rule(inline.+)
     @inline
     def h = (lev: Int) => rule {
       lev.times("#") ~ !endLine ~ !"#" ~ sp ~ headingContents ~ anyOf("# \t").* ~ nl.* ~> (HeadingBlock(lev, _))
     }
-    rule { h(6) | h(5) | h(4) | h(3) | h(2) | h(1) }
+    rule(h(6) | h(5) | h(4) | h(3) | h(2) | h(1))
   }
 
   // ToDo think if inline rule should include endLine as an ordered choice
-  /*_*/
-  def paragraph: Rule1[Paragraph] = rule(inline.+ ~ nl ~ blankLine.+ ~> ((in: Seq[Inline]) => Paragraph(in)))
-  /*_*/
+
+  def paragraph: Rule1[Paragraph] = rule(inline.+ ~ nl ~ blankLine.+ ~> Paragraph)
+
   def plain: Rule1[Plain] = rule(inline.+ ~ blankLine.? ~> Plain)
 }

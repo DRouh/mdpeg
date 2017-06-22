@@ -1,5 +1,9 @@
 import com.mdpeg._
+import org.parboiled2.{ErrorFormatter, ParseError}
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.util.{Failure, Success}
+import scala.compat.Platform.EOL
 
 class BlockParserSpec extends FlatSpec with Matchers {
   it should "parse '_' Horizontal rule" in {
@@ -49,11 +53,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val term =
       s"""${TestData.paragraphOne}
         |
-        |
-        """.stripMargin
+        |""".stripMargin
     val parser =new BlockParser(term)
-    val parsed = new BlockParser(term).paragraph.run().get
-    parsed shouldEqual ExpectedTestResults.paragraphOne
+    parser.InputLine.run().get shouldEqual Vector(ExpectedTestResults.paragraphOne)
   }
 
   it should "parse Plain text" in {
@@ -132,6 +134,14 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val term = TestData.compoundMD
     val parser = new BlockParser(term)
     val parsed = parser.InputLine.run()
+
+    val parser1: BlockParser = new BlockParser(term)
+    parser1.InputLine.run() match {
+      case s@Success(node) => node
+      case Failure(e: ParseError) =>
+        println(parser1.formatError(e, new ErrorFormatter(showTraces = true)))
+      case Failure(e) => sys.error(e.getMessage)
+    }
     parsed.get shouldEqual Vector(
       ExpectedTestResults.headingOne,
       ExpectedTestResults.headingTwo,
@@ -149,5 +159,77 @@ class BlockParserSpec extends FlatSpec with Matchers {
       ExpectedTestResults.referenceType1,
       ExpectedTestResults.referenceType2
     )
+  }
+
+  it should "parse a paragraph followed by a list as a paragraph and a list" in {
+    val nulChar = "\0"
+    val term =
+      """hello from the other side
+        |second line from the other side
+        |
+        |* sub 1
+        |* sub 2
+        |* sub 3
+        |* sub 4""".stripMargin
+    val parser = new BlockParser(term)
+    val parsed = parser.InputLine.run()
+    parsed.get shouldEqual Vector(
+      Paragraph(Vector(
+        Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space,
+        Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space,
+        Text("side"))),
+      UnorderedList(Vector(Markdown("sub 1"), Markdown("sub 2"), Markdown("sub 3"), Markdown("sub 4"))))
+
+  }
+
+  it should "parse a paragraph followed by an unordered list as plain followed by an unordered list" in {
+    val term =
+      """hello from the other side
+        |second line from the other side
+        |
+        |* sub 1
+        |  some sub text
+        |* sub 2
+        |  also some
+        |  sub text
+        |  here
+        |* sub 3
+        |* sub 4""".stripMargin
+    val parser = new BlockParser(term)
+    parser.InputLine.run().get shouldEqual
+      Vector(
+        Paragraph(Vector(Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"),
+                     Space, Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space,
+                     Text("other"), Space, Text("side"))),
+        UnorderedList(Vector(
+          Markdown("""sub 1
+                     |  some sub text""".stripMargin),
+          Markdown("""sub 2
+                     |  also some
+                     |  sub text
+                     |  here""".stripMargin),
+          Markdown("sub 3"),
+          Markdown("sub 4"))
+        ))
+  }
+
+  it should "parse a paragraph followed by an ordered list as plain followed by an ordered list" in {
+    val term =
+      """hello from the other side
+        |second line from the other side
+        |
+        |1. sub 1
+        |2. sub 2""".stripMargin
+    val parser = new BlockParser(term)
+    parser.InputLine.run().get shouldEqual
+      Vector(
+        Paragraph(Vector(
+          Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space,
+          Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"),
+          Space, Text("other"), Space, Text("side"))),
+        OrderedList(Vector(
+          Markdown("sub 1"),
+          Markdown("sub 2"))
+        ))
   }
 }

@@ -3,6 +3,7 @@ import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success, Try}
+import scala.compat.Platform.EOL
 
 class ListBlockRulesSpec extends FlatSpec with Matchers {
   class ListBlockRulesTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockRules {}
@@ -31,8 +32,7 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   val expectedFirst: String =
-    s"""${TestData.firstItemInList}
-       |""".stripMargin
+    s"""${TestData.firstItemInList}""".stripMargin
   val expectedSecond: String =
     s"""${TestData.secondItemInList}""".stripMargin
 
@@ -62,21 +62,17 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
 
   it should "parse sparse bullet list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListBlockRulesTestSpec(TestData.sparseUnorderedList).list.run()
-    parsed.get shouldEqual UnorderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
-                                                                                                     |
-                                                                                                     |       """.stripMargin)))
+    parsed.get shouldEqual UnorderedList(Vector(Markdown("First item"), Markdown("""Second item""".stripMargin)))
   }
 
   it should "parse tight ordered list" in {
     val parsed = new ListBlockRulesTestSpec(TestData.tightOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond)))
+    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst ), Markdown(expectedSecond)))
   }
 
   it should "parse sparse ordered list" in { // ToDo fix rules to get rid of these trailing blank lines
     val parsed = new ListBlockRulesTestSpec(TestData.sparseOrderedList).list.run()
-    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown(expectedSecond + """
-                                                                                                  |
-                                                                                                  |       """.stripMargin)))
+    parsed.get shouldEqual OrderedList(Vector(Markdown(expectedFirst), Markdown("""Second item""".stripMargin)))
   }
 
   it should "fail sparse ordered list while parsing it as list" in {
@@ -98,44 +94,41 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
     val parser = new ListBlockRulesTestSpec(term)
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
-        Markdown("""1st block - It is a long established fact that a reader will be distracted by the readable content of a
+        Markdown(s"""1st block - It is a long established fact that a reader will be distracted by the readable content of a
                    |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
-                   |    normal distribution of letters, as opposed to using 'Content here, content here',
-                   |""".stripMargin),
-        Markdown("""2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
+                   |    normal distribution of letters, as opposed to using 'Content here, content here',""".stripMargin),
+        Markdown(s"""2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
                    |     'lorem ipsum' will uncover many web sites still in their infancy. Various versions
                    |     injected humour and the like).
-                   |     There are many variations of passages of Lorem Ipsum available, but the majority have
-                   |""".stripMargin),
-        Markdown(
-          """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be
-            |""".stripMargin),
-        Markdown("""4th list block - sure there isn't anything embarrassing hidden in the middle
+                   |     There are many variations of passages of Lorem Ipsum available, but the majority have""".stripMargin),
+        Markdown("""3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin),
+        Markdown(s"""4th list block - sure there isn't anything embarrassing hidden in the middle
                    |    of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
   }
 
   it should "create markdown for each full/half indented chunk in unordered list" in {
+    val nulChar = "\0"
     val term =
       """- item 1
-        |     - sub 1
-        |     - sub 2
+        |    - sub 1
+        |    - sub 2
         |- item 2
         |  - sub 3
         |  - sub 4""".stripMargin
     val parser = new ListBlockRulesTestSpec(term)
     parser.list.run().get shouldEqual UnorderedList(
       Vector(
-        Markdown("""item 1
-                   |     - sub 1
-                   |     - sub 2
-                   |""".stripMargin),
-        Markdown("""item 2
-                   |  - sub 3
+        Markdown(s"""item 1
+                   |${nulChar}    - sub 1
+                   |    - sub 2""".stripMargin),
+        Markdown(s"""item 2
+                   |${nulChar}  - sub 3
                    |  - sub 4""".stripMargin)))
   }
 
-    it should "create markdown for each full/half indented chunk in ordered list" in {
-      val term =
+  it should "create markdown for each full/half indented chunk in ordered list" in {
+    val nulChar = "\0"
+    val term =
         """1. item 1
           |     1. sub 1
           |     2. sub 2
@@ -145,12 +138,11 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
       val parser = new ListBlockRulesTestSpec(term)
       parser.list.run().get shouldEqual OrderedList(
         Vector(
-          Markdown("""item 1
-                     |     1. sub 1
-                     |     2. sub 2
-                     |""".stripMargin),
-          Markdown("""item 2
-                     |  1. sub 3
+          Markdown(s"""item 1
+                     |${nulChar}     1. sub 1
+                     |     2. sub 2""".stripMargin),
+          Markdown(s"""item 2
+                     |${nulChar}  1. sub 3
                      |  2. sub 4""".stripMargin)))
   }
 }

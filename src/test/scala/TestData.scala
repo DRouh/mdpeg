@@ -120,8 +120,7 @@ object TestData {
     s"""1. $firstItemInList
        |
        |2. $secondItemInList
-       |
-       """.stripMargin
+       |""".stripMargin
   val tightOrderedList: String =
     s"""1. $firstItemInList
        |2. $secondItemInList""".stripMargin
@@ -129,12 +128,12 @@ object TestData {
     s"""- $firstItemInList
        |
        |- $secondItemInList
-       |
-       """.stripMargin
+       |""".stripMargin
   val tightUnorderedList: String =
     s"""- $firstItemInList
        |- $secondItemInList""".stripMargin
-  val twoDifferentLists: String = """* 1st block - It is a long established fact that a reader will be distracted by the readable content of a
+  val twoDifferentLists: String =
+                          """* 1st block - It is a long established fact that a reader will be distracted by the readable content of a
                             |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
                             |  normal distribution of letters, as opposed to using 'Content here, content here',
                             |* 2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
@@ -210,7 +209,9 @@ object TestData {
        |
        |```$codeBlock4```
        |$plainText
+       |
        |$twoDifferentLists
+        |
        |$complexTable
        |$referenceType1
        |$referenceType2"""

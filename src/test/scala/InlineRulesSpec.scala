@@ -47,27 +47,9 @@ class InlineRulesSpec extends FlatSpec with Matchers {
 
   it should "forbid having double strong __** wrapped" in {
     val term = "__**double strong**__"
-    a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
-  }
+    println( new BlockParser(term).InputLine.run().get)
 
-  it should "forbid having double strong ____ wrapped" in {
-    val term = "____double strong____"
-    a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
-  }
-
-  it should "forbid having double strong **** wrapped" in {
-    val term = "****double strong****"
-    a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
-  }
-
-  it should "forbid having double italics *_ wrapped" in {
-    val term = "*_double strong*_"
-    a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
-  }
-
-  it should "forbid having double italics _* wrapped" in {
-    val term = "_*double strong*_"
-    a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).inline.run().get }
+    a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).strong.run().get }
   }
 
   it should "parse explicit link with title" in {

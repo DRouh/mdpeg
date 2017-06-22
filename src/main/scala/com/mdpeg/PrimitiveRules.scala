@@ -9,8 +9,7 @@ trait PrimitiveRules {
   def horizontalRule: Rule1[HorizontalRuleBlock.type] = {
     @inline
     def h = (ch: String) => rule(ch ~ sps ~ ch ~ sps ~ ch ~ (sps ~ ch).* ~ sps ~ nl ~ blankLine.+)
-    def toHr = (_: String) => HorizontalRuleBlock
-    rule(nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> toHr)
+    rule(nonIndentSpace ~ capture(h("-") | h("*") | h("_")) ~> ((x:String) => HorizontalRuleBlock))
   }
 
   def textChar        : Rule0 = rule(escapedChar | (!(specialChar | sp) ~ !nl ~ ANY))
@@ -25,7 +24,7 @@ trait PrimitiveRules {
   def indent          : Rule0 = rule("\t" | "    ")
   def nonIndentSpace  : Rule0 = rule("   " | "  " | " " | "")
   def inlineChar      : Rule0 = rule(atomic(AlphaNum | sp | punctuationChar | anyOf("_\"{}()'^%@#$")))
-  def blankLine       : Rule0 = rule(sp.* ~ nl)
+  def blankLine       : Rule0 = rule(sps ~ nl)
   def punctuationChar : Rule0 = rule(anyOf(":;,.?!-’“”—")) // ToDo think how to handle backtick '`' so that it is not confused with verbatim block
   def spnl            : Rule0 = rule(sps ~ ((nl ~ sp).? | ""))
   def nl              : Rule0 = rule('\r'.? ~ '\n')

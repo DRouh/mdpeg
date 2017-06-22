@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ASTTransformSpec extends FlatSpec with Matchers {
 
-  it should "parse Markdown blocks to block seq" in {
+  it should "process Markdown blocks to block seq" in {
     val rawAstTree = Vector(
       Markdown("This is quote"),
       Markdown("and should span several"),
@@ -16,9 +16,13 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     transformedTree shouldEqual
     Right(
       Vector(
-        Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
-        Vector(Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several")))),
-        Vector(Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))
+        Vector(
+          Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
+        Vector(
+          Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several")))),
+        Vector(
+          Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"),
+            Space, Text("block")))))
     )
   }
 
@@ -40,7 +44,8 @@ class ASTTransformSpec extends FlatSpec with Matchers {
             Vector(
               Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
               Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))))
+              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                Text("the"), Space, Text("block")))))))
     )
   }
 
@@ -71,12 +76,14 @@ class ASTTransformSpec extends FlatSpec with Matchers {
                 Vector(
                   Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
                   Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-                  Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block"))))),
-              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"), Space, Text("block")))))))
+                  Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                               Text("the"), Space, Text("block"))))),
+              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                           Text("the"), Space, Text("block")))))))
     )
   }
 
-  it should "parse Multiline Table's body nested elements" in {
+  it should "process Multiline Table's body nested elements" in {
     val rawTree = Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
       Vector(
         Vector(MultilineTableCell(Vector(Markdown(".It is longer")))),
@@ -97,7 +104,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         )))))
   }
 
-  it should "parse nested elements in a rectangular Multiline Table" in {
+  it should "process nested elements in a rectangular Multiline Table" in {
     val rawTree = Vector(MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
       Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
@@ -120,7 +127,9 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     transformedTree shouldEqual
       Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
         Some(
-          MultilineTableCaption(Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space, Text("caption")))),
+          MultilineTableCaption(Vector(
+            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
+                         Text("caption")))),
           Some("table:table_lable_name"))),
         Some(Vector(
               MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"))))),
@@ -138,7 +147,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
       )))))
   }
 
-  it should "parse Multiline Table's with nested elements spanning multiple lines in a cell" in {
+  it should "process Multiline Table's with nested elements spanning multiple lines in a cell" in {
     val rawTree = Vector(
       MultilineTableBlock(Vector(25.0f, 75.0f),
       Some(MultilineTableCaption(Vector(Markdown("This is a table caption")),Some("table:table_lable_name"))),
@@ -165,17 +174,65 @@ class ASTTransformSpec extends FlatSpec with Matchers {
 
     transformedTree shouldEqual
       Right(Vector(Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
-        Some(MultilineTableCaption(Vector(Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space, Text("caption")))),Some("table:table_lable_name"))),
+        Some(
+          MultilineTableCaption(Vector(
+            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
+                         Text("caption")))),Some("table:table_lable_name"))),
         Some(Vector(
-          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"), Space, Text("Term"), Space, Text("cont"))))),
-          MultilineTableCell(Vector(Plain(Vector(Text("Description"), Space, Text("1"), Space, Text("Description"), Space, Text("cont"))))))),
+          MultilineTableCell(Vector(
+            Plain(Vector(Text("Term"), Space, Text("1"), Space, Text("Term"), Space, Text("cont"))))),
+          MultilineTableCell(Vector(
+            Plain(Vector(Text("Description"), Space, Text("1"), Space, Text("Description"), Space, Text("cont"))))))),
         Vector(
           Vector(
             MultilineTableCell(Vector(Plain(Vector(Text(".It"))))),
             MultilineTableCell(Vector(Plain(Vector(Text("CAPSED"), Space, Text("WORD"), Space, Text("Many")))))),
           Vector(
-            MultilineTableCell(Vector(Plain(Vector(Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"), Space, Text("that"))))),
-            MultilineTableCell(Vector(Plain(Vector(Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space, Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
+            MultilineTableCell(Vector(Plain(Vector(
+              Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"),
+              Space, Text("that"))))),
+            MultilineTableCell(Vector(Plain(Vector(
+              Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"),
+              Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space,
+              Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
+        )))))
+  }
+
+  it should "process nested elements in an unordered list" in {
+    val nulChar = "\0"
+    val content =
+      s"""item 1
+         |${nulChar}  - sub 1
+         |  - sub 2""".stripMargin
+    val rawTree = Vector(UnorderedList(Vector(Markdown(content), Markdown(content))))
+    rawTree |> transformTree shouldEqual
+      Right(Vector(Vector(
+        UnorderedList(Vector(
+          Plain(Vector(Text("item"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("2"))),
+          Plain(Vector(Text("item"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("2")))
+        )))))
+  }
+
+  it should "process nested elements in an ordered list" in {
+    val nulChar = "\0"
+    val content =
+      s"""item 1
+         |${nulChar}  1. sub 1
+         |  77. sub 2""".stripMargin
+    val rawTree = Vector(OrderedList(Vector(Markdown(content), Markdown(content))))
+    rawTree |> transformTree shouldEqual
+      Right(Vector(Vector(
+        OrderedList(Vector(
+          Plain(Vector(Text("item"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("2"))),
+          Plain(Vector(Text("item"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("1"))),
+          Plain(Vector(Text("sub"), Space, Text("2")))
         )))))
   }
 }

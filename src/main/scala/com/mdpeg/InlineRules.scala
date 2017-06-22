@@ -6,11 +6,12 @@ trait InlineRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 
-  def inline: Rule1[Inline] = rule(strong | italics | code | linebreak | endLine | spaces | link | image | autolink | text)
+  def inline: Rule1[Inline] = rule(strong | italics | code | linebreak | endLine | spaces | link | image | autolink | text | special)
 
   def text: Rule1[Text] = rule(capture(textChar.+) ~> Text)
   def endLine: Rule1[Space.type] = rule(capture(" ".? ~ nl ~ !blankLine ~ !EOI) ~> ((_:String) => Space))
   def linebreak: Rule1[LineBreak.type] = rule("  " ~ sps ~ endLine ~> ((_:Any) => LineBreak))
+  def special: Rule1[Text] = rule(capture(specialChar) ~> Text)
   def spaces: Rule1[Space.type] = rule(capture(sp.+) ~> ((_:String) => Space))
   def strong: Rule1[Strong] = {
     def twoStar:  Rule0 = rule("**" ~ !twoStar)

@@ -9,7 +9,7 @@ object ExpectedTestResults {
   val paragraphOne = Paragraph(Vector(Text("It"), Space, Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"), Space, Text("that"), Space, Text("a"), Space, Text("reader"), Space, Text("will"), Space, Text("be"), Space, Text("distracted"), Space, Text("by"), Space, Text("the"), Space, Text("readable"), Space, Text("content"), Space, Text("of"), Space, Text("a"), Space, Text("page"), Space, Text("when"), Space, Text("looking"), Space, Text("at"), Space, Text("its"), Space, Text("layout."), Space, Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("that"), Space, Text("it"), Space, Text("has"), Space, Text("a"), Space, Text("more-or-less"), Space, Text("normal"), Space, Text("distribution"), Space, Text("of"), Space, Text("letters,"), Space, Text("as"), Space, Text("opposed"), Space, Text("to"), Space, Text("using,"), Space, Text("'Content"), Space, Text("content'"), Space, Text("making"), Space, Text("it"), Space, Text("look"), Space, Text("like"), Space, Text("readable"), Space, Text("English."), Space, Text("Many"), Space, Text("desktop"), Space, Text("publishing"), Space, Text("packages"), Space, Text("and"), Space, Text("web"), Space, Text("page"), Space, Text("editors"), Space, Text("now"), Space, Text("use"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("as"), Space, Text("their"), Space, Text("default"), Space, Text("model"), Space, Text("text,"), Space, Text("and"), Space, Text("a"), Space, Text("search"), Space, Text("for"), Space, Text("will"), Space, Text("uncover"), Space, Text("many"), Space, Text("web"), Space, Text("sites"), Space, Text("still"), Space, Text("in"), Space, Text("their"), Space, Text("infancy."), Space, Text("Various"), Space, Text("versions"), Space, Text("have"), Space, Text("evolved"), Space, Text("over"), Space, Text("the"), Space, Text("years,"), Space, Text("sometimes"), Space, Text("by"), Space, Text("accident,"), Space, Text("sometimes"), Space, Text("on"), Space, Text("purpose"), Space, Text("(injected"), Space, Text("humour"), Space, Text("and"), Space, Text("the"), Space, Text("like).")))
 
   val plainText = Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
-  val plainTextCompound = Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end."),Space))
+  val plainTextCompound = Paragraph(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
 
   val blockQuote = BlockQuote(Vector(
     Markdown("This is quote"),
@@ -19,25 +19,20 @@ object ExpectedTestResults {
   val unorderedList = UnorderedList(Vector(Markdown(
     """1st block - It is a long established fact that a reader will be distracted by the readable content of a
       |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
-      |  normal distribution of letters, as opposed to using 'Content here, content here',
-      |""".stripMargin), Markdown(
+      |  normal distribution of letters, as opposed to using 'Content here, content here',""".stripMargin), Markdown(
     """2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
       |  'lorem ipsum' will uncover many web sites still in their infancy. Various versions
       |  injected humour and the like).
-      |  There are many variations of passages of Lorem Ipsum available, but the majority have
-      |""".stripMargin), Markdown(
-    """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be
-      |""".stripMargin), Markdown(
+      |  There are many variations of passages of Lorem Ipsum available, but the majority have""".stripMargin), Markdown(
+    """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin), Markdown(
     """4th list block - sure there isn't anything embarrassing hidden in the middle
-      |  of text. All the Lorem Ipsum generators on the Internet tend to r
-      |""".stripMargin)))
-  val orderedList = OrderedList(Vector(Markdown(
-    """This is a first item of an ordered list
-      |    1. and this is a first sub item of a first item of an ordered list
-      |    2. and this is a second sub item of a first item of an ordered list
-      |""".stripMargin), Markdown(
-    """And, finally, this is a second item of an ordered list
-      |""".stripMargin)))
+      |  of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
+  val nul = "\0"
+  val orderedList = OrderedList(Vector(
+    Markdown(s"""This is a first item of an ordered list
+               |${nul}    1. and this is a first sub item of a first item of an ordered list
+               |    2. and this is a second sub item of a first item of an ordered list""".stripMargin),
+    Markdown("And, finally, this is a second item of an ordered list")))
   val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f), Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))), Some(Vector(MultilineTableCell(Vector(Markdown("This header is longer than sep"))), MultilineTableCell(Vector(Markdown("And this header is also longer than this separator"))))), Vector(Vector(MultilineTableCell(Vector(Markdown("**Why do we use it?**"))), MultilineTableCell(Vector(Markdown(
     """There-are
       |""".stripMargin))), MultilineTableCell(Vector(Markdown("**Where can I get some?**"))), MultilineTableCell(Vector(Markdown(
