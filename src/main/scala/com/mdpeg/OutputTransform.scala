@@ -12,16 +12,41 @@ object OutputTransform {
 
   private def inlineToHtml(i: Inline): RawContent = i match {
     case Code(inline) => inline |> encloseInTagsSimpleN("code")
-    case Image(inline, target, width) => s"""<img alt="" src="" title="" width="${width.getOrElse(100)}%"/>""" //
-    // ToDo handle other attributes
+    case i @ Image(_, _, _) => imageToHtml(i)
     case Strong(inline) => inline |> inlinesToHtml |> encloseInTagsSimple("strong")
     case Italics(inline) => inline |> inlinesToHtml |> encloseInTagsSimple("em")
-    case Link(inline, target) => inline |> inlinesToHtml |> encloseInTags(s"""<a href="${target}">""", "</a>") //
-    // ToDo handle other attributes
+    case l @ Link(_, _) => linkToHtml(l)
     case Text(inline) => inline
     case Space => " "
     case LineBreak => selfClosingTagN("br")
   }
+
+  private def imageToHtml(i: Image) = {
+    // ToDo handle other attributes
+    //s"""<img alt="" src="" title="" width="${width.getOrElse(100)}%"/>"""
+    val Image(l, t, w) = i
+    t match {
+      case Src(uri, Some(t)) => ???
+      case Src(uri, None) => ???
+      case Ref(label, ref) => ???
+      case ShortcutRef => ???
+    }
+  }
+
+  private def linkToHtml(link: Link) = {
+    // ToDo handle other attributes
+
+    //      case Link(inline, target) => inline |> inlinesToHtml |> encloseInTags(s"""<a href="${target}">""", "</a>")
+    val Link(l, src) = link
+    src match {
+      case Src(uri, Some(title)) => ???
+      case Src(uri, None) => ???
+      case Ref(label, ref) => ???
+      case ShortcutRef => ???
+    }
+  }
+
+
 
   private def blockToHtml(node: Block, isHead: Boolean = false): OutputContent = node match {
     case Plain(inline) => inline |> inlinesToHtml
