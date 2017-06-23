@@ -151,6 +151,7 @@ object ASTTransform {
 
   private def transformNode(block: Block): Either[Vector[FailureMessage], Vector[Block]] = {
     block match {
+      case Markdown("") => Right(Vector(Plain(Vector(Text("")))))
       case m@Markdown(_) => processMarkdown(m)
       case UnorderedList(v) => processList(v)(r => UnorderedList(r) |> liftV)
       case OrderedList(v) => processList(v)(r => OrderedList(r) |> liftV)
