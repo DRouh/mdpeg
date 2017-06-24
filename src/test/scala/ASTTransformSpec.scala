@@ -242,10 +242,12 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val rawTree = parser.InputLine.run().get
 
     val tree = rawTree |> transformTree
-    val refs: Vector[(InlineContent, String, Option[String])] = tree.right.get |> extractLinks
+    val refs: Vector[(InlineContent, (String, Option[String]))] = tree.right.get |> extractLinks
     refs shouldEqual
       Vector(
-        (Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")), "https://www.mozilla.org", Some("this is title")),
-        (Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")), "https://www.mozilla.org", None))
+        (Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")),
+          ("https://www.mozilla.org", Some("this is title"))),
+        (Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")),
+          ("https://www.mozilla.org", None)))
   }
 }

@@ -7,23 +7,23 @@ object OutputTransform {
   type OutputContent = String
   type RawContent = String
   type HtmlTag = String
-  type Reference = (InlineContent, String, Option[String])
+  type Reference = (InlineContent, (String, Option[String]))
 
   def toHtml(references: Vector[Reference])(astTree: Vector[Vector[Block]]): OutputContent =
     astTree.map(processBlocks(_, references).mkString).mkString
 
   private def inlineToHtml(i: Inline, references: Vector[Reference]): RawContent = i match {
     case Code(inline) => inline |> encloseInTagsSimpleN("code")
-    case i @ Image(_, _, _) => imageToHtml(i)
+    case i @ Image(_, _, _) => imageToHtml(i, references)
     case Strong(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("strong")
     case Italics(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("em")
-    case l @ Link(_, _) => linkToHtml(l)
+    case l @ Link(_, _) => linkToHtml(l, references)
     case Text(inline) => inline
     case Space => " "
     case LineBreak => selfClosingTagN("br")
   }
 
-  private def imageToHtml(i: Image) = {
+  private def imageToHtml(i: Image, references: Vector[Reference]) = {
     // ToDo handle other attributes
     //s"""<img alt="" src="" title="" width="${width.getOrElse(100)}%"/>"""
     val Image(l, t, w) = i
@@ -35,9 +35,8 @@ object OutputTransform {
     }
   }
 
-  private def linkToHtml(link: Link) = {
+  private def linkToHtml(link: Link, references: Vector[Reference]) = {
     // ToDo handle other attributes
-
     //      case Link(inline, target) => inline |> inlinesToHtml |> encloseInTags(s"""<a href="${target}">""", "</a>")
     val Link(l, src) = link
     src match {
