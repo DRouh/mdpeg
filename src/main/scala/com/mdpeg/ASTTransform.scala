@@ -18,6 +18,12 @@ object ASTTransform {
     tree.map(transformNode) |> halfJoin
   }
 
+  def extractLinks(tree: Vector[Vector[Block]]): Vector[(InlineContent, String, Option[String])] =
+    tree.flatten.filter {
+      case ReferenceBlock(_, Src(_, _)) => true
+      case otherwise => false
+    }.map { case ReferenceBlock(l, Src(s, t)) => (l, s, t) }
+
   private def liftV(b: Block) = Vector(b)
 
   private def eitherToVector(e: Either[List[FailureMessage], List[Block]]) = e match {
