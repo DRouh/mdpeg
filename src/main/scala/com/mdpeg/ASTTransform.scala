@@ -18,11 +18,20 @@ object ASTTransform {
     tree.map(transformNode) |> halfJoin
   }
 
-  def extractLinks(tree: Vector[Vector[Block]]): Vector[(InlineContent, (String, Option[String]))] =
-    tree.flatten.filter {
-      case ReferenceBlock(_, Src(_, _)) => true
-      case otherwise => false
-    }.map { case ReferenceBlock(l, Src(s, t)) => (l, (s, t)) }
+  def extractLinks(tree: Vector[Vector[Block]]): Map[InlineContent, (String, Option[String])] =
+    tree.flatten.
+      filter {
+        case ReferenceBlock(_, Src(_, _)) => true
+        case otherwise => false
+      }.
+      map { case ReferenceBlock(l, Src(s, t)) => (l, (s, t)) }.
+      groupBy(_._1).
+      flatMap { case (key, values) =>
+        val value = values.headOption.map(_._2)
+        if (value.isDefined) Some(key, value.get)
+        else None
+      }.
+      toMap
 
   private def liftV(b: Block) = Vector(b)
 
