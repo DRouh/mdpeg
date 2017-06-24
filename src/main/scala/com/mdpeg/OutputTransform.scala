@@ -25,13 +25,14 @@ object OutputTransform {
 
   private def imageToHtml(references: ReferenceMap)(i: Image): RawContent = {
     val Image(label, title, w) = i
+    val width = if (w.isDefined) s"""width="${w.get}%"""" else ""
     title match {
       case Src(uri, None) =>
         val alt = label |> inlinesToHtml(references)
-        s"""<img alt="${alt}" src="${uri}" width="${w.getOrElse(100)}%"/>"""
+        s"""<img alt="${alt}" src="${uri}" ${width} />"""
       case Src(uri, Some(title)) =>
         val alt = label |> inlinesToHtml(references)
-        s"""<img alt="${alt}" src="${uri}" title="${title}" width="${w.getOrElse(100)}%"/>"""
+        s"""<img alt="${alt}" src="${uri}" title="${title}" ${width} />"""
       case ShortcutRef =>
         references.get(label) match {
           case Some((uri, title)) => Image(label, Src(uri, title), w) |> imageToHtml(references)
