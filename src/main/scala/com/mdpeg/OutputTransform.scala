@@ -9,8 +9,18 @@ object OutputTransform {
   type HtmlTag = String
   type ReferenceMap = Map[InlineContent, (String, Option[String])]
 
-  def toHtml(references: ReferenceMap)(astTree: Vector[Vector[Block]]): OutputContent =
-    astTree.map(processBlocks(references)(_).mkString).mkString
+  private def toUpper(s: InlineContent) : InlineContent = s.map {
+    case Text(i) => Text(i.toUpperCase)
+    case otherwise => otherwise
+  }
+
+  private def lookupInReferences(references: ReferenceMap)(lookup: InlineContent) =
+    lookup |> toUpper |> references.get
+
+  def toHtml(references: ReferenceMap)(astTree: Vector[Vector[Block]]): OutputContent = {
+    val refs = references.map{ case (i, (s, oS)) => (i |> toUpper, (s, oS)) }.toMap
+    astTree.map(processBlocks(refs)(_).mkString).mkString
+  }
 
   private def inlineToHtml(references: ReferenceMap)(i: Inline): RawContent = i match {
     case Code(inline) => inline |> encloseInTagsSimpleN("code")
@@ -34,13 +44,13 @@ object OutputTransform {
         val alt = label |> inlinesToHtml(references)
         s"""<img alt="${alt}" src="${uri}" title="${title}" ${width} />"""
       case ShortcutRef =>
-        references.get(label) match {
+        label |> lookupInReferences(references) match {
           case Some((uri, title)) => Image(label, Src(uri, title), w) |> imageToHtml(references)
           case None => (Vector(Text("![")) ++ label ++ Vector(Text("]"))) |> inlinesToHtml(references)
         }
       case Ref(label, ref) =>
         val r = if (label.isEmpty) label else label.toVector
-        references.get(r) match {
+        r |> lookupInReferences(references) match {
           case Some((uri, title)) => Image(label, Src(uri, title), w) |> imageToHtml(references)
           case None => (Vector(Text("![")) ++ label ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
             inlinesToHtml(references)
@@ -59,17 +69,22 @@ object OutputTransform {
     val content = label |> inlinesToHtml(references)
 
     src match {
-      case Src(uri, None) => content |> toAnchor(uri)
-      case Src(uri, Some(title)) => content |> toAnchorWithTitle(uri, title)
+      case Src(uri, None) => content |>
+        toAnchor(uri)
+      case Src(uri, Some(title)) => content |>
+        toAnchorWithTitle(uri, title)
       case ShortcutRef =>
-        references.get(label) match {
-          case Some((uri, None)) => content |> toAnchor(uri)
-          case Some((uri, Some(title))) => content |> toAnchorWithTitle(uri, title)
-          case None => (Vector(Text("[")) ++ label ++ Vector(Text("]"))) |> inlinesToHtml(references)
+        label |> lookupInReferences(references) match {
+          case Some((uri, None)) =>
+            content |> toAnchor(uri)
+          case Some((uri, Some(title))) =>
+            content |> toAnchorWithTitle(uri, title)
+          case None =>
+            (Vector(Text("[")) ++ label ++ Vector(Text("]"))) |> inlinesToHtml(references)
         }
       case Ref(label, ref) =>
         val r = if (label.isEmpty) label else label.toVector
-        references.get(r) match {
+        r |> lookupInReferences(references) match {
           case Some((uri, None)) => content |> toAnchor(uri)
           case Some((uri, Some(title))) => content |> toAnchorWithTitle(uri, title)
           case None => (Vector(Text("[")) ++ label ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
