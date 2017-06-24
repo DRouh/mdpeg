@@ -7,12 +7,12 @@ object OutputTransform {
   type OutputContent = String
   type RawContent = String
   type HtmlTag = String
-  type Reference = (InlineContent, (String, Option[String]))
+  type ReferenceMap = Map[InlineContent, (String, Option[String])]
 
-  def toHtml(references: Vector[Reference])(astTree: Vector[Vector[Block]]): OutputContent =
+  def toHtml(references: ReferenceMap)(astTree: Vector[Vector[Block]]): OutputContent =
     astTree.map(processBlocks(_, references).mkString).mkString
 
-  private def inlineToHtml(i: Inline, references: Vector[Reference]): RawContent = i match {
+  private def inlineToHtml(i: Inline, references: ReferenceMap): RawContent = i match {
     case Code(inline) => inline |> encloseInTagsSimpleN("code")
     case i @ Image(_, _, _) => imageToHtml(i, references)
     case Strong(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("strong")
@@ -23,7 +23,7 @@ object OutputTransform {
     case LineBreak => selfClosingTagN("br")
   }
 
-  private def imageToHtml(i: Image, references: Vector[Reference]) = {
+  private def imageToHtml(i: Image, references: ReferenceMap) = {
     // ToDo handle other attributes
     //s"""<img alt="" src="" title="" width="${width.getOrElse(100)}%"/>"""
     val Image(l, t, w) = i
@@ -35,7 +35,9 @@ object OutputTransform {
     }
   }
 
-  private def linkToHtml(link: Link, references: Vector[Reference]) = {
+  private def linkToHtml(link: Link, references: ReferenceMap) = {
+
+
     // ToDo handle other attributes
     //      case Link(inline, target) => inline |> inlinesToHtml |> encloseInTags(s"""<a href="${target}">""", "</a>")
     val Link(l, src) = link
@@ -49,7 +51,7 @@ object OutputTransform {
 
 
 
-  private def blockToHtml(node: Block, references: Vector[Reference], isHead: Boolean = false): OutputContent = node match {
+  private def blockToHtml(node: Block, references: ReferenceMap, isHead: Boolean = false): OutputContent = node match {
     case Plain(inline) => inline |> (inlinesToHtml(_, references))
     case Paragraph(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimpleN("p")
     case HeadingBlock(level, inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("h" + level)
@@ -66,9 +68,9 @@ object OutputTransform {
       "parsed before transforming AST tree to HTML output")
   }
 
-  private def inlinesToHtml(inlines: InlineContent, references: Vector[Reference]): RawContent = inlines.map(inlineToHtml(_, references)).mkString
+  private def inlinesToHtml(inlines: InlineContent, references: ReferenceMap): RawContent = inlines.map(inlineToHtml(_, references)).mkString
 
-  private def processBlocks(blocks: Seq[Block], references: Vector[Reference]): Vector[OutputContent] = blocks.map(blockToHtml(_, references)).toVector
+  private def processBlocks(blocks: Seq[Block], references: ReferenceMap): Vector[OutputContent] = blocks.map(blockToHtml(_, references)).toVector
 
   private def encloseInTagsSimple(openTag: HtmlTag): (RawContent) => OutputContent =
     encloseInTags("<" + openTag + ">", "</" + openTag + ">")
@@ -81,19 +83,19 @@ object OutputTransform {
 
   private def selfClosingTagN(openTag: HtmlTag) = encloseInTags("</" + openTag + ">" + EOL, "")("")
 
-  private def blockQuoteToHtml(inline: Vector[Block], references: Vector[Reference]) =
+  private def blockQuoteToHtml(inline: Vector[Block], references: ReferenceMap) =
     inline |> (processBlocks(_, references)) |> (_.mkString) |> encloseInTagsSimpleN("blockquote")
 
-  private def tableCaptionToHtml(inline: Vector[Block], label: Option[String], references: Vector[Reference]) =
+  private def tableCaptionToHtml(inline: Vector[Block], label: Option[String], references: ReferenceMap) =
     inline |> (processBlocks(_, references)) |> (_.mkString) |> encloseInTagsSimpleN("caption") // ToDo use label?
 
-  private def tableCellToHtml(inline: Vector[Block], isHead: Boolean, references: Vector[Reference]) = //ToDo validate
+  private def tableCellToHtml(inline: Vector[Block], isHead: Boolean, references: ReferenceMap) = //ToDo validate
     inline |> (processBlocks(_, references)) |> (_.mkString) |> (if (isHead) tableCellHead else tableCellBody)
 
   private def tableToHtml(relativeWidth: Vector[Float], caption: Option[MultilineTableCaption],
                           head: Option[MultilineTableRow],
                           body: Vector[MultilineTableColumn],
-                          references: Vector[Reference]) = {
+                          references: ReferenceMap) = {
 
     //ToDo apply relative width
     val maybeHead = head.
@@ -121,9 +123,9 @@ object OutputTransform {
 
   private def tableCellHead(content: String) = """<th style="border:1px solid black;border-collapse: collapse;">""" + content + "</th>"
 
-  private def orderedListToHtml(inline: Vector[Block], references: Vector[Reference]) =
+  private def orderedListToHtml(inline: Vector[Block], references: ReferenceMap) =
     inline |> (processBlocks(_, references))  |> (_.map(c => c |> encloseInTagsSimpleN("li"))) |> (_.mkString) |> encloseInTagsSimpleN("ol")
 
-  private def unorderedListToHtml(inline: Vector[Block], references: Vector[Reference]) =
+  private def unorderedListToHtml(inline: Vector[Block], references: ReferenceMap) =
     inline |> (processBlocks(_, references))  |> (_.map(c => c |> encloseInTagsSimpleN("li"))) |> (_.mkString) |> encloseInTagsSimpleN("ul")
 }
