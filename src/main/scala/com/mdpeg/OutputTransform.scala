@@ -1,5 +1,7 @@
 package com.mdpeg
 
+import com.mdpeg.OutputTransform.inlinesToHtml
+
 import scala.compat.Platform.EOL
 
 object OutputTransform {
@@ -15,8 +17,8 @@ object OutputTransform {
   private def inlineToHtml(i: Inline, references: ReferenceMap): RawContent = i match {
     case Code(inline) => inline |> encloseInTagsSimpleN("code")
     case i @ Image(_, _, _) => imageToHtml(i, references)
-    case Strong(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("strong")
-    case Italics(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("em")
+    case Strong(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("strong")
+    case Italics(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("em")
     case l @ Link(_, _) => linkToHtml(l, references)
     case Text(inline) => inline
     case Space => " "
@@ -28,33 +30,44 @@ object OutputTransform {
     //s"""<img alt="" src="" title="" width="${width.getOrElse(100)}%"/>"""
     val Image(l, t, w) = i
     t match {
+      case Src(uri, None) =>""
       case Src(uri, Some(t)) => ???
-      case Src(uri, None) => ???
       case Ref(label, ref) => ???
       case ShortcutRef => ???
     }
   }
 
   private def linkToHtml(link: Link, references: ReferenceMap) = {
+    def toAnchor(uri:String) = encloseInTags(s"""<a href="${uri}">""", "</a>")
+    def toAnchorWithTitle(uri:String, title:String) = encloseInTags(s"""<a href="${uri}"> title="${title}" """, "</a>")
 
-
-    // ToDo handle other attributes
-    //      case Link(inline, target) => inline |> inlinesToHtml |> encloseInTags(s"""<a href="${target}">""", "</a>")
     val Link(l, src) = link
+    val content = l |> inlinesToHtml(references)
+
     src match {
-      case Src(uri, Some(title)) => ???
-      case Src(uri, None) => ???
-      case Ref(label, ref) => ???
-      case ShortcutRef => ???
+      case Src(uri, None) => content |> toAnchor(uri)
+      case Src(uri, Some(title)) => content |> toAnchorWithTitle(uri, title)
+      case ShortcutRef =>
+        references.get(l) match {
+          case Some((uri, None)) => content |> toAnchor(uri)
+          case Some((uri, Some(title))) => content |> toAnchorWithTitle(uri, title)
+          case None => (Vector(Text("[")) ++ l ++ Vector(Text("]"))) |> inlinesToHtml(references)
+        }
+      case Ref(label, ref) =>
+        val r = if (label.isEmpty) l else label.toVector
+        references.get(r) match {
+          case Some((uri, None)) => content |> toAnchor(uri)
+          case Some((uri, Some(title))) => content |> toAnchorWithTitle(uri, title)
+          case None => (Vector(Text("[")) ++ l ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
+            inlinesToHtml(references)
+        }
     }
   }
 
-
-
   private def blockToHtml(node: Block, references: ReferenceMap, isHead: Boolean = false): OutputContent = node match {
-    case Plain(inline) => inline |> (inlinesToHtml(_, references))
-    case Paragraph(inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimpleN("p")
-    case HeadingBlock(level, inline) => inline |> (inlinesToHtml(_, references)) |> encloseInTagsSimple("h" + level)
+    case Plain(inline) => inline |> inlinesToHtml(references)
+    case Paragraph(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimpleN("p")
+    case HeadingBlock(level, inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("h" + level)
     case BlockQuote(inline) => blockQuoteToHtml(inline, references)
     case UnorderedList(inline) => unorderedListToHtml(inline, references)
     case OrderedList(inline) => orderedListToHtml(inline, references)
@@ -68,7 +81,7 @@ object OutputTransform {
       "parsed before transforming AST tree to HTML output")
   }
 
-  private def inlinesToHtml(inlines: InlineContent, references: ReferenceMap): RawContent = inlines.map(inlineToHtml(_, references)).mkString
+  private def inlinesToHtml(references: ReferenceMap)(inlines: InlineContent): RawContent = inlines.map(inlineToHtml(_, references)).mkString
 
   private def processBlocks(blocks: Seq[Block], references: ReferenceMap): Vector[OutputContent] = blocks.map(blockToHtml(_, references)).toVector
 
