@@ -235,4 +235,19 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Plain(Vector(Text("sub"), Space, Text("2")))
         )))))
   }
+
+  it should "extract links" in {
+    val term = TestData.compoundMD
+    val parser = new BlockParser(term)
+    val rawTree = parser.InputLine.run().get
+
+    val tree = rawTree |> transformTree
+    val refs: Map[InlineContent, (String, Option[String])] = tree.right.get |> extractLinks
+    refs shouldEqual
+      Map(
+        Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")) ->
+          ("https://www.mozilla.org", None),
+        Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")) ->
+          ("https://www.mozilla.org", Some("this is title")))
+  }
 }

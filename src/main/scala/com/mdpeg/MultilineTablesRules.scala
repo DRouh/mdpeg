@@ -131,9 +131,7 @@ trait MultilineTablesRules {
     val cells: Vector[List[String]] =
       transposeAnyShape(rows.
           map(_.map(s => listSplit(indexes, s))).
-          map(transposeAnyShape(_).
-              map(strings => trimEnd(strings.reduce((s1, s2) => trimEnd(s1) + EOL + s2))).
-              filter(_ != ""))
+          map(_ |> transposeAnyShape |> (_.map(strings => trimEnd(strings.reduce((s1, s2) => trimEnd(s1) + EOL + s2)))))
       ).toVector
     (cells, widths)
   }

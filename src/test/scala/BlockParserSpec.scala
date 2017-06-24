@@ -135,13 +135,6 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val parser = new BlockParser(term)
     val parsed = parser.InputLine.run()
 
-    val parser1: BlockParser = new BlockParser(term)
-    parser1.InputLine.run() match {
-      case s@Success(node) => node
-      case Failure(e: ParseError) =>
-        println(parser1.formatError(e, new ErrorFormatter(showTraces = true)))
-      case Failure(e) => sys.error(e.getMessage)
-    }
     parsed.get shouldEqual Vector(
       ExpectedTestResults.headingOne,
       ExpectedTestResults.headingTwo,
@@ -162,7 +155,6 @@ class BlockParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse a paragraph followed by a list as a paragraph and a list" in {
-    val nulChar = "\0"
     val term =
       """hello from the other side
         |second line from the other side

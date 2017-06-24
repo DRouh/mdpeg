@@ -306,17 +306,21 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
           MultilineTableCell(Vector(Markdown("""anything
                                         |""".stripMargin)))),
         Vector(
+          MultilineTableCell(Vector(Markdown(""))),
           MultilineTableCell(Vector(Markdown("""It is a long established fact that a reader will be
                                         |distracted by the readable content of a page when looking at""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(""))),
           MultilineTableCell(Vector(Markdown("""It uses a dictionary of over
                                         |Lorem Ipsum which looks reasonable""".stripMargin))),
           MultilineTableCell(Vector(Markdown("The generated Lorem Ipsum is"))),
           MultilineTableCell(Vector(Markdown("or non-characteristic words etc"))),
+          MultilineTableCell(Vector(Markdown(""))),
           MultilineTableCell(Vector(Markdown("""It uses a dictionary of over 200
                                         |you need to be sure there""".stripMargin))),
           MultilineTableCell(Vector(Markdown("""anything embarrassing hidden
                                         |you need to be sure there isn't
                                         |within this period""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(""))),
           MultilineTableCell(Vector(Markdown(""""There are many variations of passages.
                                         |*randomised words which : 1597 z*""".stripMargin))),
           MultilineTableCell(Vector(Markdown("""but the majority have suffered alteration.

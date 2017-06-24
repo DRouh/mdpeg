@@ -47,8 +47,6 @@ class InlineRulesSpec extends FlatSpec with Matchers {
 
   it should "forbid having double strong __** wrapped" in {
     val term = "__**double strong**__"
-    println( new BlockParser(term).InputLine.run().get)
-
     a [ParseError] should be thrownBy { new InlineRulesTestSpec(term).strong.run().get }
   }
 
