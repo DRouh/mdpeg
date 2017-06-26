@@ -29,6 +29,6 @@ trait PrimitiveRules {
   def spnl            : Rule0 = rule(sps ~ ((nl ~ sp).? | ""))
   def nl              : Rule0 = rule('\r'.? ~ '\n')
   def sps             : Rule0 = rule(sp.*)
-  def sp              : Rule0 = rule(" "| "\t")
+  def sp              : Rule0 = rule(" " | " "| "\t") //NB! first 2 rules are DIFFERENT do not simplify this rule; first one is '0xC2 0xA0' aka non-breaking space
   def backTick        : Rule0 = rule("`")
 }
