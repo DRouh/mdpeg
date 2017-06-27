@@ -14,44 +14,37 @@ trait MultilineTablesRules {
 
   def multiTable: Rule1[MultilineTableBlock] = {
     /*_*/
-    rule(tableHeadRaw.? ~ tableBody ~ tableBorder ~ tableCaption.? ~ capture(nl.* | blankLine.*) ~>
-      ((head:Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String], _: String) =>
+    rule(tableHeadRaw.? ~ tableBody ~ tableCaption ~>
+      ((head:Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String]) =>
         constructTable(head, body, caption)))
     /*_*/
   }
 
   def tableHeadRaw: Rule1[Vector[String]] = {
-    def headContentLine = rule(capture(atomic(!tableHeadWidthSeparator ~ anyLineTable | blankLine)))
-
-    def contents: Rule1[Seq[String]] = rule(headContentLine.+)
-
-    rule(tableBorder ~ capture(contents) ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String], _: Any) =>
+    def headContentLine = rule(capture(!tableHeadWidthSeparator ~ (anyLineTable | blankLine)))
+    rule(!horizontalRule ~ tableBorder ~ headContentLine.+ ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String]) =>
       headContent.toVector))
   }
 
   def tableBody: Rule1[(RawBody, WidthSeparator)] = {
-    def bodyContentLine = rule(capture(atomic(!tableBorder ~ anyLineTable | blankLine)))
-
-    def contents = rule(bodyContentLine.+)
-
-    rule(capture(tableHeadWidthSeparator) ~ capture(contents) ~> ((sep: String, contents: Seq[String], _: Any) =>
+    def bodyContentLine:Rule1[String] = rule(capture(!tableBorder ~ (anyLineTable | blankLine)))
+    rule(capture(tableHeadWidthSeparator) ~ bodyContentLine.+ ~> ((sep: String, contents: Seq[String]) =>
       parseBodyContent(sep, contents)))
   }
 
-  def tableCaption: Rule1[String] = {
-    rule(atomic("Table:" ~ sps ~ capture(anyCharTable.+) ~ nl.?))
+  def tableCaption: Rule1[Option[String]] = rule{
+    !horizontalRule ~ tableBorder ~ "Table:" ~ sps ~ capture(anyCharTable.+) ~ nl.? ~ blankLine.* ~> ((s:String) => Some(s)) |
+      tableBorder ~ capture(sps) ~ nl.? ~ blankLine.* ~> ((_:String) => None)
   }
 
-  def tableHeadWidthSeparator: Rule0 = {
-    // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
-    rule(atomic(!horizontalRule ~ (dashes ~ sps).+ ~ nl.?))
-  }
+  // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
+  def tableHeadWidthSeparator: Rule0 = rule(!horizontalRule ~ (dashes ~ sps).+ ~ nl.?)
 
-  def tableBorder: Rule0 = rule(atomic(!horizontalRule ~ dashes ~ nl))
+  def tableBorder: Rule0 = rule(dashes ~ nl)
 
   def dashes: Rule0 = rule((3 to 150).times("-"))
 
-  private def anyLineTable: Rule0 = rule(anyCharTable.+ ~ (nl | ""))
+  private def anyLineTable: Rule0 = rule(anyCharTable.+ ~ nl)
 
   private def anyCharTable: Rule0 = rule(!nl ~ !EOI ~ ANY)
 

@@ -1,6 +1,9 @@
+import com.mdpeg.Parser.{fileText, parser}
 import com.mdpeg._
-import org.parboiled2.{ParseError, Parser, ParserInput}
+import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.util.{Failure, Success}
 
 class MultilineTablesRulesSpec extends FlatSpec with Matchers {
 
@@ -23,22 +26,40 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
   )
 
   it should "parse table border" in {
-    val term ="""-------------------------------------------------------------------------------
-      |""".stripMargin
+    val term =
+      """-------------------------------------------------------------------------------
+        |""".stripMargin
     val parsed = new MultilineTablesRulesTestSpec(term).tableBorder.run()
-    noException should be thrownBy { parsed.get }
+    noException should be thrownBy {
+      parsed.get
+    }
   }
 
   it should "parse table caption" in {
-    val term = """Table: This is a table caption\\label{table:table_lable_name}"""
+    val term =
+      """-------------------------------------------------------------
+        |Table: This is a table caption\\label{table:table_lable_name}
+        |
+        |
+        |""".stripMargin
     val parsed = new MultilineTablesRulesTestSpec(term).tableCaption.run()
-    noException should be thrownBy { parsed.get }
+    parsed.get shouldEqual Some("""This is a table caption\\label{table:table_lable_name}""")
+  }
+
+  it should "parse table empty caption" in {
+    val term =
+      """-------------------------------------------------------------
+        |
+        |
+        |""".stripMargin
+    val parsed = new MultilineTablesRulesTestSpec(term).tableCaption.run()
+    parsed.get shouldEqual None
   }
 
   it should "parse table's width separator" in {
     val term =
-        """-----------                       ---------------------------------
-          |""".stripMargin
+      """-----------                       ---------------------------------
+        |""".stripMargin
     val term2 =
       """-----------  ---  --- --- --- --- ---   -------  ------ ---------------------------------
         |""".stripMargin
@@ -48,9 +69,15 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
     val parsed = new MultilineTablesRulesTestSpec(term).tableHeadWidthSeparator.run()
     val parsed2 = new MultilineTablesRulesTestSpec(term2).tableHeadWidthSeparator.run()
     val parsed3 = new MultilineTablesRulesTestSpec(term3).tableHeadWidthSeparator.run()
-    noException should be thrownBy { parsed.get }
-    noException should be thrownBy { parsed2.get }
-    noException should be thrownBy { parsed3.get }
+    noException should be thrownBy {
+      parsed.get
+    }
+    noException should be thrownBy {
+      parsed2.get
+    }
+    noException should be thrownBy {
+      parsed3.get
+    }
   }
 
   it should "parse table a one-line tall heading" in {
@@ -60,7 +87,9 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
         |----------------      ------------------------------------------------
         |""".stripMargin
     val parsed = new MultilineTablesRulesTestSpec(term).tableHeadRaw.run()
-    noException should be thrownBy { parsed.get }
+    noException should be thrownBy {
+      parsed.get
+    }
   }
 
   it should "parse table a multi-line tall heading with blank lines" in {
@@ -75,7 +104,9 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
         |----------------      ------------------------------------------------
         |""".stripMargin
     val parsed = new MultilineTablesRulesTestSpec(term).tableHeadRaw.run()
-    noException should be thrownBy { parsed.get }
+    noException should be thrownBy {
+      parsed.get
+    }
   }
 
   it should "fail parsing table with no content lines" in {
@@ -84,7 +115,9 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
         |----------------      ------------------------------------------------
         |""".stripMargin
     val parsed = new MultilineTablesRulesTestSpec(term).tableHeadRaw.run()
-    a [ParseError] should be thrownBy { parsed.get }
+    a[ParseError] should be thrownBy {
+      parsed.get
+    }
   }
 
   it should "parse table content for table without head" in {
@@ -100,7 +133,9 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
         |
         |Many                  desktop publishing packages and""".stripMargin
     val parsed = new MultilineTablesRulesTestSpec(term).tableBody.run()
-    noException should be thrownBy { parsed.get }
+    noException should be thrownBy {
+      parsed.get
+    }
   }
 
   it should "parse table with header and caption" in {
@@ -127,7 +162,7 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
         MultilineTableCell(Vector(Markdown("is a long established fact that"))),
         MultilineTableCell(Vector(Markdown("The point of using Lorem Ipsum is"))),
         MultilineTableCell(Vector(Markdown("desktop publishing packages and")))))
-      )
+    )
   }
 
   it should "separate table rows by blank line" in {
@@ -147,12 +182,14 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(
         MultilineTableCell(Vector(Markdown(".It"))),
-        MultilineTableCell(Vector(Markdown("""CAPSED WORD
+        MultilineTableCell(Vector(Markdown(
+          """CAPSED WORD
             |Many""".stripMargin)))),
       Vector(
         MultilineTableCell(Vector(Markdown("is a long established fact that"))),
-        MultilineTableCell(Vector(Markdown("""The point of using Lorem Ipsum is
-                                      |desktop publishing packages and""".stripMargin))))))
+        MultilineTableCell(Vector(Markdown(
+          """The point of using Lorem Ipsum is
+            |desktop publishing packages and""".stripMargin))))))
   }
 
   it should "eliminate trailing empty line in body row" in {
@@ -172,7 +209,7 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
     parser.multiTable.run().get shouldEqual tableMock(Vector(
       Vector(MultilineTableCell(Vector(Markdown(".It")))),
       Vector(MultilineTableCell(Vector(Markdown("is a long established fact that")))
-    )))
+      )))
   }
 
   it should "parse 1x1 table with header" in {
@@ -189,8 +226,9 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
     val parser = new MultilineTablesRulesTestSpec(term)
     parser.multiTable.run().get shouldEqual tableMock(
       Vector(Vector(MultilineTableCell(Vector(Markdown(".It"))))),
-      Some(Vector(MultilineTableCell(Vector(Markdown("""Term  1
-                                                |Term  cont""".stripMargin))))),
+      Some(Vector(MultilineTableCell(Vector(Markdown(
+        """Term  1
+          |Term  cont""".stripMargin))))),
       Vector(100.0f))
   }
 
@@ -287,43 +325,55 @@ class MultilineTablesRulesSpec extends FlatSpec with Matchers {
       Vector(
         Vector(
           MultilineTableCell(Vector(Markdown("**Why do we use it?**"))),
-          MultilineTableCell(Vector(Markdown("""There-are
-                                        |""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """There-are
+              |""".stripMargin))),
           MultilineTableCell(Vector(Markdown("**Where can I get some?**"))),
-          MultilineTableCell(Vector(Markdown("""dummy
-                                        |""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """dummy
+              |""".stripMargin))),
           MultilineTableCell(Vector(Markdown("text"))),
           MultilineTableCell(Vector(Markdown("printing"))),
           MultilineTableCell(Vector(Markdown("**Where does it come from?**"))),
-          MultilineTableCell(Vector(Markdown("""leap-into
-                                        |""".stripMargin))),
-          MultilineTableCell(Vector(Markdown("""variations-join
-                                        |
-                                        |""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """leap-into
+              |""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """variations-join
+              |
+              |""".stripMargin))),
           MultilineTableCell(Vector(Markdown("**What is Lorem Ipsum?**"))),
-          MultilineTableCell(Vector(Markdown("""Lorem
-                                        |""".stripMargin))),
-          MultilineTableCell(Vector(Markdown("""anything
-                                        |""".stripMargin)))),
+          MultilineTableCell(Vector(Markdown(
+            """Lorem
+              |""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """anything
+              |""".stripMargin)))),
         Vector(
           MultilineTableCell(Vector(Markdown(""))),
-          MultilineTableCell(Vector(Markdown("""It is a long established fact that a reader will be
-                                        |distracted by the readable content of a page when looking at""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """It is a long established fact that a reader will be
+              |distracted by the readable content of a page when looking at""".stripMargin))),
           MultilineTableCell(Vector(Markdown(""))),
-          MultilineTableCell(Vector(Markdown("""It uses a dictionary of over
-                                        |Lorem Ipsum which looks reasonable""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """It uses a dictionary of over
+              |Lorem Ipsum which looks reasonable""".stripMargin))),
           MultilineTableCell(Vector(Markdown("The generated Lorem Ipsum is"))),
           MultilineTableCell(Vector(Markdown("or non-characteristic words etc"))),
           MultilineTableCell(Vector(Markdown(""))),
-          MultilineTableCell(Vector(Markdown("""It uses a dictionary of over 200
-                                        |you need to be sure there""".stripMargin))),
-          MultilineTableCell(Vector(Markdown("""anything embarrassing hidden
-                                        |you need to be sure there isn't
-                                        |within this period""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """It uses a dictionary of over 200
+              |you need to be sure there""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """anything embarrassing hidden
+              |you need to be sure there isn't
+              |within this period""".stripMargin))),
           MultilineTableCell(Vector(Markdown(""))),
-          MultilineTableCell(Vector(Markdown(""""There are many variations of passages.
-                                        |*randomised words which : 1597 z*""".stripMargin))),
-          MultilineTableCell(Vector(Markdown("""but the majority have suffered alteration.
-                                        |*to use a passage: "" (empty string)*""".stripMargin))))))
+          MultilineTableCell(Vector(Markdown(
+            """"There are many variations of passages.
+              |*randomised words which : 1597 z*""".stripMargin))),
+          MultilineTableCell(Vector(Markdown(
+            """but the majority have suffered alteration.
+              |*to use a passage: "" (empty string)*""".stripMargin))))))
   }
 }
