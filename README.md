@@ -6,4 +6,4 @@ Markdown parser that uses [parsing expression grammar](http://bford.info/packrat
 
 PEG definitions have been heavily influenced by [markdown-peg](https://github.com/jgm/markdown-peg) project.
 
-Readme in development stage.
+Readme is in the development stage.
