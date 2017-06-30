@@ -155,7 +155,11 @@ object OutputTransform {
       transposeAnyShape |>
       (_.map(processBlocks(references)).map(x => x.mkString |> tableRow).mkString) |>
       encloseInTagsSimpleN("tbody")
-    s"""${maybeCaption}${maybeHead}${tableBody}""" |> tableWrapper
+
+    val colgroup = relativeWidth.
+      map(w => selfClosingTagN(s"""col width="${w}%"""")).mkString |>
+      encloseInTagsSimpleN("colgroup")
+    s"""${maybeCaption}${colgroup}${maybeHead}${tableBody}""" |> tableWrapper
   }
 
   private def tableWrapper(content: String) =
