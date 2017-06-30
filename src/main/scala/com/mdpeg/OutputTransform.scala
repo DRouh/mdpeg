@@ -125,7 +125,7 @@ object OutputTransform {
   private def encloseInTags(openTag: HtmlTag, closeTag: HtmlTag)(content: RawContent): OutputContent =
     openTag + content + closeTag
 
-  private def selfClosingTagN(openTag: HtmlTag) = encloseInTags("</" + openTag + ">" + EOL, "")("")
+  private def selfClosingTagN(openTag: HtmlTag) = encloseInTags("<" + openTag + " />" + EOL, "")("")
 
   private def blockQuoteToHtml(references: ReferenceMap)(inline: Vector[Block]) =
     inline |> processBlocks(references) |> (_.mkString) |> encloseInTagsSimpleN("blockquote")
