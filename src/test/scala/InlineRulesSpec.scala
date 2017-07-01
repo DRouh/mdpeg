@@ -1,5 +1,4 @@
-import com.mdpeg.Parser.parser
-import com.mdpeg._
+import org.mdpeg._
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
 

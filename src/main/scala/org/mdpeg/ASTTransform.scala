@@ -1,4 +1,4 @@
-package com.mdpeg
+package org.mdpeg
 
 import org.parboiled2.{ErrorFormatter, ParseError}
 

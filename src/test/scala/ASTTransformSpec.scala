@@ -1,5 +1,5 @@
-import com.mdpeg.ASTTransform._
-import com.mdpeg._
+import org.mdpeg.ASTTransform._
+import org.mdpeg._
 import org.scalatest.{FlatSpec, Matchers}
 
 class ASTTransformSpec extends FlatSpec with Matchers {

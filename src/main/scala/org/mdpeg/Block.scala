@@ -1,4 +1,4 @@
-package com.mdpeg
+package org.mdpeg
 
 sealed trait Block
 

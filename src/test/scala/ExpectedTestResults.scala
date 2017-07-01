@@ -1,4 +1,4 @@
-import com.mdpeg.{ReferenceBlock, _}
+import org.mdpeg.{ReferenceBlock, _}
 
 object ExpectedTestResults {
   val headingOne = HeadingBlock(1,Vector(Text("Heading"), Space, Text("One")))
