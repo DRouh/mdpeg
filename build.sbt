@@ -16,3 +16,7 @@ lazy val mdpeg = (project in file("."))
       "org.scalacheck" %% "scalacheck" % "1.13.4" % Test
     )
   )
+
+lazy val examples = (project in file("examples"))
+  .settings(commonSettings: _*)
+  .dependsOn(mdpeg)
