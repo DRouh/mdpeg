@@ -1,4 +1,4 @@
-package com
+package org
 
 package object mdpeg {
   type MultilineTableColumn = Vector[MultilineTableCell]

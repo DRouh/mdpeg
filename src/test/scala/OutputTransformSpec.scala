@@ -1,8 +1,8 @@
 import java.io.PrintWriter
 
-import com.mdpeg._
-import com.mdpeg.ASTTransform._
-import com.mdpeg.OutputTransform._
+import org.mdpeg._
+import org.mdpeg.ASTTransform._
+import org.mdpeg.OutputTransform._
 import org.scalatest.{FlatSpec, Matchers}
 
 class OutputTransformSpec extends FlatSpec with Matchers {

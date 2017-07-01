@@ -1,9 +1,7 @@
-import com.mdpeg.Parser.{fileText, parser}
-import com.mdpeg._
-import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
+import org.mdpeg._
+import org.parboiled2.{ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
-import scala.util.{Failure, Success}
 
 class MultilineTablesRulesSpec extends FlatSpec with Matchers {
 

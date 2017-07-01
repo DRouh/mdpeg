@@ -1,4 +1,4 @@
-package com.mdpeg
+package org.mdpeg
 
 import scala.compat.Platform.EOL
 

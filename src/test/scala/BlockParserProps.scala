@@ -1,4 +1,4 @@
-import com.mdpeg.{BlockParser, Paragraph}
+import org.mdpeg.{BlockParser, Paragraph}
 import org.scalacheck.Prop.{BooleanOperators, forAll}
 import org.scalacheck.{Gen, Properties}
 
