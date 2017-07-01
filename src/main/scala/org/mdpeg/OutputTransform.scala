@@ -4,7 +4,7 @@ import scala.compat.Platform.EOL
 
 object OutputTransform {
   type ErrorMessage = String
-  type OutputContent = String
+  type HtmlContent = String
   type RawContent = String
   type HtmlTag = String
   type ReferenceMap = Map[InlineContent, (String, Option[String])]
@@ -17,7 +17,7 @@ object OutputTransform {
   private def lookupInReferences(references: ReferenceMap)(lookup: InlineContent) =
     lookup |> toUpper |> references.get
 
-  def toHtml(references: ReferenceMap)(astTree: Vector[Vector[Block]]): OutputContent = {
+  def toHtml(references: ReferenceMap)(astTree: Vector[Vector[Block]]): HtmlContent = {
     val refs = references.map{ case (i, (s, oS)) => (i |> toUpper, (s, oS)) }.toMap
     astTree.map(processBlocks(refs)(_).mkString).mkString
   }
@@ -93,7 +93,7 @@ object OutputTransform {
     }
   }
 
-  private def blockToHtml(references: ReferenceMap)(node: Block, isHead: Boolean = false): OutputContent = node match {
+  private def blockToHtml(references: ReferenceMap)(node: Block, isHead: Boolean = false): HtmlContent = node match {
     case Plain(inline) => inline |> inlinesToHtml(references)
     case Paragraph(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimpleN("p")
     case HeadingBlock(level, inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("h" + level)
@@ -113,16 +113,16 @@ object OutputTransform {
   private def inlinesToHtml(references: ReferenceMap)(inlines: InlineContent): RawContent =
     inlines.map(inlineToHtml(references)).mkString
 
-  private def processBlocks(references: ReferenceMap)(blocks: Seq[Block]): Vector[OutputContent] =
+  private def processBlocks(references: ReferenceMap)(blocks: Seq[Block]): Vector[HtmlContent] =
     blocks.map(blockToHtml(references)(_)).toVector
 
-  private def encloseInTagsSimple(openTag: HtmlTag): (RawContent) => OutputContent =
+  private def encloseInTagsSimple(openTag: HtmlTag): (RawContent) => HtmlContent =
     encloseInTags("<" + openTag + ">", "</" + openTag + ">")
 
-  private def encloseInTagsSimpleN(openTag: HtmlTag): (RawContent) => OutputContent =
+  private def encloseInTagsSimpleN(openTag: HtmlTag): (RawContent) => HtmlContent =
     encloseInTags("<" + openTag + ">", "</" + openTag + ">" + EOL)
 
-  private def encloseInTags(openTag: HtmlTag, closeTag: HtmlTag)(content: RawContent): OutputContent =
+  private def encloseInTags(openTag: HtmlTag, closeTag: HtmlTag)(content: RawContent): HtmlContent =
     openTag + content + closeTag
 
   private def selfClosingTagN(openTag: HtmlTag) = encloseInTags("<" + openTag + " />" + EOL, "")("")
