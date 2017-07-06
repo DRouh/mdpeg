@@ -6,7 +6,7 @@ trait InlineRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 
-  def inline: Rule1[Inline] = rule(strong | italics | code | linebreak | endLine | spaces | link | image | autolink | text | special)
+  def inline: Rule1[Inline] = rule(strong | italics | texInline | code | linebreak | endLine | spaces | link | image | autolink | text | special)
 
   def text: Rule1[Text] = rule(capture(textChar.+) ~> Text)
   def endLine: Rule1[Space.type] = rule(capture(" ".? ~ nl ~ !blankLine ~ !EOI) ~> ((_:String) => Space))
@@ -89,7 +89,12 @@ trait InlineRules {
     def betweenTicks: Int => Rule1[String] = (n:Int) => rule{ticks(n) ~ capture((noneOf("`").+ | !ticks(n) ~ oneOrMore("`")).+) ~ ticks(n)}
     rule{&("`") ~ (betweenTicks(10) | betweenTicks(9)| betweenTicks(8)| betweenTicks(7)|
       betweenTicks(6)| betweenTicks(5)| betweenTicks(4)| betweenTicks(3)| betweenTicks(2)| betweenTicks(1)) ~>
-      ((s:String)=> Code(s))
+      (Code(_))
+    }
+  }
+  def texInline: Rule1[TexInline] = {
+    def betweenTicks: Rule1[String] = rule{2.times("$") ~ capture((noneOf("$").+ | !2.times("$") ~ oneOrMore("$")).+) ~ 2.times("$")}
+    rule{&("$") ~ betweenTicks ~> (TexInline(_))
     }
   }
 

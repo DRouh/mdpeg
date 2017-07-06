@@ -23,7 +23,7 @@ object TestData {
   val blockQuoteLineTwo: String = "and should span several"
   val blockQuoteLineThree: String = "yet another line for the block"
   val blockQuote: String = s"""$blockQuoteLineOne $blockQuoteLineTwo $blockQuoteLineThree""".stripMargin
-  val plainText: String = "This is a plaint string in the end."
+  val plainText: String = """This is a plaint $$\frac{1+sin(x)} {y}$$ string in the end."""
   val codeBlock: String =
     """javascript
       |var s = "JavaScript syntax highlighting";
