@@ -241,6 +241,27 @@ class BlockParserSpec extends FlatSpec with Matchers {
       Vector(Vector(MultilineTableCell(Vector(Markdown("cell 1")))),
         Vector(MultilineTableCell(Vector(Markdown("cell 2")))))),
       Plain(Vector(Text("kio"))))
+  }
 
+  it should "parse a TeX block" in {
+    val term =
+      """$$$
+        |\frac{1+sin(x)}{y}
+        |$$ \begin{array}{l}
+        |x = k \cdot a \cdot \left(a + b\right) \\
+        |y = k \cdot b \cdot \left(a + b\right) \\
+        |z = k \cdot a \cdot b,
+        |\end{array} $$
+        |$$$""".stripMargin
+    val parser = new BlockParser(term)
+    parser.InputLine.run().get shouldEqual Vector(
+      TexBlock(
+        """\frac{1+sin(x)}{y}
+          |$$ \begin{array}{l}
+          |x = k \cdot a \cdot \left(a + b\right) \\
+          |y = k \cdot b \cdot \left(a + b\right) \\
+          |z = k \cdot a \cdot b,
+          |\end{array} $$""".stripMargin)
+    )
   }
 }
