@@ -81,4 +81,11 @@ object ExpectedTestResults {
 
   val referenceType1 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")), Src("https://www.mozilla.org", Some("this is title")))
   val referenceType2 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")), Src("https://www.mozilla.org", None))
+  val texBlock1 = TexBlock(
+    """\frac{1+sin(x)}{y}
+      |$$ \begin{array}{l}
+      |x = k \cdot a \cdot \left(a + b\right) \\
+      |y = k \cdot b \cdot \left(a + b\right) \\
+      |z = k \cdot a \cdot b,
+      |\end{array} $$""".stripMargin)
 }

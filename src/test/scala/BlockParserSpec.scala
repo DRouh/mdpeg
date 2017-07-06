@@ -158,6 +158,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
       HorizontalRuleBlock,
       Verbatim(TestData.codeBlock4),
       ExpectedTestResults.plainTextCompound,
+      ExpectedTestResults.texBlock1,
       ExpectedTestResults.unorderedList,
       ExpectedTestResults.orderedList,
       ExpectedTestResults.complexTable,

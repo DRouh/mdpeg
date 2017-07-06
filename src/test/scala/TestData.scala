@@ -186,7 +186,14 @@ object TestData {
 
   val referenceType1 = "[arbitrary case-insensitive reference text]: https://www.mozilla.org 'this is title'"
   val referenceType2 = "[arbitrary case-insensitive 123]: https://www.mozilla.org"
-
+  val texBlock1 =       """$$$
+                          |\frac{1+sin(x)}{y}
+                          |$$ \begin{array}{l}
+                          |x = k \cdot a \cdot \left(a + b\right) \\
+                          |y = k \cdot b \cdot \left(a + b\right) \\
+                          |z = k \cdot a \cdot b,
+                          |\end{array} $$
+                          |$$$""".stripMargin
   val compoundMD: String =
     s"""# $headingOne
        |
@@ -211,8 +218,10 @@ object TestData {
        |```
        |$plainText
        |
+       |$texBlock1
+       |
        |$twoDifferentLists
-        |
+       |
        |$complexTable
        |$referenceType1
        |$referenceType2"""
