@@ -235,12 +235,13 @@ class BlockParserSpec extends FlatSpec with Matchers {
         |
         |kio""".stripMargin
     val parser = new BlockParser(term)
-    Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
-      None,
-      Some(Vector(MultilineTableCell(Vector(Markdown("Term"))), MultilineTableCell(Vector(Markdown("Description"))))),
-      Vector(Vector(MultilineTableCell(Vector(Markdown("cell 1")))),
-        Vector(MultilineTableCell(Vector(Markdown("cell 2")))))),
-      Plain(Vector(Text("kio"))))
+    parser.InputLine.run().get shouldEqual
+      Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
+        None,
+        Some(Vector(MultilineTableCell(Vector(Markdown("Term"))), MultilineTableCell(Vector(Markdown("Description"))))),
+        Vector(Vector(MultilineTableCell(Vector(Markdown("cell 1")))),
+          Vector(MultilineTableCell(Vector(Markdown("cell 2")))))),
+        Plain(Vector(Text("kio"))))
   }
 
   it should "parse a TeX block" in {
