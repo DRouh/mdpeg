@@ -20,10 +20,10 @@ class BlockParser(val input: ParserInput) extends Parser
   }
 
   def tex: Rule1[TexBlock] = {
-    def blockBound = rule(3.times("$"))
-    def anyCharVerbatim: Rule0 = rule(!nl ~ !EOI ~ !blockBound ~ ANY)
-    def verbatimBlockContents = rule((nl ~ !blockBound | anyCharVerbatim.+).+)
-    rule (blockBound ~ nl ~ capture(verbatimBlockContents) ~ nl ~ blockBound ~ blankLine.* ~> TexBlock)
+    def bound = rule(3.times("$"))
+    def anyCharTex = rule(!nl ~ !EOI ~ !bound ~ ANY)
+    def contents = rule((nl ~ !bound | anyCharTex.+).+)
+    rule (bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> TexBlock)
   }
 
   /*_*/
