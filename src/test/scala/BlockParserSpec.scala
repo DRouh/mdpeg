@@ -77,25 +77,37 @@ class BlockParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse a Verbatim" in {
-    val term = s"""```${TestData.codeBlock}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock)
   }
 
   it should "parse a Verbatim with long spaces" in {
-    val term = s"""```${TestData.codeBlock2}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock2}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock2)
   }
 
   it should "parse a JSON like Verbatim" in {
-    val term = s"""```${TestData.codeBlock3}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock3}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock3)
   }
 
   it should "parse a Verbatim with blank lines, comments, spaces" in {
-    val term = s"""```${TestData.codeBlock4}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock4}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock4)
   }

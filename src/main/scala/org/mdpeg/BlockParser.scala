@@ -13,10 +13,10 @@ class BlockParser(val input: ParserInput) extends Parser
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
-    def verbatimBlockBound = rule(3.times("`"))
-    def anyCharVerbatim: Rule0 = rule(!nl ~ !EOI ~ !verbatimBlockBound ~ ANY)
-    def verbatimBlockContents = rule((nl | anyCharVerbatim.+ ~ nl).+)
-    rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)
+    def bound = rule(3.times("`"))
+    def anyCharVerbatim = rule(!nl ~ !EOI ~ !bound ~ ANY)
+    def contents = rule((nl ~ !bound | anyCharVerbatim.+).+)
+    rule (bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> Verbatim)
   }
 
   def tex: Rule1[TexBlock] = {

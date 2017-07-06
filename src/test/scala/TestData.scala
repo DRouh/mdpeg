@@ -27,8 +27,7 @@ object TestData {
   val codeBlock: String =
     """javascript
       |var s = "JavaScript syntax highlighting";
-      |alert(s);
-      |""".stripMargin
+      |alert(s);""".stripMargin
   val codeBlock2: String =
     """$#@#%$# DJI therefore frequently
       |DJI_EWEQ="-Qdxv3eqewq32 -rfre43rt:+terwfq43E#"
@@ -207,7 +206,9 @@ object TestData {
        |
        |_ _ _ _
        |
-       |```$codeBlock4```
+       |```
+       |$codeBlock4
+       |```
        |$plainText
        |
        |$twoDifferentLists
