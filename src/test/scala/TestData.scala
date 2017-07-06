@@ -23,12 +23,11 @@ object TestData {
   val blockQuoteLineTwo: String = "and should span several"
   val blockQuoteLineThree: String = "yet another line for the block"
   val blockQuote: String = s"""$blockQuoteLineOne $blockQuoteLineTwo $blockQuoteLineThree""".stripMargin
-  val plainText: String = "This is a plaint string in the end."
+  val plainText: String = """This is a plaint $$\frac{1+sin(x)} {y}$$ string in the end."""
   val codeBlock: String =
     """javascript
       |var s = "JavaScript syntax highlighting";
-      |alert(s);
-      |""".stripMargin
+      |alert(s);""".stripMargin
   val codeBlock2: String =
     """$#@#%$# DJI therefore frequently
       |DJI_EWEQ="-Qdxv3eqewq32 -rfre43rt:+terwfq43E#"
@@ -187,7 +186,14 @@ object TestData {
 
   val referenceType1 = "[arbitrary case-insensitive reference text]: https://www.mozilla.org 'this is title'"
   val referenceType2 = "[arbitrary case-insensitive 123]: https://www.mozilla.org"
-
+  val texBlock1 =       """$$$
+                          |\frac{1+sin(x)}{y}
+                          |$$ \begin{array}{l}
+                          |x = k \cdot a \cdot \left(a + b\right) \\
+                          |y = k \cdot b \cdot \left(a + b\right) \\
+                          |z = k \cdot a \cdot b,
+                          |\end{array} $$
+                          |$$$""".stripMargin
   val compoundMD: String =
     s"""# $headingOne
        |
@@ -207,11 +213,15 @@ object TestData {
        |
        |_ _ _ _
        |
-       |```$codeBlock4```
+       |```
+       |$codeBlock4
+       |```
        |$plainText
        |
+       |$texBlock1
+       |
        |$twoDifferentLists
-        |
+       |
        |$complexTable
        |$referenceType1
        |$referenceType2"""

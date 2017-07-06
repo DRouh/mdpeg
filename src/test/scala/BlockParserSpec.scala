@@ -77,25 +77,37 @@ class BlockParserSpec extends FlatSpec with Matchers {
   }
 
   it should "parse a Verbatim" in {
-    val term = s"""```${TestData.codeBlock}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock)
   }
 
   it should "parse a Verbatim with long spaces" in {
-    val term = s"""```${TestData.codeBlock2}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock2}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock2)
   }
 
   it should "parse a JSON like Verbatim" in {
-    val term = s"""```${TestData.codeBlock3}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock3}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock3)
   }
 
   it should "parse a Verbatim with blank lines, comments, spaces" in {
-    val term = s"""```${TestData.codeBlock4}```""".stripMargin
+    val term =
+      s"""```
+         |${TestData.codeBlock4}
+         |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
     parsed shouldEqual Verbatim(TestData.codeBlock4)
   }
@@ -146,6 +158,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
       HorizontalRuleBlock,
       Verbatim(TestData.codeBlock4),
       ExpectedTestResults.plainTextCompound,
+      ExpectedTestResults.texBlock1,
       ExpectedTestResults.unorderedList,
       ExpectedTestResults.orderedList,
       ExpectedTestResults.complexTable,
@@ -235,12 +248,42 @@ class BlockParserSpec extends FlatSpec with Matchers {
         |
         |kio""".stripMargin
     val parser = new BlockParser(term)
-    Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
-      None,
-      Some(Vector(MultilineTableCell(Vector(Markdown("Term"))), MultilineTableCell(Vector(Markdown("Description"))))),
-      Vector(Vector(MultilineTableCell(Vector(Markdown("cell 1")))),
-        Vector(MultilineTableCell(Vector(Markdown("cell 2")))))),
-      Plain(Vector(Text("kio"))))
+    parser.InputLine.run().get shouldEqual
+      Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
+        None,
+        Some(Vector(MultilineTableCell(Vector(Markdown("Term"))), MultilineTableCell(Vector(Markdown("Description"))))),
+        Vector(Vector(MultilineTableCell(Vector(Markdown("cell 1")))),
+          Vector(MultilineTableCell(Vector(Markdown("cell 2")))))),
+        Plain(Vector(Text("kio"))))
+  }
 
+  it should "parse a TeX block" in {
+    val term =
+      """$$$
+        |\frac{1+sin(x)}{y}
+        |
+        |
+        |$$ \begin{array}{l}
+        |x = k \cdot a \cdot \left(a + b\right) \\
+        |y = k \cdot b \cdot \left(a + b\right) \\
+        |z = k \cdot a \cdot b,
+        |\end{array} $$
+        |
+        |
+        |$$$""".stripMargin
+    val parser = new BlockParser(term)
+    parser.InputLine.run().get shouldEqual Vector(
+      TexBlock(
+        """\frac{1+sin(x)}{y}
+          |
+          |
+          |$$ \begin{array}{l}
+          |x = k \cdot a \cdot \left(a + b\right) \\
+          |y = k \cdot b \cdot \left(a + b\right) \\
+          |z = k \cdot a \cdot b,
+          |\end{array} $$
+          |
+          |""".stripMargin)
+    )
   }
 }

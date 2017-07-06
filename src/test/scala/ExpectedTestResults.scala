@@ -8,8 +8,8 @@ object ExpectedTestResults {
 
   val paragraphOne = Paragraph(Vector(Text("It"), Space, Text("is"), Space, Text("a"), Space, Text("long"), Space, Text("established"), Space, Text("fact"), Space, Text("that"), Space, Text("a"), Space, Text("reader"), Space, Text("will"), Space, Text("be"), Space, Text("distracted"), Space, Text("by"), Space, Text("the"), Space, Text("readable"), Space, Text("content"), Space, Text("of"), Space, Text("a"), Space, Text("page"), Space, Text("when"), Space, Text("looking"), Space, Text("at"), Space, Text("its"), Space, Text("layout."), Space, Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("that"), Space, Text("it"), Space, Text("has"), Space, Text("a"), Space, Text("more-or-less"), Space, Text("normal"), Space, Text("distribution"), Space, Text("of"), Space, Text("letters,"), Space, Text("as"), Space, Text("opposed"), Space, Text("to"), Space, Text("using,"), Space, Text("'Content"), Space, Text("content'"), Space, Text("making"), Space, Text("it"), Space, Text("look"), Space, Text("like"), Space, Text("readable"), Space, Text("English."), Space, Text("Many"), Space, Text("desktop"), Space, Text("publishing"), Space, Text("packages"), Space, Text("and"), Space, Text("web"), Space, Text("page"), Space, Text("editors"), Space, Text("now"), Space, Text("use"), Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("as"), Space, Text("their"), Space, Text("default"), Space, Text("model"), Space, Text("text,"), Space, Text("and"), Space, Text("a"), Space, Text("search"), Space, Text("for"), Space, Text("will"), Space, Text("uncover"), Space, Text("many"), Space, Text("web"), Space, Text("sites"), Space, Text("still"), Space, Text("in"), Space, Text("their"), Space, Text("infancy."), Space, Text("Various"), Space, Text("versions"), Space, Text("have"), Space, Text("evolved"), Space, Text("over"), Space, Text("the"), Space, Text("years,"), Space, Text("sometimes"), Space, Text("by"), Space, Text("accident,"), Space, Text("sometimes"), Space, Text("on"), Space, Text("purpose"), Space, Text("(injected"), Space, Text("humour"), Space, Text("and"), Space, Text("the"), Space, Text("like).")))
 
-  val plainText = Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
-  val plainTextCompound = Paragraph(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
+  val plainText = Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, TexInline("""\frac{1+sin(x)} {y}"""), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
+  val plainTextCompound = Paragraph(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, TexInline("""\frac{1+sin(x)} {y}"""), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
 
   val blockQuote = BlockQuote(Vector(
     Markdown("This is quote"),
@@ -81,4 +81,11 @@ object ExpectedTestResults {
 
   val referenceType1 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")), Src("https://www.mozilla.org", Some("this is title")))
   val referenceType2 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")), Src("https://www.mozilla.org", None))
+  val texBlock1 = TexBlock(
+    """\frac{1+sin(x)}{y}
+      |$$ \begin{array}{l}
+      |x = k \cdot a \cdot \left(a + b\right) \\
+      |y = k \cdot b \cdot \left(a + b\right) \\
+      |z = k \cdot a \cdot b,
+      |\end{array} $$""".stripMargin)
 }

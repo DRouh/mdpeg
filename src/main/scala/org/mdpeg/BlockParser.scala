@@ -9,14 +9,21 @@ class BlockParser(val input: ParserInput) extends Parser
   with InlineRules {
   def InputLine: Rule1[Seq[Block]] = rule(block.+ ~ EOI)
 
-  def block: Rule1[Block] = rule { blockQuote | verbatim | reference | heading | list | multiTable | horizontalRule | paragraph | plain  }
+  def block: Rule1[Block] = rule { blockQuote | tex | verbatim | reference | heading | list | multiTable | horizontalRule | paragraph | plain  }
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
-    def verbatimBlockBound = rule(3.times("`"))
-    def anyCharVerbatim: Rule0 = rule(!nl ~ !EOI ~ !verbatimBlockBound ~ ANY)
-    def verbatimBlockContents = rule((nl | anyCharVerbatim.+ ~ nl).+)
-    rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)
+    def bound = rule(3.times("`"))
+    def anyCharVerbatim = rule(!nl ~ !EOI ~ !bound ~ ANY)
+    def contents = rule((nl ~ !bound | anyCharVerbatim.+).+)
+    rule (bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> Verbatim)
+  }
+
+  def tex: Rule1[TexBlock] = {
+    def bound = rule(3.times("$"))
+    def anyCharTex = rule(!nl ~ !EOI ~ !bound ~ ANY)
+    def contents = rule((nl ~ !bound | anyCharTex.+).+)
+    rule (bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> TexBlock)
   }
 
   /*_*/
