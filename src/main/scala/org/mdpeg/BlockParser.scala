@@ -13,9 +13,9 @@ class BlockParser(val input: ParserInput) extends Parser
 
   //block definitions
   def verbatim : Rule1[Verbatim] = {
-    def inlineCodeChar = rule( inlineChar | mathChar | specialCharEx ) // ToDo add blank line?
     def verbatimBlockBound = rule(3.times("`"))
-    def verbatimBlockContents = rule((nl | inlineCodeChar.+ ~ nl).+)
+    def anyCharVerbatim: Rule0 = rule(!nl ~ !EOI ~ !verbatimBlockBound ~ ANY)
+    def verbatimBlockContents = rule((nl | anyCharVerbatim.+ ~ nl).+)
     rule (verbatimBlockBound ~ capture(verbatimBlockContents) ~ verbatimBlockBound ~ blankLine.* ~> Verbatim)
   }
 
