@@ -22,13 +22,16 @@ object OutputTransform {
     astTree.map(processBlocks(refs)(_).mkString).mkString
   }
 
+  def toLatexInline(inline: String): RawContent = s"""<span lang="latex">${inline}</span>"""
+
   private def inlineToHtml(references: ReferenceMap)(i: Inline): RawContent = i match {
     case Code(inline) => inline |> encloseInTagsSimpleN("code")
     case i @ Image(_, _, _) => i |> imageToHtml(references)
     case Strong(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("strong")
     case Italics(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("em")
-    case l@Link(_, _) => l |> linkToHtml(references)
+    case l @ Link(_, _) => l |> linkToHtml(references)
     case Text(inline) => inline
+    case TexInline(inline) => toLatexInline(inline)
     case Space => " "
     case LineBreak => selfClosingTagN("br")
   }
@@ -93,6 +96,12 @@ object OutputTransform {
     }
   }
 
+  def toTexBlock(inline: String): HtmlContent =
+    s"""<div lang="latex">
+      |${inline}
+      |</div>
+      |""".stripMargin
+
   private def blockToHtml(references: ReferenceMap)(node: Block, isHead: Boolean = false): HtmlContent = node match {
     case Plain(inline) => inline |> inlinesToHtml(references)
     case Paragraph(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimpleN("p")
@@ -101,6 +110,7 @@ object OutputTransform {
     case UnorderedList(inline) => inline |> unorderedListToHtml(references)
     case OrderedList(inline) => inline |> orderedListToHtml(references)
     case Verbatim(inline) => inline |> encloseInTagsSimpleN("pre")
+    case TexBlock(inline) => toTexBlock(inline)
     case ReferenceBlock(_, _) => ""
     case HorizontalRuleBlock => selfClosingTagN("hr")
     case table @ MultilineTableBlock(_, _, _, _) => table |> tableToHtml(references)
