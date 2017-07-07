@@ -66,13 +66,13 @@ object ASTTransform {
       }
     }
 
-    val Markdown(inline) = m
+    val Markdown(RawMarkdownContent(inline)) = m
     val (pre, cont) = inline splitToTuple "\0"
 
     pre |> parse match {
       case Left(value) => Left(Vector(value))
       case Right(value) if cont == "" => Right(value)
-      case Right(firstValue) => Vector(Markdown(cont)) |> transformTree match {
+      case Right(firstValue) => Vector(Markdown(RawMarkdownContent(cont))) |> transformTree match {
         case Left(value) => Left(value)
         case Right(secondValue) => Right((firstValue.toList ::: secondValue.flatten.toList).toVector)
       }
@@ -110,8 +110,8 @@ object ASTTransform {
       }
     }
 
-    val parts: Vector[Block] = v.flatMap { case Markdown(ss) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_
-      != "").map(Markdown)
+    val parts: Vector[Block] = v.flatMap { case Markdown(RawMarkdownContent(ss)) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_
+      != "").map(c => Markdown(RawMarkdownContent(c)))
     case otherwise => Vector(otherwise)
     }
 
@@ -166,7 +166,7 @@ object ASTTransform {
 
   private def transformNode(block: Block): Either[Vector[FailureMessage], Vector[Block]] = {
     block match {
-      case Markdown("") => Right(Vector(Plain(Vector(Text("")))))
+      case Markdown(RawMarkdownContent("")) => Right(Vector(Plain(Vector(Text("")))))
       case m@Markdown(_) => processMarkdown(m)
       case UnorderedList(v) => processList(v)(r => UnorderedList(r) |> liftV)
       case OrderedList(v) => processList(v)(r => OrderedList(r) |> liftV)

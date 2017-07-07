@@ -36,7 +36,7 @@ class BlockParser(val input: ParserInput) extends Parser
 
   def blockQuote : Rule1[BlockQuote] = {
     def blockQuoteLine: Rule1[Markdown] = {
-      rule(nonIndentSpace ~ ">" ~ sps ~ capture(anyLine) ~> ((s:String) => Markdown(trimEndWithEnding(s))))
+      rule(nonIndentSpace ~ ">" ~ sps ~ capture(anyLine) ~> ((s:String) => Markdown(RawMarkdownContent(trimEndWithEnding(s)))))
     }
     rule(blockQuoteLine.+ ~ (!blankLine ~ anyLine).* ~ blankLine.* ~> ((x: Seq[Markdown]) => BlockQuote(x.toVector)))
   }

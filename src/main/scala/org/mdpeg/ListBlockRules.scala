@@ -44,9 +44,9 @@ trait ListBlockRules {
 
   private def halfIndent: Rule0 = rule("  ")
 
-  private def toUnorderedList(x: Seq[Vector[String]]) = UnorderedList(x.flatten.map(Markdown).toVector)
+  private def toUnorderedList(x: Seq[Vector[String]]) = UnorderedList(x.flatten.map(c => Markdown(RawMarkdownContent(c))).toVector)
 
-  private def toOrderedList(x: Seq[Vector[String]]) = OrderedList(x.flatten.map(Markdown).toVector)
+  private def toOrderedList(x: Seq[Vector[String]]) = OrderedList(x.flatten.map(c => Markdown(RawMarkdownContent(c))).toVector)
 
   private def combinePreCont(pre: String, cont: String): Vector[String] = (pre, cont) match {
     case ("", "") => Vector("")

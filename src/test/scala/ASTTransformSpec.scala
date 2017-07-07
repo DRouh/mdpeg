@@ -6,9 +6,9 @@ class ASTTransformSpec extends FlatSpec with Matchers {
 
   it should "process Markdown blocks to block seq" in {
     val rawAstTree = Vector(
-      Markdown("This is quote"),
-      Markdown("and should span several"),
-      Markdown("yet another line for the block")
+      Markdown(RawMarkdownContent("This is quote")),
+      Markdown(RawMarkdownContent("and should span several")),
+      Markdown(RawMarkdownContent("yet another line for the block"))
     )
 
     val transformedTree = rawAstTree |> transformTree
@@ -30,9 +30,9 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val rawAstTree = Vector(
       BlockQuote(
         Vector(
-          Markdown("This is quote"),
-          Markdown("and should span several"),
-          Markdown("yet another line for the block")))
+          Markdown(RawMarkdownContent("This is quote")),
+          Markdown(RawMarkdownContent("and should span several")),
+          Markdown(RawMarkdownContent("yet another line for the block"))))
     )
     val transformedTree = rawAstTree |> transformTree
 
@@ -59,9 +59,9 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val rawAstTree = Vector(
       BlockQuote(
         Vector(
-          Markdown("This is quote"),
-          Markdown(term),
-          Markdown("yet another line for the block")))
+          Markdown(RawMarkdownContent("This is quote")),
+          Markdown(RawMarkdownContent(term)),
+          Markdown(RawMarkdownContent("yet another line for the block"))))
     )
     val transformedTree = rawAstTree |> transformTree
 
@@ -86,11 +86,11 @@ class ASTTransformSpec extends FlatSpec with Matchers {
   it should "process Multiline Table's body nested elements" in {
     val rawTree = Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
       Vector(
-        Vector(MultilineTableCell(Vector(Markdown(".It is longer")))),
-        Vector(MultilineTableCell(Vector(Markdown("than neccesary")))),
-        Vector(MultilineTableCell(Vector(Markdown(" and it should")))),
-        Vector(MultilineTableCell(Vector(Markdown(" be truncated")))),
-        Vector(MultilineTableCell(Vector(Markdown(" :)")))))))
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(".It is longer"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("than neccesary"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(" and it should"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(" be truncated"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(" :)"))))))))
     val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
@@ -107,20 +107,20 @@ class ASTTransformSpec extends FlatSpec with Matchers {
   it should "process nested elements in a rectangular Multiline Table" in {
     val rawTree = Vector(MultilineTableBlock(
       Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
-      Some(MultilineTableCaption(Vector(Markdown("This is a table caption")), Some("table:table_lable_name"))),
+      Some(MultilineTableCaption(Vector(Markdown(RawMarkdownContent("This is a table caption"))), Some("table:table_lable_name"))),
       Some(
         Vector(
-          MultilineTableCell(Vector(Markdown("Term  1"))),
-          MultilineTableCell(Vector(Markdown("Term  2"))),
-          MultilineTableCell(Vector(Markdown("Term  3"))),
-          MultilineTableCell(Vector(Markdown("Term  4"))),
-          MultilineTableCell(Vector(Markdown("Term  5"))))),
+          MultilineTableCell(Vector(Markdown(RawMarkdownContent("Term  1")))),
+          MultilineTableCell(Vector(Markdown(RawMarkdownContent("Term  2")))),
+          MultilineTableCell(Vector(Markdown(RawMarkdownContent("Term  3")))),
+          MultilineTableCell(Vector(Markdown(RawMarkdownContent("Term  4")))),
+          MultilineTableCell(Vector(Markdown(RawMarkdownContent("Term  5")))))),
       Vector(
-        Vector(MultilineTableCell(Vector(Markdown(".It")))),
-        Vector(MultilineTableCell(Vector(Markdown("is")))),
-        Vector(MultilineTableCell(Vector(Markdown(" a")))),
-        Vector(MultilineTableCell(Vector(Markdown("rectangular")))),
-        Vector(MultilineTableCell(Vector(Markdown("table")))))))
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(".It"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("is"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(" a"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("rectangular"))))),
+        Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("table"))))))))
 
     val transformedTree = rawTree |> transformTree
 
@@ -150,24 +150,24 @@ class ASTTransformSpec extends FlatSpec with Matchers {
   it should "process Multiline Table's with nested elements spanning multiple lines in a cell" in {
     val rawTree = Vector(
       MultilineTableBlock(Vector(25.0f, 75.0f),
-      Some(MultilineTableCaption(Vector(Markdown("This is a table caption")),Some("table:table_lable_name"))),
-        Some(Vector(MultilineTableCell(Vector(Markdown(
+      Some(MultilineTableCaption(Vector(Markdown(RawMarkdownContent("This is a table caption"))),Some("table:table_lable_name"))),
+        Some(Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(
           """Term  1
-            |Term  cont""".stripMargin))),
-          MultilineTableCell(Vector(Markdown(
+            |Term  cont""".stripMargin)))),
+          MultilineTableCell(Vector(Markdown(RawMarkdownContent(
             """Description 1
-              |Description cont""".stripMargin))))),
+              |Description cont""".stripMargin)))))),
         Vector(
           Vector(
-            MultilineTableCell(Vector(Markdown(".It"))),
-            MultilineTableCell(Vector(Markdown(
+            MultilineTableCell(Vector(Markdown(RawMarkdownContent(".It")))),
+            MultilineTableCell(Vector(Markdown(RawMarkdownContent(
               """CAPSED WORD
-                |Many""".stripMargin)))),
+                |Many""".stripMargin))))),
           Vector(
-            MultilineTableCell(Vector(Markdown("is a long established fact that"))),
-            MultilineTableCell(Vector(Markdown(
+            MultilineTableCell(Vector(Markdown(RawMarkdownContent("is a long established fact that")))),
+            MultilineTableCell(Vector(Markdown(RawMarkdownContent(
               """The point of using Lorem Ipsum is
-                |desktop publishing packages and""".stripMargin))))
+                |desktop publishing packages and""".stripMargin)))))
         )))
 
     val transformedTree = rawTree |> transformTree
@@ -204,7 +204,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
       s"""item 1
          |${nulChar}  - sub 1
          |  - sub 2""".stripMargin
-    val rawTree = Vector(UnorderedList(Vector(Markdown(content), Markdown(content))))
+    val rawTree = Vector(UnorderedList(Vector(Markdown(RawMarkdownContent(content)), Markdown(RawMarkdownContent(content)))))
     rawTree |> transformTree shouldEqual
       Right(Vector(Vector(
         UnorderedList(Vector(
@@ -223,7 +223,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
       s"""item 1
          |${nulChar}  1. sub 1
          |  77. sub 2""".stripMargin
-    val rawTree = Vector(OrderedList(Vector(Markdown(content), Markdown(content))))
+    val rawTree = Vector(OrderedList(Vector(Markdown(RawMarkdownContent(content)), Markdown(RawMarkdownContent(content)))))
     rawTree |> transformTree shouldEqual
       Right(Vector(Vector(
         OrderedList(Vector(

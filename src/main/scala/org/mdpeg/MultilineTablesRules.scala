@@ -68,14 +68,14 @@ trait MultilineTablesRules {
         val maybeLabel = (for (ex <- labelPattern.findAllMatchIn(inline)) yield (ex.group(0), ex.group(1))).toVector
           .headOption
         val maybeWholeMatch = maybeLabel.map(_._1).getOrElse("")
-          MultilineTableCaption(Vector(Markdown(inline.replace(maybeWholeMatch, ""))), maybeLabel.map(_._2))
+          MultilineTableCaption(Vector(Markdown(RawMarkdownContent(inline.replace(maybeWholeMatch, "")))), maybeLabel.map(_._2))
     }
 
     val headRow: Option[MultilineTableRow] = parsedHead.
-      map(_.map(inline => MultilineTableCell(Vector(Markdown(inline)))).toVector)
+      map(_.map(inline => MultilineTableCell(Vector(Markdown(RawMarkdownContent(inline))))).toVector)
 
     val bodyColumns: Vector[MultilineTableColumn] = body.
-      map(_.map(inline => MultilineTableCell(Vector(Markdown(inline)))).toVector)
+      map(_.map(inline => MultilineTableCell(Vector(Markdown(RawMarkdownContent(inline))))).toVector)
 
     MultilineTableBlock(relativeWidths, tableCaption, headRow, bodyColumns)
   }

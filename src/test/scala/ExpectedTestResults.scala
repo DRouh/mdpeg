@@ -12,72 +12,72 @@ object ExpectedTestResults {
   val plainTextCompound = Paragraph(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("plaint"), Space, TexInline(TexContent("""\frac{1+sin(x)} {y}""")), Space, Text("string"), Space, Text("in"), Space, Text("the"), Space, Text("end.")))
 
   val blockQuote = BlockQuote(Vector(
-    Markdown("This is quote"),
-    Markdown("and should span several"),
-    Markdown("yet another line for the block")))
+    Markdown(RawMarkdownContent("This is quote")),
+    Markdown(RawMarkdownContent("and should span several")),
+    Markdown(RawMarkdownContent("yet another line for the block"))))
 
-  val unorderedList = UnorderedList(Vector(Markdown(
+  val unorderedList = UnorderedList(Vector(Markdown(RawMarkdownContent(
     """1st block - It is a long established fact that a reader will be distracted by the readable content of a
       |  page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less
-      |  normal distribution of letters, as opposed to using 'Content here, content here',""".stripMargin), Markdown(
+      |  normal distribution of letters, as opposed to using 'Content here, content here',""".stripMargin)), Markdown(RawMarkdownContent(
     """2nd list block - editors now use Lorem Ipsum as their default model text, and a search for
       |  'lorem ipsum' will uncover many web sites still in their infancy. Various versions
       |  injected humour and the like).
-      |  There are many variations of passages of Lorem Ipsum available, but the majority have""".stripMargin), Markdown(
-    """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin), Markdown(
+      |  There are many variations of passages of Lorem Ipsum available, but the majority have""".stripMargin)), Markdown(RawMarkdownContent(
+    """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin)), Markdown(RawMarkdownContent(
     """4th list block - sure there isn't anything embarrassing hidden in the middle
-      |  of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin)))
+      |  of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin))))
   val nul = "\0"
   val orderedList = OrderedList(Vector(
-    Markdown(s"""This is a first item of an ordered list
+    Markdown(RawMarkdownContent(s"""This is a first item of an ordered list
                |${nul}    1. and this is a first sub item of a first item of an ordered list
-               |    2. and this is a second sub item of a first item of an ordered list""".stripMargin),
-    Markdown("And, finally, this is a second item of an ordered list")))
+               |    2. and this is a second sub item of a first item of an ordered list""".stripMargin)),
+    Markdown(RawMarkdownContent("And, finally, this is a second item of an ordered list"))))
   val complexTable = MultilineTableBlock(Vector(25.0f, 75.0f),
-    Some(MultilineTableCaption(Vector(Markdown("This is a table caption")),Some("table:table_lable_name"))),
+    Some(MultilineTableCaption(Vector(Markdown(RawMarkdownContent("This is a table caption"))),Some("table:table_lable_name"))),
     Some(Vector(
-      MultilineTableCell(Vector(Markdown("This header is longer than sep"))),
-      MultilineTableCell(Vector(Markdown("And this header is also longer than this separator"))))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("This header is longer than sep")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("And this header is also longer than this separator")))))),
     Vector(Vector(
-      MultilineTableCell(Vector(Markdown("**Why do we use it?**"))),
-      MultilineTableCell(Vector(Markdown("""There-are
-                                           |""".stripMargin))),
-      MultilineTableCell(Vector(Markdown("**Where can I get some?**"))),
-      MultilineTableCell(Vector(Markdown("""dummy
-                                           |""".stripMargin))),
-      MultilineTableCell(Vector(Markdown("text"))),
-      MultilineTableCell(Vector(Markdown("printing"))),
-      MultilineTableCell(Vector(Markdown("**Where does it come from?**"))),
-      MultilineTableCell(Vector(Markdown("""leap-into
-                                           |""".stripMargin))),
-      MultilineTableCell(Vector(Markdown("""variations-join
-                                           |
-                                           |""".stripMargin))),
-      MultilineTableCell(Vector(Markdown("**What is Lorem Ipsum?**"))),
-      MultilineTableCell(Vector(Markdown("""Lorem
-                                           |""".stripMargin))),
-      MultilineTableCell(Vector(Markdown("""anything
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("**Why do we use it?**")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("""There-are
                                            |""".stripMargin)))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("**Where can I get some?**")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("""dummy
+                                           |""".stripMargin)))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("text")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("printing")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("**Where does it come from?**")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("""leap-into
+                                           |""".stripMargin)))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("""variations-join
+                                           |
+                                           |""".stripMargin)))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("**What is Lorem Ipsum?**")))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("""Lorem
+                                           |""".stripMargin)))),
+      MultilineTableCell(Vector(Markdown(RawMarkdownContent("""anything
+                                           |""".stripMargin))))),
       Vector(
-        MultilineTableCell(Vector(Markdown(""))),
-        MultilineTableCell(Vector(Markdown("""It is a long established fact that a reader will be
-                                             |distracted by the readable content of a page when looking at""".stripMargin))),
-        MultilineTableCell(Vector(Markdown(""))),
-        MultilineTableCell(Vector(Markdown("""It uses a dictionary of over
-                                             |Lorem Ipsum which looks reasonable""".stripMargin))),
-        MultilineTableCell(Vector(Markdown("The generated Lorem Ipsum is"))),
-        MultilineTableCell(Vector(Markdown("or non-characteristic words etc"))),
-        MultilineTableCell(Vector(Markdown(""))),
-        MultilineTableCell(Vector(Markdown("""It uses a dictionary of over 200
-                                             |you need to be sure there""".stripMargin))),
-        MultilineTableCell(Vector(Markdown("""anything embarrassing hidden
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("")))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("""It is a long established fact that a reader will be
+                                             |distracted by the readable content of a page when looking at""".stripMargin)))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("")))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("""It uses a dictionary of over
+                                             |Lorem Ipsum which looks reasonable""".stripMargin)))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("The generated Lorem Ipsum is")))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("or non-characteristic words etc")))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("")))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("""It uses a dictionary of over 200
+                                             |you need to be sure there""".stripMargin)))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("""anything embarrassing hidden
                                              |you need to be sure there isn't
-                                             |within this period""".stripMargin))),
-        MultilineTableCell(Vector(Markdown(""))),
-        MultilineTableCell(Vector(Markdown(""""There are many variations of passages.
-                                              |*randomised words which : 1597 z*""".stripMargin))),
-        MultilineTableCell(Vector(Markdown("""but the majority have suffered alteration.
-                                             |*to use a passage: "" (empty string)*""".stripMargin))))))
+                                             |within this period""".stripMargin)))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("")))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent(""""There are many variations of passages.
+                                              |*randomised words which : 1597 z*""".stripMargin)))),
+        MultilineTableCell(Vector(Markdown(RawMarkdownContent("""but the majority have suffered alteration.
+                                             |*to use a passage: "" (empty string)*""".stripMargin)))))))
 
   val referenceType1 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")), Src("https://www.mozilla.org", Some("this is title")))
   val referenceType2 = ReferenceBlock(Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")), Src("https://www.mozilla.org", None))

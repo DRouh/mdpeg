@@ -44,9 +44,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
     val parsed = new BlockParser(term).blockQuote.run().get
     parsed shouldEqual
       BlockQuote(Vector(
-        Markdown("This is quote"),
-        Markdown("and should span several"),
-        Markdown("yet another line for the block")))
+        Markdown(RawMarkdownContent("This is quote")),
+        Markdown(RawMarkdownContent("and should span several")),
+        Markdown(RawMarkdownContent("yet another line for the block"))))
   }
 
   it should "parse Paragraph" in {
@@ -183,7 +183,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
         Text("hello"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space, Text("side"), Space,
         Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space, Text("other"), Space,
         Text("side"))),
-      UnorderedList(Vector(Markdown("sub 1"), Markdown("sub 2"), Markdown("sub 3"), Markdown("sub 4"))))
+      UnorderedList(Vector(Markdown(RawMarkdownContent("sub 1")), Markdown(RawMarkdownContent("sub 2")), Markdown(RawMarkdownContent("sub 3")), Markdown(RawMarkdownContent("sub 4")))))
 
   }
 
@@ -207,15 +207,15 @@ class BlockParserSpec extends FlatSpec with Matchers {
                      Space, Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"), Space,
                      Text("other"), Space, Text("side"))),
         UnorderedList(Vector(
-          Markdown("""sub 1
-                     |  some sub text""".stripMargin),
-          Markdown("""sub 2
+          Markdown(RawMarkdownContent("""sub 1
+                     |  some sub text""".stripMargin)),
+          Markdown(RawMarkdownContent("""sub 2
                      |  also some
                      |  sub text
-                     |  here""".stripMargin),
-          Markdown("sub 3"),
-          Markdown("sub 4"))
-        ))
+                     |  here""".stripMargin)),
+          Markdown(RawMarkdownContent("sub 3")),
+          Markdown(RawMarkdownContent("sub 4"))
+        )))
   }
 
   it should "parse a paragraph followed by an ordered list as plain followed by an ordered list" in {
@@ -233,8 +233,8 @@ class BlockParserSpec extends FlatSpec with Matchers {
           Text("second"), Space, Text("line"), Space, Text("from"), Space, Text("the"),
           Space, Text("other"), Space, Text("side"))),
         OrderedList(Vector(
-          Markdown("sub 1"),
-          Markdown("sub 2"))
+          Markdown(RawMarkdownContent("sub 1")),
+          Markdown(RawMarkdownContent("sub 2")))
         ))
   }
 
@@ -251,9 +251,9 @@ class BlockParserSpec extends FlatSpec with Matchers {
     parser.InputLine.run().get shouldEqual
       Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
         None,
-        Some(Vector(MultilineTableCell(Vector(Markdown("Term"))), MultilineTableCell(Vector(Markdown("Description"))))),
-        Vector(Vector(MultilineTableCell(Vector(Markdown("cell 1")))),
-          Vector(MultilineTableCell(Vector(Markdown("cell 2")))))),
+        Some(Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("Term")))), MultilineTableCell(Vector(Markdown(RawMarkdownContent("Description")))))),
+        Vector(Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("cell 1"))))),
+          Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("cell 2"))))))),
         Plain(Vector(Text("kio"))))
   }
 

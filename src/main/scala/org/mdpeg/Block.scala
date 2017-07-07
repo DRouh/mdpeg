@@ -10,7 +10,7 @@ final case class UnorderedList(inline: Vector[Block]) extends Block
 final case class OrderedList(inline: Vector[Block]) extends Block
 final case class Verbatim(inline: String) extends Block
 final case class ReferenceBlock(inline: InlineContent, target: Target) extends Block
-final case class Markdown(inline: String) extends Block { override def toString = s"""Markdown("${inline}")""" }
+final case class Markdown(inline: RawMarkdownContent) extends Block { override def toString = s"""Markdown("${inline}")""" }
 final case object HorizontalRuleBlock extends Block
 final case class MultilineTableBlock(relativeWidth: Vector[Float],
                                      // ToDo capture alignment
