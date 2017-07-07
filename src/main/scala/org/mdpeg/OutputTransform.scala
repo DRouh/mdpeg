@@ -31,7 +31,7 @@ object OutputTransform {
     case Italics(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("em")
     case l @ Link(_, _) => l |> linkToHtml(references)
     case Text(inline) => inline
-    case TexInline(inline) => toLatexInline(inline)
+    case TexInline(TexContent(inline)) => toLatexInline(inline)
     case Space => " "
     case LineBreak => selfClosingTagN("br")
   }
@@ -110,7 +110,7 @@ object OutputTransform {
     case UnorderedList(inline) => inline |> unorderedListToHtml(references)
     case OrderedList(inline) => inline |> orderedListToHtml(references)
     case Verbatim(inline) => inline |> encloseInTagsSimpleN("pre")
-    case TexBlock(inline) => toTexBlock(inline)
+    case TexBlock(TexContent(inline)) => toTexBlock(inline)
     case ReferenceBlock(_, _) => ""
     case HorizontalRuleBlock => selfClosingTagN("hr")
     case table @ MultilineTableBlock(_, _, _, _) => table |> tableToHtml(references)

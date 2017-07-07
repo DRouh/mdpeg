@@ -23,7 +23,7 @@ class BlockParser(val input: ParserInput) extends Parser
     def bound = rule(3.times("$"))
     def anyCharTex = rule(!nl ~ !EOI ~ !bound ~ ANY)
     def contents = rule((nl ~ !bound | anyCharTex.+).+)
-    rule (bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> TexBlock)
+    rule (bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> ((c: String) => TexBlock(TexContent(c))))
   }
 
   /*_*/

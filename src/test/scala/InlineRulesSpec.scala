@@ -154,6 +154,6 @@ class InlineRulesSpec extends FlatSpec with Matchers {
 
   it should "parse a tex inline" in {
     val term = """$$\frac{1+sin(x)} {y}$$"""
-    new InlineRulesTestSpec(term).texInline.run().get shouldEqual TexInline("""\frac{1+sin(x)} {y}""")
+    new InlineRulesTestSpec(term).texInline.run().get shouldEqual TexInline(TexContent("""\frac{1+sin(x)} {y}"""))
   }
 }

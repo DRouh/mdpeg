@@ -94,7 +94,7 @@ trait InlineRules {
   }
   def texInline: Rule1[TexInline] = {
     def betweenTicks: Rule1[String] = rule{2.times("$") ~ capture((noneOf("$").+ | !2.times("$") ~ oneOrMore("$")).+) ~ 2.times("$")}
-    rule{&("$") ~ betweenTicks ~> (TexInline(_))
+    rule{&("$") ~ betweenTicks ~> ((c: String) => TexInline((TexContent(c))))
     }
   }
 

@@ -273,7 +273,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
         |$$$""".stripMargin
     val parser = new BlockParser(term)
     parser.InputLine.run().get shouldEqual Vector(
-      TexBlock(
+      TexBlock(TexContent(
         """\frac{1+sin(x)}{y}
           |
           |
@@ -283,7 +283,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
           |z = k \cdot a \cdot b,
           |\end{array} $$
           |
-          |""".stripMargin)
+          |""".stripMargin))
     )
   }
 }

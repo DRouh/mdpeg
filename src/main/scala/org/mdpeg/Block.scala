@@ -22,4 +22,4 @@ sealed trait MultilineTableElement
 final case class MultilineTableCaption(inline: Vector[Block], label: Option[String]) extends MultilineTableElement with Block
 final case class MultilineTableCell(inline: Vector[Block]) extends MultilineTableElement with Block
 
-final case class TexBlock(inline: String) extends Block
+final case class TexBlock(inline: TexContent) extends Block
