@@ -25,7 +25,7 @@ object OutputTransform {
   def toLatexInline(inline: String): RawContent = s"""<span lang="latex">${inline}</span>"""
 
   private def inlineToHtml(references: ReferenceMap)(i: Inline): RawContent = i match {
-    case Code(inline) => inline |> encloseInTagsSimpleN("code")
+    case Code(CodeContent(inline)) => inline |> encloseInTagsSimpleN("code")
     case i @ Image(_, _, _) => i |> imageToHtml(references)
     case Strong(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("strong")
     case Italics(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("em")

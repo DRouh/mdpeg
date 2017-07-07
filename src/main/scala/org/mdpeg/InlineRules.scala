@@ -89,7 +89,7 @@ trait InlineRules {
     def betweenTicks: Int => Rule1[String] = (n:Int) => rule{ticks(n) ~ capture((noneOf("`").+ | !ticks(n) ~ oneOrMore("`")).+) ~ ticks(n)}
     rule{&("`") ~ (betweenTicks(10) | betweenTicks(9)| betweenTicks(8)| betweenTicks(7)|
       betweenTicks(6)| betweenTicks(5)| betweenTicks(4)| betweenTicks(3)| betweenTicks(2)| betweenTicks(1)) ~>
-      (Code(_))
+      ((c: String) => Code(CodeContent(c)))
     }
   }
   def texInline: Rule1[TexInline] = {
