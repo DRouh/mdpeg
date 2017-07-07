@@ -52,6 +52,6 @@ trait ListBlockRules {
     case ("", "") => Vector("")
     case ("", s2) => Vector(trimEndWithEnding(s2))
     case (s1, "") => Vector(trimEndWithEnding(s1))
-    case (s1, s2) => Vector(trimEndWithEnding(s1 + "\0" + s2)) // this's needed to process nested lists
+    case (s1, s2) => Vector(trimEndWithEnding(s1 + "\u0000" + s2)) // this's needed to process nested lists
   }
 }

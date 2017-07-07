@@ -14,16 +14,16 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawAstTree |> transformTree
 
     transformedTree shouldEqual
-    Right(
-      Vector(
+      Right(
         Vector(
-          Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
-        Vector(
-          Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several")))),
-        Vector(
-          Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"),
-            Space, Text("block")))))
-    )
+          Vector(
+            Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
+          Vector(
+            Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several")))),
+          Vector(
+            Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"),
+              Space, Text("block")))))
+      )
   }
 
   it should "process Markdown blocks nested inside other blocks" in {
@@ -37,16 +37,16 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawAstTree |> transformTree
 
     transformedTree shouldEqual
-    Right(
-      Vector(
+      Right(
         Vector(
-          BlockQuote(
-            Vector(
-              Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
-              Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
-                Text("the"), Space, Text("block")))))))
-    )
+          Vector(
+            BlockQuote(
+              Vector(
+                Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
+                Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
+                Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                  Text("the"), Space, Text("block")))))))
+      )
   }
 
   it should "process multiple nested levels of Markdown blocks nested inside other blocks" in {
@@ -66,25 +66,25 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawAstTree |> transformTree
 
     transformedTree shouldEqual
-    Right(
-      Vector(
+      Right(
         Vector(
-          BlockQuote(
-            Vector(
-              Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
-              BlockQuote(
-                Vector(
-                  Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
-                  Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
-                  Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
-                               Text("the"), Space, Text("block"))))),
-              Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
-                           Text("the"), Space, Text("block")))))))
-    )
+          Vector(
+            BlockQuote(
+              Vector(
+                Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
+                BlockQuote(
+                  Vector(
+                    Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote"))),
+                    Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
+                    Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                      Text("the"), Space, Text("block"))))),
+                Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
+                  Text("the"), Space, Text("block")))))))
+      )
   }
 
   it should "process Multiline Table's body nested elements" in {
-    val rawTree = Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
+    val rawTree = Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f), None, None,
       Vector(
         Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(".It is longer"))))),
         Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent("than neccesary"))))),
@@ -94,7 +94,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
-      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),None,None,
+      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f), None, None,
         Vector(
           Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It"), Space, Text("is"), Space, Text("longer")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("than"), Space, Text("neccesary")))))),
@@ -129,28 +129,28 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         Some(
           MultilineTableCaption(Vector(
             Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
-                         Text("caption")))),
-          Some("table:table_lable_name"))),
+              Text("caption")))),
+            Some("table:table_lable_name"))),
         Some(Vector(
-              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"))))),
-              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("2"))))),
-              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("3"))))),
-              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("4"))))),
-              MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("5")))))
-            )),
+          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("1"))))),
+          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("2"))))),
+          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("3"))))),
+          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("4"))))),
+          MultilineTableCell(Vector(Plain(Vector(Text("Term"), Space, Text("5")))))
+        )),
         Vector(
           Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("is")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("a")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("rectangular")))))),
-          Vector(MultilineTableCell(Vector(Plain(Vector(Text("table"      ))))))
-      )))))
+          Vector(MultilineTableCell(Vector(Plain(Vector(Text("table"))))))
+        )))))
   }
 
   it should "process Multiline Table's with nested elements spanning multiple lines in a cell" in {
     val rawTree = Vector(
       MultilineTableBlock(Vector(25.0f, 75.0f),
-      Some(MultilineTableCaption(Vector(Markdown(RawMarkdownContent("This is a table caption"))),Some("table:table_lable_name"))),
+        Some(MultilineTableCaption(Vector(Markdown(RawMarkdownContent("This is a table caption"))), Some("table:table_lable_name"))),
         Some(Vector(MultilineTableCell(Vector(Markdown(RawMarkdownContent(
           """Term  1
             |Term  cont""".stripMargin)))),
@@ -177,7 +177,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
         Some(
           MultilineTableCaption(Vector(
             Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
-                         Text("caption")))),Some("table:table_lable_name"))),
+              Text("caption")))), Some("table:table_lable_name"))),
         Some(Vector(
           MultilineTableCell(Vector(
             Plain(Vector(Text("Term"), Space, Text("1"), Space, Text("Term"), Space, Text("cont"))))),
@@ -199,7 +199,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
   }
 
   it should "process nested elements in an unordered list" in {
-    val nulChar = "\0"
+    val nulChar = "\u0000"
     val content =
       s"""item 1
          |${nulChar}  - sub 1
@@ -218,7 +218,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
   }
 
   it should "process nested elements in an ordered list" in {
-    val nulChar = "\0"
+    val nulChar = "\u0000"
     val content =
       s"""item 1
          |${nulChar}  1. sub 1
@@ -246,8 +246,8 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     refs shouldEqual
       Map(
         Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("123")) ->
-          ("https://www.mozilla.org", None),
+          (("https://www.mozilla.org", None)),
         Vector(Text("arbitrary"), Space, Text("case-insensitive"), Space, Text("reference"), Space, Text("text")) ->
-          ("https://www.mozilla.org", Some("this is title")))
+          (("https://www.mozilla.org", Some("this is title"))))
   }
 }

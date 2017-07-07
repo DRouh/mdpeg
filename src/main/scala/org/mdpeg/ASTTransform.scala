@@ -1,6 +1,7 @@
 package org.mdpeg
 
 import org.parboiled2.{ErrorFormatter, ParseError}
+import scala.language.implicitConversions
 
 import scala.util.{Failure, Success}
 
@@ -24,12 +25,13 @@ object ASTTransform {
         case ReferenceBlock(_, Src(_, _)) => true
         case otherwise => false
       }.
-      map { case ReferenceBlock(l, Src(s, t)) => (l, (s, t)) }.
+      map {
+        case ReferenceBlock(l, Src(s, t)) => (l, (s, t))
+        case othwerwise => sys.error("Not reachable")
+      }.
       groupBy(_._1).
       flatMap { case (key, values) =>
-        val value = values.headOption.map(_._2)
-        if (value.isDefined) Some(key, value.get)
-        else None
+        for {h <- values.headOption.map(_._2)} yield (key, h)
       }.
       toMap
 
@@ -67,7 +69,7 @@ object ASTTransform {
     }
 
     val Markdown(RawMarkdownContent(inline)) = m
-    val (pre, cont) = inline splitToTuple "\0"
+    val (pre, cont) = inline splitToTuple "\u0000"
 
     pre |> parse match {
       case Left(value) => Left(Vector(value))
@@ -110,7 +112,7 @@ object ASTTransform {
       }
     }
 
-    val parts: Vector[Block] = v.flatMap { case Markdown(RawMarkdownContent(ss)) => ss.split("\0").map(_.replaceAll("\0", "")).filter(_
+    val parts: Vector[Block] = v.flatMap { case Markdown(RawMarkdownContent(ss)) => ss.split("\u0000").map(_.replaceAll("\u0000", "")).filter(_
       != "").map(c => Markdown(RawMarkdownContent(c)))
     case otherwise => Vector(otherwise)
     }
@@ -127,7 +129,7 @@ object ASTTransform {
   private def transformTable(mt: MultilineTableBlock) = {
     def parseColumn(body: MultilineTableColumn) = {
       body.map { case MultilineTableCell(blocks) => blocks }.
-        map(processMarkdownContainer(_)(blocks => Vector (MultilineTableCell(blocks)))) |>
+        map(processMarkdownContainer(_)(blocks => Vector(MultilineTableCell(blocks)))) |>
         halfJoin |>
         (_.map(_.map { case Vector(MultilineTableCell(inner)) => MultilineTableCell(inner) }))
     }

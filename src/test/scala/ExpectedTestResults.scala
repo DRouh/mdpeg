@@ -27,7 +27,7 @@ object ExpectedTestResults {
     """3rd list block - If you are going to use a passage of Lorem Ipsum, you need to be""".stripMargin)), Markdown(RawMarkdownContent(
     """4th list block - sure there isn't anything embarrassing hidden in the middle
       |  of text. All the Lorem Ipsum generators on the Internet tend to r""".stripMargin))))
-  val nul = "\0"
+  val nul = "\u0000"
   val orderedList = OrderedList(Vector(
     Markdown(RawMarkdownContent(s"""This is a first item of an ordered list
                |${nul}    1. and this is a first sub item of a first item of an ordered list

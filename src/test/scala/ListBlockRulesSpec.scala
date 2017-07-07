@@ -107,7 +107,7 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "create markdown for each full/half indented chunk in unordered list" in {
-    val nulChar = "\0"
+    val nulChar = "\u0000"
     val term =
       """- item 1
         |    - sub 1
@@ -127,7 +127,7 @@ class ListBlockRulesSpec extends FlatSpec with Matchers {
   }
 
   it should "create markdown for each full/half indented chunk in ordered list" in {
-    val nulChar = "\0"
+    val nulChar = "\u0000"
     val term =
         """1. item 1
           |     1. sub 1
