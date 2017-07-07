@@ -1,8 +1,9 @@
-import org.mdpeg._
+package org.mdpeg
+
+import org.mdpeg.ast._
+import org.mdpeg.parsers.{InlineRules, PrimitiveRules}
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
-
-import scala.util.{Failure, Success}
 
 class InlineRulesSpec extends FlatSpec with Matchers {
 

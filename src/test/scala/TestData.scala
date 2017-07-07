@@ -1,3 +1,4 @@
+package org.mdpeg
 object TestData {
   val headingOne: String = "Heading One"
   val headingTwo: String = "Heading Two"

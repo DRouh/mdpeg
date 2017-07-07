@@ -1,4 +1,8 @@
+package org.mdpeg
+
 import org.mdpeg._
+import org.mdpeg.ast._
+import org.mdpeg.parsers.BlockParser
 import org.parboiled2.{ErrorFormatter, ParseError}
 import org.scalatest.{FlatSpec, Ignore, Matchers}
 

@@ -1,4 +1,6 @@
-package org.mdpeg
+package org.mdpeg.ast
+
+import org.mdpeg.{InlineContent, MultilineTableColumn, MultilineTableRow}
 
 sealed trait Block
 

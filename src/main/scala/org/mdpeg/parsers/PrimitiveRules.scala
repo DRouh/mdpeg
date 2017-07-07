@@ -1,8 +1,9 @@
-package org.mdpeg
+package org.mdpeg.parsers
 
+import org.mdpeg.ast.HorizontalRuleBlock
 import org.parboiled2._
 
-trait PrimitiveRules {
+private[mdpeg] trait PrimitiveRules {
   this: Parser =>
   import CharPredicate._
 

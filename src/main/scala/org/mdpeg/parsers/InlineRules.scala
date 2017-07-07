@@ -1,8 +1,10 @@
-package org.mdpeg
+package org.mdpeg.parsers
 
+import org.mdpeg._
+import org.mdpeg.ast._
 import org.parboiled2._
 
-trait InlineRules {
+private[mdpeg] trait InlineRules {
   this: Parser with PrimitiveRules =>
   import CharPredicate._
 

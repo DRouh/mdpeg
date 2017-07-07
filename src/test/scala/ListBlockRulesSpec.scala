@@ -1,9 +1,11 @@
-import org.mdpeg._
+package org.mdpeg
+
+import org.mdpeg.ast.{Markdown, OrderedList, RawMarkdownContent, UnorderedList}
+import org.mdpeg.parsers.{ListBlockRules, PrimitiveRules}
 import org.parboiled2.{ErrorFormatter, ParseError, Parser, ParserInput}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success, Try}
-import scala.compat.Platform.EOL
 
 class ListBlockRulesSpec extends FlatSpec with Matchers {
   class ListBlockRulesTestSpec(val input: ParserInput) extends Parser with PrimitiveRules with ListBlockRules {}

@@ -1,4 +1,6 @@
-package org.mdpeg
+package org.mdpeg.ast
+
+import org.mdpeg.InlineContent
 
 sealed trait Inline
 final case class Code(inline: CodeContent) extends Inline

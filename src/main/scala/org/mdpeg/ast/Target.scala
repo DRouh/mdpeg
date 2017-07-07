@@ -1,4 +1,4 @@
-package org.mdpeg
+package org.mdpeg.ast
 
 //reference target
 sealed trait Target

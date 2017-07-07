@@ -1,12 +1,14 @@
 package org.mdpeg
 
+import org.mdpeg.ast._
+import org.mdpeg.parsers.BlockParser
 import org.parboiled2.{ErrorFormatter, ParseError}
-import scala.language.implicitConversions
 
+import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
-object ASTTransform {
-  type FailureMessage = String
+private[mdpeg] object ASTTransform {
+  type AstTranformError = String
 
   /**
     * Transforms a raw AST tree to a complete one (parses nested blocks, gathers links)
@@ -15,12 +17,13 @@ object ASTTransform {
     * @return transformed AST tree or parse failure results, that is -- either tree having all nested markdown parsed or
     *         a list of parse failure messages
     */
-  def transformTree(tree: Seq[Block]): Either[Vector[FailureMessage], Vector[Vector[Block]]] = {
-    tree.map(transformNode) |> halfJoin
+  def transformTree(tree: Seq[Block]): Either[Vector[AstTranformError], Ast] = {
+    tree.map(transformNode) |> halfJoin |> (_.map(vs => Ast(vs)))
   }
 
-  def extractLinks(tree: Vector[Vector[Block]]): Map[InlineContent, (String, Option[String])] =
-    tree.flatten.
+  def extractLinks(tree: Ast): Map[InlineContent, (String, Option[String])] = {
+    tree.
+      flatten.
       filter {
         case ReferenceBlock(_, Src(_, _)) => true
         case otherwise => false
@@ -30,25 +33,24 @@ object ASTTransform {
         case othwerwise => sys.error("Not reachable")
       }.
       groupBy(_._1).
-      flatMap { case (key, values) =>
-        for {h <- values.headOption.map(_._2)} yield (key, h)
-      }.
+      flatMap { case (key, values) =>  for {h <- values.headOption.map(_._2)} yield (key, h) }.
       toMap
+  }
 
   private def liftV(b: Block) = Vector(b)
 
-  private def eitherToVector(e: Either[List[FailureMessage], List[Block]]) = e match {
+  private def eitherToVector(e: Either[List[AstTranformError], List[Block]]) = e match {
     case Left(value) => Left(value.toVector)
     case Right(value) => Right(value.toVector)
   }
 
   private def processMarkdownContainer(v: Vector[Block])(resultMap: Vector[Block] => Vector[Block]):
-  Either[Vector[FailureMessage], Vector[Block]] = {
+  Either[Vector[AstTranformError], Vector[Block]] = {
     def process(v: Vector[Block]) = transformTree(v) match {
       case Left(t) => Left(t)
-      case Right(r) => r.flatten |> transformTree match {
+      case Right(Ast(r)) => r.flatten |> transformTree match {
         case Left(errors) => Left(errors)
-        case Right(blocks) => Right(blocks.flatten)
+        case Right(Ast(blocks)) => Right(blocks.flatten)
       }
     }
 
@@ -58,7 +60,7 @@ object ASTTransform {
     }
   }
 
-  private def processMarkdown(m: Markdown): Either[Vector[FailureMessage], Vector[Block]] = {
+  private def processMarkdown(m: Markdown): Either[Vector[AstTranformError], Vector[Block]] = {
     def parse(inline: String): Either[String, Vector[Block]] = {
       val parser: BlockParser = new BlockParser(inline)
       parser.InputLine.run() match {
@@ -76,20 +78,20 @@ object ASTTransform {
       case Right(value) if cont == "" => Right(value)
       case Right(firstValue) => Vector(Markdown(RawMarkdownContent(cont))) |> transformTree match {
         case Left(value) => Left(value)
-        case Right(secondValue) => Right((firstValue.toList ::: secondValue.flatten.toList).toVector)
+        case Right(Ast(secondValue)) => Right((firstValue.toList ::: secondValue.flatten.toList).toVector)
       }
     }
   }
 
   private def processList(v: Vector[Block])(resultMap: Vector[Block] => Vector[Block]):
-  Either[Vector[FailureMessage], Vector[Block]] = {
+  Either[Vector[AstTranformError], Vector[Block]] = {
     def unwrap(b: Vector[Block]): Vector[Block] = b match {
       case Vector(UnorderedList(content)) => content flatMap (_ |> liftV |> unwrap)
       case Vector(OrderedList(content)) => content flatMap (_ |> liftV |> unwrap)
       case otherwise => otherwise
     }
 
-    def process(blocks: Seq[Block]): Either[List[FailureMessage], List[Block]] = {
+    def process(blocks: Seq[Block]): Either[List[AstTranformError], List[Block]] = {
       def listProcess(x: Block, xs: List[Block]) = {
         sub(x) match {
           case Left(l) => Left(l.toList)
@@ -100,7 +102,7 @@ object ASTTransform {
         }
       }
 
-      def sub(x: Block): Either[Vector[FailureMessage], Vector[Block]] = processMarkdownContainer(x |> liftV)(identity)
+      def sub(x: Block): Either[Vector[AstTranformError], Vector[Block]] = processMarkdownContainer(x |> liftV)(identity)
 
       blocks match {
         case x :: Nil => sub(x) match {
@@ -166,7 +168,7 @@ object ASTTransform {
     }
   }
 
-  private def transformNode(block: Block): Either[Vector[FailureMessage], Vector[Block]] = {
+  private def transformNode(block: Block): Either[Vector[AstTranformError], Vector[Block]] = {
     block match {
       case Markdown(RawMarkdownContent("")) => Right(Vector(Plain(Vector(Text("")))))
       case m@Markdown(_) => processMarkdown(m)

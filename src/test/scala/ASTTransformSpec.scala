@@ -1,5 +1,8 @@
+package org.mdpeg
+
 import org.mdpeg.ASTTransform._
-import org.mdpeg._
+import org.mdpeg.ast._
+import org.mdpeg.parsers.BlockParser
 import org.scalatest.{FlatSpec, Matchers}
 
 class ASTTransformSpec extends FlatSpec with Matchers {
@@ -14,7 +17,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawAstTree |> transformTree
 
     transformedTree shouldEqual
-      Right(
+      Right(Ast(
         Vector(
           Vector(
             Plain(Vector(Text("This"), Space, Text("is"), Space, Text("quote")))),
@@ -23,7 +26,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Vector(
             Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space, Text("the"),
               Space, Text("block")))))
-      )
+      ))
   }
 
   it should "process Markdown blocks nested inside other blocks" in {
@@ -37,7 +40,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawAstTree |> transformTree
 
     transformedTree shouldEqual
-      Right(
+      Right(Ast(
         Vector(
           Vector(
             BlockQuote(
@@ -46,7 +49,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
                 Plain(Vector(Text("and"), Space, Text("should"), Space, Text("span"), Space, Text("several"))),
                 Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
                   Text("the"), Space, Text("block")))))))
-      )
+      ))
   }
 
   it should "process multiple nested levels of Markdown blocks nested inside other blocks" in {
@@ -66,7 +69,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawAstTree |> transformTree
 
     transformedTree shouldEqual
-      Right(
+      Right(Ast(
         Vector(
           Vector(
             BlockQuote(
@@ -80,7 +83,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
                       Text("the"), Space, Text("block"))))),
                 Plain(Vector(Text("yet"), Space, Text("another"), Space, Text("line"), Space, Text("for"), Space,
                   Text("the"), Space, Text("block")))))))
-      )
+      ))
   }
 
   it should "process Multiline Table's body nested elements" in {
@@ -94,14 +97,15 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
-      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f), None, None,
+      Right(Ast(
+        Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f), None, None,
         Vector(
           Vector(MultilineTableCell(Vector(Plain(Vector(Text(".It"), Space, Text("is"), Space, Text("longer")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("than"), Space, Text("neccesary")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("and"), Space, Text("it"), Space, Text("should")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("be"), Space, Text("truncated")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text(":)"))))))
-        )))))
+        ))))))
   }
 
   it should "process nested elements in a rectangular Multiline Table" in {
@@ -125,7 +129,8 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
-      Right(Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
+      Right(Ast(
+        Vector(Vector(MultilineTableBlock(Vector(20.0f, 20.0f, 20.0f, 20.0f, 20.0f),
         Some(
           MultilineTableCaption(Vector(
             Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
@@ -144,7 +149,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Vector(MultilineTableCell(Vector(Plain(Vector(Space, Text("a")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("rectangular")))))),
           Vector(MultilineTableCell(Vector(Plain(Vector(Text("table"))))))
-        )))))
+        ))))))
   }
 
   it should "process Multiline Table's with nested elements spanning multiple lines in a cell" in {
@@ -173,7 +178,8 @@ class ASTTransformSpec extends FlatSpec with Matchers {
     val transformedTree = rawTree |> transformTree
 
     transformedTree shouldEqual
-      Right(Vector(Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
+      Right(Ast(
+        Vector(Vector(MultilineTableBlock(Vector(25.0f, 75.0f),
         Some(
           MultilineTableCaption(Vector(
             Plain(Vector(Text("This"), Space, Text("is"), Space, Text("a"), Space, Text("table"), Space,
@@ -195,7 +201,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
               Text("The"), Space, Text("point"), Space, Text("of"), Space, Text("using"),
               Space, Text("Lorem"), Space, Text("Ipsum"), Space, Text("is"), Space, Text("desktop"), Space,
               Text("publishing"), Space, Text("packages"), Space, Text("and"))))))
-        )))))
+        ))))))
   }
 
   it should "process nested elements in an unordered list" in {
@@ -206,7 +212,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
          |  - sub 2""".stripMargin
     val rawTree = Vector(UnorderedList(Vector(Markdown(RawMarkdownContent(content)), Markdown(RawMarkdownContent(content)))))
     rawTree |> transformTree shouldEqual
-      Right(Vector(Vector(
+      Right(Ast(Vector(Vector(
         UnorderedList(Vector(
           Plain(Vector(Text("item"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("1"))),
@@ -214,7 +220,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Plain(Vector(Text("item"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("2")))
-        )))))
+        ))))))
   }
 
   it should "process nested elements in an ordered list" in {
@@ -225,7 +231,8 @@ class ASTTransformSpec extends FlatSpec with Matchers {
          |  77. sub 2""".stripMargin
     val rawTree = Vector(OrderedList(Vector(Markdown(RawMarkdownContent(content)), Markdown(RawMarkdownContent(content)))))
     rawTree |> transformTree shouldEqual
-      Right(Vector(Vector(
+      Right(Ast(
+          Vector(Vector(
         OrderedList(Vector(
           Plain(Vector(Text("item"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("1"))),
@@ -233,7 +240,7 @@ class ASTTransformSpec extends FlatSpec with Matchers {
           Plain(Vector(Text("item"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("1"))),
           Plain(Vector(Text("sub"), Space, Text("2")))
-        )))))
+        ))))))
   }
 
   it should "extract links" in {

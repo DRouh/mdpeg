@@ -1,12 +1,14 @@
-package org.mdpeg
+package org.mdpeg.parsers
 
+import org.mdpeg._
+import org.mdpeg.ast._
 import org.parboiled2._
 
 import scala.collection.immutable.::
 import scala.compat.Platform.EOL
 import scala.util.Success
 
-trait MultilineTablesRules {
+private[mdpeg] trait MultilineTablesRules {
   this: Parser with PrimitiveRules =>
 
   type WidthSeparator = String
