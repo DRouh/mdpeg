@@ -5,7 +5,7 @@ import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import org.scalacheck.ScalacheckShapeless._
 
-object AstTranformSpec extends Properties("AstTranform") {
+object AstTranformProps extends Properties("AstTranform") {
   val texInline: Gen[TexInline] = Arbitrary.arbitrary[TexInline]
   val text: Gen[Text] = Arbitrary.arbitrary[Text]
   val code: Gen[Code] = Arbitrary.arbitrary[Code]
