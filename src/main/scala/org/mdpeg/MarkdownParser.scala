@@ -2,7 +2,7 @@ package org.mdpeg
 
 import org.mdpeg.ASTTransform.{AstTranformError, extractLinks, transformTree}
 import org.mdpeg.OutputTransform.{HtmlContent, toHtml}
-import org.mdpeg.ast.{Ast, AstRender}
+import org.mdpeg.ast.Ast
 import org.mdpeg.parsers.BlockParser
 import org.parboiled2.{ErrorFormatter, ParseError}
 
@@ -41,7 +41,4 @@ object MarkdownParser {
     catch {
       case e: Throwable => Left(e.getMessage)
     }
-
-
-  def render[T](ast: Ast)(implicit ev: AstRender[T]) = ???
 }

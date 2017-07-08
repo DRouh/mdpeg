@@ -1,6 +1,5 @@
 package org.mdpeg.parsers
 
-import org.mdpeg._
 import org.mdpeg.ast._
 import org.parboiled2._
 
