@@ -5,7 +5,7 @@ import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import org.scalacheck.ScalacheckShapeless._
 
-object AstTranformProps extends Properties("AstTranform") {
+object AstTranformProps extends Properties("Ast Tranform properties") {
   val texInline: Gen[TexInline] = Arbitrary.arbitrary[TexInline]
   val text: Gen[Text] = Arbitrary.arbitrary[Text]
   val code: Gen[Code] = Arbitrary.arbitrary[Code]
@@ -79,7 +79,6 @@ object AstTranformProps extends Properties("AstTranform") {
     ic <- inlineContent
     p <- genBoundedList(100, HeadingBlock(l, ic))
   } yield p
-
   val verbatims: Gen[List[Verbatim]] = for {v <- Arbitrary.arbitrary[Verbatim]; vs <- Gen.listOf(v) } yield vs
   val texBlocks: Gen[List[TexBlock]] = for {tb <- Arbitrary.arbitrary[TexBlock]; tbs <- Gen.listOf(tb) } yield tbs
   val refBlocks: Gen[List[ReferenceBlock]] = for {
@@ -87,11 +86,30 @@ object AstTranformProps extends Properties("AstTranform") {
     t <- target
     rb <- Gen.listOf(ReferenceBlock(ic, t))
   } yield rb
+  val markdowns: Gen[List[Markdown]] = for {md <- Arbitrary.arbitrary[Markdown]; mds <- Gen.listOf(md) } yield mds
+  val blockQuotes: Gen[List[BlockQuote]] = for {
+    mds <- markdowns
+    bqs <- Gen.listOf(BlockQuote(mds.toVector))
+  } yield bqs
 
+  // todo add the rest of the block types
+  val rawAst: Gen[List[Block]] = for {
+    ps <- plains
+    pars <- paragraphs
+    hs <- headers
+    vbs <- verbatims
+    tbs <- texBlocks
+    rfbs <- refBlocks
+    mds <- markdowns
+    bqs <- blockQuotes
+  } yield ps ++ pars ++ hs ++ vbs ++ tbs ++ rfbs ++ mds ++ bqs
   property("For any list of Plain texts tree can be transformed") = forAll(plains) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Paragarphs tree can be transformed") = forAll(paragraphs) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Headers tree can be transformed") = forAll(headers) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Verbatims tree can be transformed") = forAll(verbatims) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of TexBlocks tree can be transformed") = forAll(texBlocks) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of ReferenceBlock tree can be transformed") = forAll(refBlocks) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of Markdown tree can be transformed") = forAll(markdowns) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of BlockQuotes tree can be transformed") = forAll(blockQuotes) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of any blocks tree can be transformed") = forAll(rawAst) { i => ASTTransform.transformTree(i).isRight }
 }

@@ -49,7 +49,7 @@ lazy val mdpeg = (project in file("."))
     libraryDependencies ++= Seq(
       "org.parboiled" %% "parboiled" % "2.1.4",
       "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-      "org.scalacheck" %% "scalacheck" % "1.13.4" % Test,
+      "org.scalacheck" %% "scalacheck" % "1.13.5" % Test,
       "com.github.alexarchambault" %% "scalacheck-shapeless_1.13" % "1.1.6" % Test
     )
   )
