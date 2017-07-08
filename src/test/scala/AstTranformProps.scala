@@ -71,10 +71,27 @@ object AstTranformProps extends Properties("AstTranform") {
     links <- genBoundedList(v, link)
   } yield (t ++ sps ++ tis ++ lbs ++ codes ++ strongs ++ italicss ++ images ++ links)
 
-
+ // blocks
   val plains: Gen[List[Plain]] = for {ic <- inlineContent; p <- genBoundedList(100, Plain(ic))} yield p
   val paragraphs: Gen[List[Paragraph]] = for {ic <- inlineContent; p <- genBoundedList(100, Paragraph(ic))} yield p
+  val headers: Gen[List[HeadingBlock]] = for {
+    l <- Gen.choose(1, 100)
+    ic <- inlineContent
+    p <- genBoundedList(100, HeadingBlock(l, ic))
+  } yield p
 
-  property("For any Plain text tree can be transformed") = forAll(plains) { i => ASTTransform.transformTree(i).isRight }
-  property("For any Paragarph tree can be transformed") = forAll(paragraphs) { i => ASTTransform.transformTree(i).isRight }
+  val verbatims: Gen[List[Verbatim]] = for {v <- Arbitrary.arbitrary[Verbatim]; vs <- Gen.listOf(v) } yield vs
+  val texBlocks: Gen[List[TexBlock]] = for {tb <- Arbitrary.arbitrary[TexBlock]; tbs <- Gen.listOf(tb) } yield tbs
+  val refBlocks: Gen[List[ReferenceBlock]] = for {
+    ic <- inlineContent
+    t <- target
+    rb <- Gen.listOf(ReferenceBlock(ic, t))
+  } yield rb
+
+  property("For any list of Plain texts tree can be transformed") = forAll(plains) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of Paragarphs tree can be transformed") = forAll(paragraphs) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of Headers tree can be transformed") = forAll(headers) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of Verbatims tree can be transformed") = forAll(verbatims) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of TexBlocks tree can be transformed") = forAll(texBlocks) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of ReferenceBlock tree can be transformed") = forAll(refBlocks) { i => ASTTransform.transformTree(i).isRight }
 }
