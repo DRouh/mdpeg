@@ -45,10 +45,12 @@ lazy val commonSettings = Seq(
 lazy val mdpeg = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
+    resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= Seq(
       "org.parboiled" %% "parboiled" % "2.1.4",
       "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-      "org.scalacheck" %% "scalacheck" % "1.13.4" % Test
+      "org.scalacheck" %% "scalacheck" % "1.13.4" % Test,
+      "com.github.alexarchambault" %% "scalacheck-shapeless_1.13" % "1.1.6" % Test
     )
   )
 
