@@ -23,7 +23,7 @@ private[mdpeg] object OutputTransform {
     astTree.map(processBlocks(refs)(_).mkString).mkString
   }
 
-  def toLatexInline(inline: String): RawContent = s"""<span lang="latex">$inline</span>"""
+  private def toLatexInline(inline: String): RawContent = s"""<span lang="latex">$inline</span>"""
 
   private def inlineToHtml(references: ReferenceMap)(i: Inline): RawContent = i match {
     case Code(CodeContent(inline)) => inline |> encloseInTagsSimpleN("code")
