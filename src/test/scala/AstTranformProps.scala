@@ -106,6 +106,18 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
     ols <- genBoundedList(v, OrderedList((ps ++ mds).toVector))
   } yield ols
 
+  val multiTables: Gen[List[MultilineTableBlock]] = for {
+    v <- Gen.choose(0, 27)
+    rw <- Gen.listOf(Gen.choose(Float.MinValue, Float.MaxValue))
+    label <- Arbitrary.arbitrary[Option[String]]
+    mds <- markdowns
+    caption <- Gen.option(MultilineTableCaption(mds.toVector, label))
+    cells <- genBoundedList(v, MultilineTableCell(mds.toVector))
+    head <- Gen.option(cells.toVector)
+    body <- genBoundedList(v,cells.toVector)
+    tbs <- genBoundedList(v, MultilineTableBlock(rw.toVector, caption, head, body.toVector))
+  } yield tbs
+
   // todo add the rest of the block types
   val rawAst: Gen[List[Block]] = for {
     v <- Gen.choose(0, 25)
@@ -130,5 +142,6 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
   property("For any list of BlockQuotes tree can be transformed") = forAll(blockQuotes) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Unordered list tree can be transformed") = forAll(uls) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Ordered list tree can be transformed") = forAll(uls) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of multiTables list tree can be transformed") = forAll(multiTables) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of any blocks tree can be transformed") = forAll(rawAst) { i => ASTTransform.transformTree(i).isRight }
 }
