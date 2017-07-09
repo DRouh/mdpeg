@@ -17,26 +17,29 @@ private[mdpeg] trait MultilineTablesRules {
   def multiTable: Rule1[MultilineTableBlock] = {
     /*_*/
     rule(tableHeadRaw.? ~ tableBody ~ tableCaption ~>
-      ((head:Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String]) =>
+      ((head: Option[Vector[String]], body: (Vector[List[String]], String), caption: Option[String]) =>
         constructTable(head, body, caption)))
     /*_*/
   }
 
   def tableHeadRaw: Rule1[Vector[String]] = {
     def headContentLine = rule(capture(!tableHeadWidthSeparator ~ (anyLineTable | blankLine)))
+
     rule(!horizontalRule ~ tableBorder ~ headContentLine.+ ~ &(tableHeadWidthSeparator) ~> ((headContent: Seq[String]) =>
       headContent.toVector))
   }
 
   def tableBody: Rule1[(RawBody, WidthSeparator)] = {
-    def bodyContentLine:Rule1[String] = rule(capture(!tableBorder ~ (anyLineTable | blankLine)))
+    def bodyContentLine: Rule1[String] = rule(capture(!tableBorder ~ (anyLineTable | blankLine)))
+
     rule(capture(tableHeadWidthSeparator) ~ bodyContentLine.+ ~> ((sep: String, contents: Seq[String]) =>
       parseBodyContent(sep, contents)))
   }
 
-  def tableCaption: Rule1[Option[String]] = rule{
-    !horizontalRule ~ tableBorder ~ "Table:" ~ sps ~ capture(anyCharTable.+) ~ nl.? ~ blankLine.* ~> ((s:String) => Some(s)) |
-      tableBorder ~ capture(sps) ~ nl.? ~ blankLine.* ~> ((_:String) => None)
+  def tableCaption: Rule1[Option[String]] = rule {
+    !horizontalRule ~ tableBorder ~ "Table:" ~ sps ~ capture(anyCharTable.+) ~ nl.? ~ blankLine.* ~>
+      ((s: String) => Some(s)) |
+      tableBorder ~ capture(sps) ~ nl.? ~ blankLine.* ~> ((_: String) => None)
   }
 
   // ToDO in case of 1 column it can't be distinguished from tableBorder rule, so no !tableBorder applied here yet
@@ -70,8 +73,8 @@ private[mdpeg] trait MultilineTablesRules {
         val maybeLabel = (for (ex <- labelPattern.findAllMatchIn(inline)) yield (ex.group(0), ex.group(1))).toVector
           .headOption
         val maybeWholeMatch = maybeLabel.map(_._1).getOrElse("")
-          MultilineTableCaption(Vector(Markdown(RawMarkdownContent(inline.replace(maybeWholeMatch, "")))), maybeLabel.map(_._2))
-    }
+        MultilineTableCaption(Vector(Markdown(RawMarkdownContent(inline.replace(maybeWholeMatch, "")))), maybeLabel.map(_._2))
+      }
 
     val headRow: Option[MultilineTableRow] = parsedHead.
       map(_.map(inline => MultilineTableCell(Vector(Markdown(RawMarkdownContent(inline))))).toVector)
@@ -103,9 +106,9 @@ private[mdpeg] trait MultilineTablesRules {
     val indexes = " -".r.findAllMatchIn(widths).map(_.start + 1).toList
 
     val cells = rows.map(s => listSplit(indexes, s)) |>
-      transposeAnyShape |> {x =>
-        x.map(_.reduce(trimEndWithEnding(_) + EOL + _)).map(trimEndWithEnding)
-      }
+      transposeAnyShape |> { x =>
+      x.map(_.reduce(trimEndWithEnding(_) + EOL + _)).map(trimEndWithEnding)
+    }
 
     cells
   }

@@ -39,12 +39,7 @@ package object mdpeg {
     * @param s string to trim
     * @return end-trimmed string
     */
-  def trimEnd(s: String): String = s.
-    reverseIterator.
-    dropWhile(s => s == ' ').
-    toSeq.
-    reverseIterator.
-    mkString
+  def trimEnd(s: String): String = s.reverseIterator.dropWhile(s => s == ' ').toSeq.reverseIterator.mkString
 
   /**
     * Trims the end of the string, removes trailing cr/crlf
@@ -52,10 +47,8 @@ package object mdpeg {
     * @param s string to trim
     * @return end-trimmed string with no cr/crlf
     */
-  def trimEndWithEnding(s: String): String = s.
-    reverseIterator.
-    dropWhile(s => s == ' ' || s == '\r' || s == '\n').
-    toSeq.
+  def trimEndWithEnding(s: String): String = s.reverseIterator.
+    dropWhile(s => s == ' ' || s == '\r' || s == '\n').toSeq.
     reverseIterator.
     mkString
 

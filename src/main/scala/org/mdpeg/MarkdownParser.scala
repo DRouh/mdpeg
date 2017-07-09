@@ -1,6 +1,6 @@
 package org.mdpeg
 
-import org.mdpeg.ASTTransform.{AstTranformError, extractLinks, transformTree}
+import org.mdpeg.ASTTransform.{AstTransformError, extractLinks, transformTree}
 import org.mdpeg.OutputTransform.{HtmlContent, toHtml}
 import org.mdpeg.ast.Ast
 import org.mdpeg.parsers.BlockParser
@@ -16,7 +16,7 @@ object MarkdownParser {
     * @param input string content to be parsed
     * @return Either an array of fail messages or an AST (Abstract Syntax Tree)
     */
-  def parse(input: String): Either[Vector[AstTranformError], Ast] = {
+  def parse(input: String): Either[Vector[AstTransformError], Ast] = {
     val parser: BlockParser = new BlockParser(input)
     parser.InputLine.run() match {
       case Success(rawAstTree) =>

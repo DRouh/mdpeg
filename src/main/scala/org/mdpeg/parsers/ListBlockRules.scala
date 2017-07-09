@@ -19,20 +19,31 @@ private[mdpeg] trait ListBlockRules {
 
   def enumerator: Rule0 = rule(nonIndentSpace ~ Digit.+ ~ "." ~ sp.+)
 
-  def bulletListTight: Rule1[UnorderedList] = rule((bulletListItem.+ ~> toUnorderedList _) ~ blankLine.* ~ !bulletListSparse)
+  def bulletListTight: Rule1[UnorderedList] = rule {
+    (bulletListItem.+ ~> toUnorderedList _) ~ blankLine.* ~ !bulletListSparse
+  }
 
-  def orderedListTight: Rule1[OrderedList] = rule((orderedListItem.+ ~> toOrderedList _) ~ blankLine.* ~ !orderedListSparse)
+  def orderedListTight: Rule1[OrderedList] = rule {
+    (orderedListItem.+ ~> toOrderedList _) ~ blankLine.* ~ !orderedListSparse
+  }
 
   def bulletListSparse: Rule1[UnorderedList] = rule((bulletListItem ~ blankLine.*).+ ~> (toUnorderedList(_)))
 
   def orderedListSparse: Rule1[OrderedList] = rule((orderedListItem ~ blankLine.*).+ ~> (toOrderedList(_)))
 
-  def bulletListItem: Rule1[Vector[String]] = rule(!horizontalRule ~ bullet ~ capture(listBlock) ~ capture(listContinuationBlock.*) ~> (combinePreCont(_, _)))
+  def bulletListItem: Rule1[Vector[String]] =
+    rule(!horizontalRule ~ bullet ~ capture(listBlock) ~ capture(listContinuationBlock.*) ~> (combinePreCont(_, _)))
 
-  def orderedListItem: Rule1[Vector[String]] = rule(enumerator ~ capture(listBlock) ~ capture(listContinuationBlock.*) ~> (combinePreCont(_, _)))
+  def orderedListItem: Rule1[Vector[String]] =
+    rule(enumerator ~ capture(listBlock) ~ capture(listContinuationBlock.*) ~> (combinePreCont(_, _)))
 
   private def listBlock: Rule0 = rule {
-    anyLineList ~ (!(listIndent.? ~ (bulletListItem | orderedListItem)) ~ !blankLine ~ !(listIndent ~ (bullet | enumerator)) ~ optionallyIndentedLine).*
+    anyLineList ~
+      (!(listIndent.? ~ (bulletListItem | orderedListItem)) ~
+        !blankLine ~
+        !(listIndent ~ (bullet | enumerator)) ~
+        optionallyIndentedLine
+      ).*
   }
 
   // ToDo improve continuation to handle inner lists
@@ -46,9 +57,11 @@ private[mdpeg] trait ListBlockRules {
 
   private def halfIndent: Rule0 = rule("  ")
 
-  private def toUnorderedList(x: Seq[Vector[String]]) = UnorderedList(x.flatten.map(c => Markdown(RawMarkdownContent(c))).toVector)
+  private def toUnorderedList(x: Seq[Vector[String]]) =
+    UnorderedList(x.flatten.map(c => Markdown(RawMarkdownContent(c))).toVector)
 
-  private def toOrderedList(x: Seq[Vector[String]]) = OrderedList(x.flatten.map(c => Markdown(RawMarkdownContent(c))).toVector)
+  private def toOrderedList(x: Seq[Vector[String]]) =
+    OrderedList(x.flatten.map(c => Markdown(RawMarkdownContent(c))).toVector)
 
   private def combinePreCont(pre: String, cont: String): Vector[String] = (pre, cont) match {
     case ("", "") => Vector("")
