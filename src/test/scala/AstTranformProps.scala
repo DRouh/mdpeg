@@ -92,8 +92,23 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
     bqs <- Gen.listOf(BlockQuote(mds.toVector))
   } yield bqs
 
+  val uls: Gen[List[UnorderedList]] = for {
+    v <- Gen.choose(25, 75)
+    ps <-  Gen.resize(v / 3, plains)
+    mds <- Gen.resize(v / 2, markdowns)
+    uls <- genBoundedList(v, UnorderedList((ps ++ mds).toVector))
+  } yield uls
+
+  val ols: Gen[List[OrderedList]] = for {
+    v <- Gen.choose(25, 75)
+    ps <-  Gen.resize(v / 3, plains)
+    mds <- Gen.resize(v / 2, markdowns)
+    ols <- genBoundedList(v, OrderedList((ps ++ mds).toVector))
+  } yield ols
+
   // todo add the rest of the block types
   val rawAst: Gen[List[Block]] = for {
+    v <- Gen.choose(0, 25)
     ps <- plains
     pars <- paragraphs
     hs <- headers
@@ -102,7 +117,9 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
     rfbs <- refBlocks
     mds <- markdowns
     bqs <- blockQuotes
-  } yield ps ++ pars ++ hs ++ vbs ++ tbs ++ rfbs ++ mds ++ bqs
+    ulss <- Gen.resize(v,uls)
+    olss <- Gen.resize(v,ols)
+  } yield ps ++ pars ++ hs ++ vbs ++ tbs ++ rfbs ++ mds ++ bqs ++ ulss ++ olss
   property("For any list of Plain texts tree can be transformed") = forAll(plains) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Paragarphs tree can be transformed") = forAll(paragraphs) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Headers tree can be transformed") = forAll(headers) { i => ASTTransform.transformTree(i).isRight }
@@ -111,5 +128,7 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
   property("For any list of ReferenceBlock tree can be transformed") = forAll(refBlocks) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Markdown tree can be transformed") = forAll(markdowns) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of BlockQuotes tree can be transformed") = forAll(blockQuotes) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of Unordered list tree can be transformed") = forAll(uls) { i => ASTTransform.transformTree(i).isRight }
+  property("For any list of Ordered list tree can be transformed") = forAll(uls) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of any blocks tree can be transformed") = forAll(rawAst) { i => ASTTransform.transformTree(i).isRight }
 }
