@@ -1,24 +1,22 @@
 package org.mdpeg
 
-import org.mdpeg.ASTTransform.{FailureMessage, transformTree, extractLinks}
-import org.mdpeg.OutputTransform.{HtmlContent,toHtml}
+import org.mdpeg.ASTTransform.{AstTransformError, extractLinks, transformTree}
+import org.mdpeg.OutputTransform.{HtmlContent, toHtml}
+import org.mdpeg.ast.Ast
+import org.mdpeg.parsers.BlockParser
 import org.parboiled2.{ErrorFormatter, ParseError}
 
 import scala.util.{Failure, Success}
 
-/**
-  * Created by Dime Rouh on 01.07.2017.
-  */
 object MarkdownParser {
-  type FailMessage = String
-  type AST = Vector[Vector[Block]]
+  type HtmlTransformFail = String
 
   /**
     * Parses given input string
     * @param input string content to be parsed
     * @return Either an array of fail messages or an AST (Abstract Syntax Tree)
     */
-  def parse(input: String): Either[Vector[FailureMessage], AST] = {
+  def parse(input: String): Either[Vector[AstTransformError], Ast] = {
     val parser: BlockParser = new BlockParser(input)
     parser.InputLine.run() match {
       case Success(rawAstTree) =>
@@ -36,7 +34,7 @@ object MarkdownParser {
     * @param ast an AST (Abstract Syntax Tree)
     * @return an HTML content string
     */
-  def transformToHtml(ast: AST): Either[FailMessage, HtmlContent] =
+  def transformToHtml(ast: Ast): Either[HtmlTransformFail, HtmlContent] =
     try {
       Right(ast |> { t => (t |> extractLinks |> toHtml) (t) })
     }

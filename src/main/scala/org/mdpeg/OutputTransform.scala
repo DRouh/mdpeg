@@ -1,9 +1,10 @@
 package org.mdpeg
 
+import org.mdpeg.ast._
+
 import scala.compat.Platform.EOL
 
-object OutputTransform {
-  type ErrorMessage = String
+private[mdpeg] object OutputTransform {
   type HtmlContent = String
   type RawContent = String
   type HtmlTag = String
@@ -17,45 +18,45 @@ object OutputTransform {
   private def lookupInReferences(references: ReferenceMap)(lookup: InlineContent) =
     lookup |> toUpper |> references.get
 
-  def toHtml(references: ReferenceMap)(astTree: Vector[Vector[Block]]): HtmlContent = {
+  def toHtml(references: ReferenceMap)(astTree: Ast): HtmlContent = {
     val refs = references.map{ case (i, (s, oS)) => (i |> toUpper, (s, oS)) }.toMap
     astTree.map(processBlocks(refs)(_).mkString).mkString
   }
 
-  def toLatexInline(inline: String): RawContent = s"""<span lang="latex">${inline}</span>"""
+  private def toLatexInline(inline: String): RawContent = s"""<span lang="latex">$inline</span>"""
 
   private def inlineToHtml(references: ReferenceMap)(i: Inline): RawContent = i match {
-    case Code(inline) => inline |> encloseInTagsSimpleN("code")
+    case Code(CodeContent(inline)) => inline |> encloseInTagsSimpleN("code")
     case i @ Image(_, _, _) => i |> imageToHtml(references)
     case Strong(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("strong")
     case Italics(inline) => inline |> inlinesToHtml(references) |> encloseInTagsSimple("em")
     case l @ Link(_, _) => l |> linkToHtml(references)
     case Text(inline) => inline
-    case TexInline(inline) => toLatexInline(inline)
+    case TexInline(TexContent(inline)) => toLatexInline(inline)
     case Space => " "
     case LineBreak => selfClosingTagN("br")
   }
 
   private def imageToHtml(references: ReferenceMap)(i: Image): RawContent = {
     val Image(label, title, w) = i
-    val width = if (w.isDefined) s"""width="${w.get}%"""" else ""
+    val width = w.map(c => s"""width="$c%"""").getOrElse("")
     title match {
       case Src(uri, None) =>
         val alt = label |> inlinesToHtml(references)
-        s"""<img alt="${alt}" src="${uri}" ${width} />"""
-      case Src(uri, Some(title)) =>
+        s"""<img alt="$alt" src="$uri" $width />"""
+      case Src(uri, Some(t)) =>
         val alt = label |> inlinesToHtml(references)
-        s"""<img alt="${alt}" src="${uri}" title="${title}" ${width} />"""
+        s"""<img alt="$alt" src="$uri" title="$t" $width />"""
       case ShortcutRef =>
         label |> lookupInReferences(references) match {
-          case Some((uri, title)) => Image(label, Src(uri, title), w) |> imageToHtml(references)
+          case Some((uri, t)) => Image(label, Src(uri, t), w) |> imageToHtml(references)
           case None => (Vector(Text("![")) ++ label ++ Vector(Text("]"))) |> inlinesToHtml(references)
         }
-      case Ref(label, ref) =>
-        val r = if (label.isEmpty) label else label.toVector
+      case Ref(l, ref) =>
+        val r = if (l.isEmpty) l else l.toVector
         r |> lookupInReferences(references) match {
-          case Some((uri, title)) => Image(label, Src(uri, title), w) |> imageToHtml(references)
-          case None => (Vector(Text("![")) ++ label ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
+          case Some((uri, t)) => Image(l, Src(uri, t), w) |> imageToHtml(references)
+          case None => (Vector(Text("![")) ++ l ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
             inlinesToHtml(references)
         }
     }
@@ -63,10 +64,10 @@ object OutputTransform {
 
   private def linkToHtml(references: ReferenceMap)(link: Link) = {
     def toAnchor(uri: String) =
-      encloseInTags(s"""<a href="${uri}">""", "</a>") _
+      encloseInTags(s"""<a href="$uri">""", "</a>") _
 
     def toAnchorWithTitle(uri: String, title: String) =
-      encloseInTags(s"""<a href="${uri}"> title="${title}" """, "</a>") _
+      encloseInTags(s"""<a href="$uri"> title="$title" """, "</a>") _
 
     val Link(label, src) = link
     val content = label |> inlinesToHtml(references)
@@ -85,12 +86,12 @@ object OutputTransform {
           case None =>
             (Vector(Text("[")) ++ label ++ Vector(Text("]"))) |> inlinesToHtml(references)
         }
-      case Ref(label, ref) =>
-        val r = if (label.isEmpty) label else label.toVector
+      case Ref(l, ref) =>
+        val r = if (l.isEmpty) l else l.toVector
         r |> lookupInReferences(references) match {
           case Some((uri, None)) => content |> toAnchor(uri)
           case Some((uri, Some(title))) => content |> toAnchorWithTitle(uri, title)
-          case None => (Vector(Text("[")) ++ label ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
+          case None => (Vector(Text("[")) ++ l ++ Vector(Text("]" + ref + "[")) ++ r ++ Vector(Text("]"))) |>
             inlinesToHtml(references)
         }
     }
@@ -98,7 +99,7 @@ object OutputTransform {
 
   def toTexBlock(inline: String): HtmlContent =
     s"""<div lang="latex">
-      |${inline}
+      |$inline
       |</div>
       |""".stripMargin
 
@@ -110,7 +111,7 @@ object OutputTransform {
     case UnorderedList(inline) => inline |> unorderedListToHtml(references)
     case OrderedList(inline) => inline |> orderedListToHtml(references)
     case Verbatim(inline) => inline |> encloseInTagsSimpleN("pre")
-    case TexBlock(inline) => toTexBlock(inline)
+    case TexBlock(TexContent(inline)) => toTexBlock(inline)
     case ReferenceBlock(_, _) => ""
     case HorizontalRuleBlock => selfClosingTagN("hr")
     case table @ MultilineTableBlock(_, _, _, _) => table |> tableToHtml(references)
@@ -141,7 +142,7 @@ object OutputTransform {
     inline |> processBlocks(references) |> (_.mkString) |> encloseInTagsSimpleN("blockquote")
 
   private def tableCaptionToHtml(references: ReferenceMap)(caption: MultilineTableCaption) = {
-    val MultilineTableCaption(inline, label) = caption // ToDo use label?
+    val MultilineTableCaption(inline, _) = caption // ToDo use label?
     inline |> processBlocks(references) |> (_.mkString) |> encloseInTagsSimpleN("caption")
   }
 
@@ -167,9 +168,9 @@ object OutputTransform {
       encloseInTagsSimpleN("tbody")
 
     val colgroup = relativeWidth.
-      map(w => selfClosingTagN(s"""col width="${w}%"""")).mkString |>
+      map(w => selfClosingTagN(s"""col width="$w%"""")).mkString |>
       encloseInTagsSimpleN("colgroup")
-    s"""${maybeCaption}${colgroup}${maybeHead}${tableBody}""" |> tableWrapper
+    s"""$maybeCaption$colgroup$maybeHead$tableBody""" |> tableWrapper
   }
 
   private def tableWrapper(content: String) =

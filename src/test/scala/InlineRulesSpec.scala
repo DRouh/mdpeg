@@ -1,8 +1,9 @@
-import org.mdpeg._
+package org.mdpeg
+
+import org.mdpeg.ast._
+import org.mdpeg.parsers.{InlineRules, PrimitiveRules}
 import org.parboiled2._
 import org.scalatest.{FlatSpec, Matchers}
-
-import scala.util.{Failure, Success}
 
 class InlineRulesSpec extends FlatSpec with Matchers {
 
@@ -139,12 +140,12 @@ class InlineRulesSpec extends FlatSpec with Matchers {
 
   it should "parse an inline code" in {
     val term = "`this is code{}!@#$%^&*()\r\n`"
-    new InlineRulesTestSpec(term).inline.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
+    new InlineRulesTestSpec(term).inline.run().get shouldEqual Code(CodeContent("this is code{}!@#$%^&*()\r\n"))
   }
 
   it should "parse an inline code with 10 ticks" in {
     val term = "``````````this is code{}!@#$%^&*()\r\n``````````"
-    new InlineRulesTestSpec(term).inline.run().get shouldEqual Code("this is code{}!@#$%^&*()\r\n")
+    new InlineRulesTestSpec(term).inline.run().get shouldEqual Code(CodeContent("this is code{}!@#$%^&*()\r\n"))
   }
 
   it should "parse a line break" in {
@@ -154,6 +155,6 @@ class InlineRulesSpec extends FlatSpec with Matchers {
 
   it should "parse a tex inline" in {
     val term = """$$\frac{1+sin(x)} {y}$$"""
-    new InlineRulesTestSpec(term).texInline.run().get shouldEqual TexInline("""\frac{1+sin(x)} {y}""")
+    new InlineRulesTestSpec(term).texInline.run().get shouldEqual TexInline(TexContent("""\frac{1+sin(x)} {y}"""))
   }
 }

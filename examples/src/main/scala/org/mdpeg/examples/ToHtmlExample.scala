@@ -17,7 +17,7 @@ object ToHtmlExample extends App {
         case Left(error) => println(error) // error case
         case Right(html) =>
           //write the HTML to the output file
-          new PrintWriter(outputHtmlFilePath) { write(html); close }
+          new PrintWriter(outputHtmlFilePath) { write(html); close() }
       }
   }
 }
