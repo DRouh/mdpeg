@@ -93,21 +93,21 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
   } yield bqs
 
   val uls: Gen[List[UnorderedList]] = for {
-    v <- Gen.choose(25, 75)
+    v <- Gen.choose(0, 75)
     ps <-  Gen.resize(v / 3, plains)
     mds <- Gen.resize(v / 2, markdowns)
     uls <- genBoundedList(v, UnorderedList((ps ++ mds).toVector))
   } yield uls
 
   val ols: Gen[List[OrderedList]] = for {
-    v <- Gen.choose(25, 75)
+    v <- Gen.choose(0, 75)
     ps <-  Gen.resize(v / 3, plains)
     mds <- Gen.resize(v / 2, markdowns)
     ols <- genBoundedList(v, OrderedList((ps ++ mds).toVector))
   } yield ols
 
   val multiTables: Gen[List[MultilineTableBlock]] = for {
-    v <- Gen.choose(0, 27)
+    v <- Gen.choose(0, 17)
     rw <- Gen.listOf(Gen.choose(Float.MinValue, Float.MaxValue))
     label <- Arbitrary.arbitrary[Option[String]]
     mds <- markdowns
@@ -118,7 +118,6 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
     tbs <- genBoundedList(v, MultilineTableBlock(rw.toVector, caption, head, body.toVector))
   } yield tbs
 
-  // todo add the rest of the block types
   val rawAst: Gen[List[Block]] = for {
     v <- Gen.choose(0, 25)
     ps <- plains
@@ -131,7 +130,8 @@ object AstTranformProps extends Properties("Ast Tranform properties") {
     bqs <- blockQuotes
     ulss <- Gen.resize(v,uls)
     olss <- Gen.resize(v,ols)
-  } yield ps ++ pars ++ hs ++ vbs ++ tbs ++ rfbs ++ mds ++ bqs ++ ulss ++ olss
+    mls <- Gen.resize(v, multiTables)
+  } yield ps ++ pars ++ hs ++ vbs ++ tbs ++ rfbs ++ mds ++ bqs ++ ulss ++ olss ++ mls
   property("For any list of Plain texts tree can be transformed") = forAll(plains) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Paragarphs tree can be transformed") = forAll(paragraphs) { i => ASTTransform.transformTree(i).isRight }
   property("For any list of Headers tree can be transformed") = forAll(headers) { i => ASTTransform.transformTree(i).isRight }
