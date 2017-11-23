@@ -85,7 +85,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
          |${TestData.codeBlock}
          |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
-    parsed shouldEqual Verbatim(TestData.codeBlock)
+    parsed shouldEqual Verbatim(TestData.codeBlock, None)
   }
 
   it should "parse a Verbatim with long spaces" in {
@@ -94,7 +94,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
          |${TestData.codeBlock2}
          |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
-    parsed shouldEqual Verbatim(TestData.codeBlock2)
+    parsed shouldEqual Verbatim(TestData.codeBlock2, None)
   }
 
   it should "parse a JSON like Verbatim" in {
@@ -103,7 +103,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
          |${TestData.codeBlock3}
          |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
-    parsed shouldEqual Verbatim(TestData.codeBlock3)
+    parsed shouldEqual Verbatim(TestData.codeBlock3, None)
   }
 
   it should "parse a Verbatim with blank lines, comments, spaces" in {
@@ -112,7 +112,26 @@ class BlockParserSpec extends FlatSpec with Matchers {
          |${TestData.codeBlock4}
          |```""".stripMargin
     val parsed = new BlockParser(term).verbatim.run().get
-    parsed shouldEqual Verbatim(TestData.codeBlock4)
+    parsed shouldEqual Verbatim(TestData.codeBlock4, None)
+  }
+
+  it should "parse a Verbatim along with syntax name" in {
+    val term =
+      s"""```pseudo language
+         |${TestData.codeBlock2}
+         |```""".stripMargin
+    val parsed = new BlockParser(term).verbatim.run().get
+    parsed shouldEqual Verbatim(TestData.codeBlock2, Some("pseudo language"))
+  }
+
+  it should "parse a Verbatim along with syntax surrounded by whitespaces" in {
+    val syntaxName = " \t pseudo language \t "
+    val term =
+      s"""```$syntaxName
+         |${TestData.codeBlock2}
+         |```""".stripMargin
+    val parsed = new BlockParser(term).verbatim.run().get
+    parsed shouldEqual Verbatim(TestData.codeBlock2, Some("pseudo language"))
   }
 
   it should "parse a reference with title" in {
@@ -159,7 +178,7 @@ class BlockParserSpec extends FlatSpec with Matchers {
       HorizontalRuleBlock,
       ExpectedTestResults.blockQuote,
       HorizontalRuleBlock,
-      Verbatim(TestData.codeBlock4),
+      Verbatim(TestData.codeBlock4, None),
       ExpectedTestResults.plainTextCompound,
       ExpectedTestResults.texBlock1,
       ExpectedTestResults.unorderedList,

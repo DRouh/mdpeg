@@ -1,7 +1,6 @@
 package org
 
 import org.mdpeg.ast.{Inline, MultilineTableCell}
-import org.mdpeg.util.{Pipe, StringSplitToTuple}
 
 import scala.language.postfixOps
 import scala.language.implicitConversions
@@ -61,7 +60,18 @@ package object mdpeg {
     rest :: result
   }
 
-  implicit def toPipe[A](a: A): Pipe[A] = Pipe(a)
+  private[mdpeg] implicit class Pipe[A](val a: A) extends AnyVal {
+    def |>[B](f: A => B) = f(a)
+  }
 
-  implicit def splitToTuple(str: String): StringSplitToTuple = new StringSplitToTuple(str)
+  private[mdpeg] implicit class StringSplitToTuple(val s: String) extends AnyVal {
+    def splitToTuple(pattern: String): (String, String) = {
+      s.split(pattern) match {
+        case Array(str1, str2) => (str1, str2)
+        case Array(str1) => (str1, "")
+        case _ => sys.error("Split array contains too many elements")
+      }
+    }
+  }
+
 }

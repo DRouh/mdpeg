@@ -1,6 +1,6 @@
 package org.mdpeg.parsers
 
-import org.mdpeg.toPipe
+import org.mdpeg.Pipe
 import org.mdpeg.ast._
 import org.parboiled2._
 

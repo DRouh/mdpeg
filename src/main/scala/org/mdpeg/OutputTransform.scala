@@ -110,7 +110,7 @@ private[mdpeg] object OutputTransform {
     case BlockQuote(inline) => inline |> blockQuoteToHtml(references)
     case UnorderedList(inline) => inline |> unorderedListToHtml(references)
     case OrderedList(inline) => inline |> orderedListToHtml(references)
-    case Verbatim(inline) => inline |> encloseInTagsSimpleN("pre")
+    case Verbatim(inline, _) => inline |> encloseInTagsSimpleN("pre")
     case TexBlock(TexContent(inline)) => toTexBlock(inline)
     case ReferenceBlock(_, _) => ""
     case HorizontalRuleBlock => selfClosingTagN("hr")

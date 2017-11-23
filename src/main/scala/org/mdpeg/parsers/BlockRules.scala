@@ -1,8 +1,9 @@
 package org.mdpeg.parsers
 
 import org.mdpeg.ast._
-import org.mdpeg.toPipe
+import org.mdpeg.Pipe
 import org.mdpeg.trimEndWithEnding
+import org.parboiled2.CharPredicate.AlphaNum
 import org.parboiled2.{Parser, Rule1}
 
 private[mdpeg] trait BlockRules {
@@ -15,7 +16,11 @@ private[mdpeg] trait BlockRules {
 
     def contents = rule((nl ~ !bound | anyCharVerbatim.+).+)
 
-    rule(bound ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> Verbatim)
+    def syntaxChar = rule(atomic(AlphaNum | anyOf("_\"[]{}()^%@#$:;,.?!’“”—=/\\*-+<>")))
+
+    def syntax = rule(sps ~ capture((syntaxChar | sps ~ syntaxChar).+) ~ sps)
+
+    rule(bound ~ syntax.? ~ nl ~ capture(contents) ~ nl ~ bound ~ blankLine.* ~> ((s: Option[String], c: String) => Verbatim(c, s)))
   }
 
   def tex: Rule1[TexBlock] = {

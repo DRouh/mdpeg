@@ -31,4 +31,4 @@ final case class TexBlock(inline: TexContent) extends Block
 
 final case class UnorderedList(inline: Vector[Block]) extends Block
 
-final case class Verbatim(inline: String) extends Block
+final case class Verbatim(inline: String, syntax: Option[String]) extends Block
