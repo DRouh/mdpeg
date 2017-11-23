@@ -22,19 +22,10 @@ private[mdpeg] object ASTTransform {
   }
 
   def extractLinks(tree: Ast): Map[InlineContent, (String, Option[String])] = {
-    tree.
-      flatten.
-      filter {
-        case ReferenceBlock(_, Src(_, _)) => true
-        case otherwise => false
-      }.
-      map {
-        case ReferenceBlock(l, Src(s, t)) => (l, (s, t))
-        case othwerwise => sys.error("Not reachable")
-      }.
-      groupBy(_._1).
-      flatMap { case (key, values) =>  for {h <- values.headOption.map(_._2)} yield (key, h) }.
-      toMap
+    tree
+      .flatten.collect { case ReferenceBlock(k, s: Src) => k -> s }
+      .groupBy(_._1)
+      .flatMap { case (key, values) => for (h <- values.headOption.map(_._2)) yield (key, (h.uri, h.title)) }
   }
 
   private def liftV(b: Block) = Vector(b)
