@@ -1,7 +1,7 @@
 package org.mdpeg.parsers
 
 import org.mdpeg.ast._
-import org.mdpeg.toPipe
+import org.mdpeg.Pipe
 import org.mdpeg.trimEndWithEnding
 import org.parboiled2.CharPredicate.AlphaNum
 import org.parboiled2.{Parser, Rule1}
